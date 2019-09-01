@@ -1,0 +1,76 @@
+.player {
+    background-color: #eee;
+    border-radius: 4px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 16px;
+}
+
+.pauseProgress {
+    position: relative;
+    font-size: 12px;
+    line-height: 20px;
+    height: 20px;
+
+    .pauseCountDown {
+        position: absolute;
+        right: 30px;
+        top: 8px;
+    }
+
+    mat-spinner {
+        position: absolute;
+        right: 0;
+        top: 8px;
+    }
+}
+
+.song {
+    position: relative;
+    font-size: 12px;
+    line-height: 25px;
+    color: #fff;
+
+    .title {
+        position: absolute;
+        left: 0;
+        top: 0;
+        padding: 0 10px;
+    }
+
+    .selectNewSong,
+    .testSong,
+    .playFromSong {
+        position: absolute;
+        top: 0;
+        width: 25px;
+        height: 25px;
+
+        mat-icon {
+            font-size: 18px;
+            line-height: 25px;
+            margin-top: -18px;
+        }
+    }
+
+    .selectNewSong {
+        right: 10px;
+    }
+
+    .testSong {
+        right: 40px;
+    }
+
+    .playFromSong {
+        right: 70px;
+    }
+
+    .mat-icon-button[disabled][disabled] {
+        color: rgba(255, 255, 255, 0.3);
+    }
+}
+
+mat-progress-bar {
+    height: 25px;
+    margin-bottom: 5px;
+}

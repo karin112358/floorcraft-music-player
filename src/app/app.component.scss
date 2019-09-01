@@ -1,0 +1,30 @@
+.fill-space {
+    /* This fills the remaining space, by using flexbox. 
+       Every toolbar row uses a flexbox row layout. */
+    flex: 1 1 auto;
+}
+
+.content {
+    padding: 32px;
+}
+
+mat-toolbar {
+    background-color: #c62828;
+    color: #fff;
+    text-transform: uppercase;
+
+    a {
+        color: #fff;
+        font-size: 14px;
+        text-decoration: none;
+        margin-right: 24px;
+        padding: 8px 12px;
+        border-radius: 4px;
+
+        &.active {
+            background-color: #fff;
+            color: #c62828;
+
+        }
+    }
+}

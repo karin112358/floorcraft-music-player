@@ -1,0 +1,65 @@
+<div *ngIf="settings">
+    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
+        <div fxFlex="100">
+            <mat-form-field>
+                <input matInput [readonly]=true type="text" placeholder="Playlist Folder"
+                    [(ngModel)]="settings.playlistFolder">
+            </mat-form-field>
+        </div>
+        <div fxFlex="auto">
+            <button mat-flat-button color="primary" (click)="folderInput.click()">Select playlist</button>
+            <input hidden type="file" webkitdirectory #folderInput (change)="folderChanged($event)" />
+        </div>
+    </div>
+
+    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
+        <div fxFlex="50">
+            <mat-form-field>
+                <mat-select placeholder="Intro" (selectionChange)="playlistSelectionChanged($event)"
+                    [(value)]="settings.defaultPlaylistsPerDance.Intro">
+                    <mat-option *ngFor="let item of settings.playlists" [value]="item">
+                        {{item}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div fxFlex="50">
+            <mat-form-field>
+                <mat-select placeholder="Finish" (selectionChange)="playlistSelectionChanged($event)"
+                    [(value)]="settings.defaultPlaylistsPerDance.Finish">
+                    <mat-option *ngFor="let item of settings.playlists" [value]="item">
+                        {{item}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
+
+    <h2>Standard</h2>
+
+    <div *ngFor="let dance of settings.getDancesPerCategory(categories[0])">
+        <mat-form-field>
+            <mat-select placeholder="{{settings.getDanceFriendlyName(dance)}}"
+                (selectionChange)="playlistSelectionChanged($event)"
+                [(value)]="settings.defaultPlaylistsPerDance[dance]">
+                <mat-option *ngFor="let item of settings.playlists" [value]="item">
+                    {{item}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+
+    <h2>Latin</h2>
+
+    <div *ngFor="let dance of settings.getDancesPerCategory(categories[1])">
+        <mat-form-field>
+            <mat-select placeholder="{{settings.getDanceFriendlyName(dance)}}"
+                (selectionChange)="playlistSelectionChanged($event)"
+                [(value)]="settings.defaultPlaylistsPerDance[dance]">
+                <mat-option *ngFor="let item of settings.playlists" [value]="item">
+                    {{item}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+</div>
