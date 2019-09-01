@@ -1,4 +1,7 @@
 <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
+    <div *ngFor="let slot of slots; let i = index">
+        <h2>{{settings.getDanceFriendlyName(slot.dance)}}</h2>
+    </div>
     <div>
         Add Slot
     </div>

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Slot } from '../shared/models/slot';
+import { Dance } from '../shared/models/dance';
 
 @Component({
   selector: 'app-training-player',
@@ -12,6 +13,7 @@ export class TrainingPlayerComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+    this.slots.push({ dance: Dance.Slowfox, playlist: null, items: [] });
   }
 
 }
