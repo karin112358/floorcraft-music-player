@@ -25,10 +25,17 @@ $app-theme: mat-light-theme($app-primary, $app-accent, $app-warn);
 // that you are using.
 @include angular-material-theme($app-theme);
 
+html {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
 body {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     padding: 0;
     margin: 0;
+    height: 100%;
 }
 
 h1 {

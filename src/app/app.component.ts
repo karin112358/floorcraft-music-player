@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+
 import { SettingsService } from './shared/services/settings.service';
 
 @Component({
@@ -7,11 +9,12 @@ import { SettingsService } from './shared/services/settings.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  constructor(public settings: SettingsService) {
+  constructor(public settings: SettingsService, private router: Router) {
     
   }
 
   async ngOnInit() {
-    await this.settings.initialize()
+    await this.settings.initialize();
+    this.router.navigate(['']);
   }
 }

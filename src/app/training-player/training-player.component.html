@@ -1,8 +1,47 @@
-<div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
+<div gdColumns="minmax(auto, 450px)!" gdAreas="a a a" gdGap="16px" class="slots">
+
     <div *ngFor="let slot of slots; let i = index">
-        <h2>{{settings.getDanceFriendlyName(slot.dance)}}</h2>
+        <div class="slot">
+            <div fxLayout="row" fxLayoutAlign="end center">
+                <div>
+                    <button mat-mini-fab color="primary" (click)="removeSlot(slot)">
+                        <mat-icon>clear</mat-icon>
+                    </button>
+                </div>
+            </div>
+            <h2>{{settings.getDanceFriendlyName(slot.dance)}}{{slot.playlist}}</h2>
+        </div>
     </div>
+
+    <!-- add new slot -->
     <div>
-        Add Slot
+        <div class="slot">
+            <h2>Add Playlist</h2>
+
+            <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
+                <button mat-flat-button *ngFor="let dance of settings.getDancesPerCategory(0); let i = index"
+                    (click)="addSlot(dance, null)">
+                    {{settings.getDanceShortName(dance)}}
+                </button>
+            </div>
+
+            <div>
+                <mat-form-field class="example-full-width">
+                    <input type="text" placeholder="Select playlist" matInput [matAutocomplete]="playlistSelect"
+                        (keyup)="updateFilter($event)" [(ngModel)]="playlistFilterValue">
+                    <mat-autocomplete #playlistSelect="matAutocomplete" (optionSelected)="addSlot(null, playlist)">
+                        <mat-option *ngFor="let option of filteredPlaylists | async" [value]="option">
+                            {{option}}
+                        </mat-option>
+                    </mat-autocomplete>
+                </mat-form-field>
+            </div>
+
+            <div>
+                <button mat-flat-button color="primary">
+                    <mat-icon>add</mat-icon> Add
+                </button>
+            </div>
+        </div>
     </div>
 </div>

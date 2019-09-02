@@ -6,10 +6,12 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatIconModule } from '@angular/material/icon';
 import { NgxElectronModule } from 'ngx-electron';
 
@@ -31,8 +33,10 @@ import { TrainingPlayerComponent } from './training-player/training-player.compo
     BrowserAnimationsModule,
     MatInputModule,
     MatButtonModule,
+    MatButtonToggleModule,
     MatToolbarModule,
     MatProgressBarModule,
+    MatAutocompleteModule,
     MatIconModule,
     MatSelectModule,
     MatProgressSpinnerModule,

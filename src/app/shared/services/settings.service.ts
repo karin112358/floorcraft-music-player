@@ -10,7 +10,7 @@ import { retry } from 'rxjs/operators';
 })
 export class SettingsService {
   public initialized = false;
-  public playlists: string[];
+  public playlists: string[] = [];
   public defaultPlaylistsPerDance: any = {};
 
   get playlistFolder(): string {
@@ -60,8 +60,6 @@ export class SettingsService {
         this.defaultPlaylistsPerDance[property] = defaultPlaylistsPerDance[property];
       });
     }
-
-    console.log(this.defaultPlaylistsPerDance);
 
     this.initialized = true;
   }
@@ -127,6 +125,47 @@ export class SettingsService {
         break;
       case Dance.Finish:
         return 'Finish';
+        break;
+    }
+  }
+
+  public getDanceShortName(dance: Dance): string {
+    switch (dance) {
+      case Dance.Intro:
+        return 'INT';
+        break;
+      case Dance.EnglishWaltz:
+        return 'EW';
+        break;
+      case Dance.Tango:
+        return 'TG';
+        break;
+      case Dance.VienneseWaltz:
+        return 'VW';
+        break;
+      case Dance.Slowfox:
+        return 'SF';
+        break;
+      case Dance.Quickstep:
+        return 'QS';
+        break;
+      case Dance.Samba:
+        return 'SB';
+        break;
+      case Dance.ChaChaCha:
+        return 'CC';
+        break;
+      case Dance.Rumba:
+        return 'RU';
+        break;
+      case Dance.PasoDoble:
+        return 'PD';
+        break;
+      case Dance.Jive:
+        return 'JI';
+        break;
+      case Dance.Finish:
+        return 'FIN';
         break;
     }
   }
