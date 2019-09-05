@@ -4,6 +4,8 @@ import { LocalStorage } from '@ngx-pwa/local-storage';
 import { Category } from '../models/category';
 import { Dance } from '../models/dance';
 import { retry } from 'rxjs/operators';
+import { PlaylistItem } from '../models/playlist-item';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +25,7 @@ export class SettingsService {
 
   private _playlistFolder: string;
   private resolveLoadPlaylists: (value?: unknown) => void;
+  private resolveReadPlaylist: (value?: unknown) => void;
 
   private constructor(private localStorage: LocalStorage, private electronService: ElectronService) {
     // handle ipc callbacks
@@ -34,6 +37,21 @@ export class SettingsService {
         this.resolveLoadPlaylists();
         this.resolveLoadPlaylists = null;
       }
+    });
+
+    this.electronService.ipcRenderer.on('playlistRead', (event, dance: Dance, playlist: any) => {
+      console.log('playlist read', dance, playlist);
+      let response = null;
+
+      if (this.resolveReadPlaylist && playlist && playlist.smil.body) {
+        if (Array.isArray(playlist.smil.body.seq.media)) {
+          response = playlist.smil.body.seq.media.filter(m => !m.attributes.src.endsWith('.wma') && m.attributes.exists);
+        } else if (!playlist.smil.body.seq.media.attributes.src.endsWith('.wma') && playlist.smil.body.seq.media.attributes.exists) {
+          response = [playlist.smil.body.seq.media];
+        }
+      }
+
+      this.resolveReadPlaylist(response);
     });
   }
 
@@ -85,6 +103,58 @@ export class SettingsService {
       return [Dance.EnglishWaltz, Dance.Tango, Dance.VienneseWaltz, Dance.Slowfox, Dance.Quickstep];
     } else if (category === Category.Latin) {
       return [Dance.Samba, Dance.ChaChaCha, Dance.Rumba, Dance.PasoDoble, Dance.Jive];
+    }
+  }
+
+  /**
+ * Saves all settings in local storage.
+ */
+  public async save() {
+    const promise = new Promise((resolve, reject) => {
+      this.localStorage.setItem('playlistFolder', this.playlistFolder).subscribe(() => {
+        this.localStorage.setItem('defaultPlaylistsPerDance', this.defaultPlaylistsPerDance).subscribe(() => {
+          resolve();
+        });
+      });
+    });
+
+    return promise;
+  }
+
+  /**
+   * Get all items per playlist.
+   * @param playlist 
+   */
+  public async getPlaylistItems(dance: Dance, playlistName: string): Promise<PlaylistItem[]> {
+    const promise = new Promise<PlaylistItem[]>((resolve, reject) => {
+      if (!playlistName && dance) {
+        playlistName = this.defaultPlaylistsPerDance[dance];
+      }
+
+      this.resolveReadPlaylist = resolve;
+      this.electronService.ipcRenderer.send('readPlaylist', dance, this._playlistFolder, playlistName);
+    });
+
+    return promise;
+  }
+
+  /**
+   * Gets the filename from a path.
+   * @param path 
+   */
+  public getFilename(path: string) {
+    return path.split('\\').pop();
+  }
+
+  /**
+   * Gets the absolute path of a playlist item.
+   * @param src
+   */
+  public getAbsolutePath(src: string) {
+    if (src.startsWith('..\\')) {
+      return this.playlistFolder + '\\' + src;
+    } else {
+      return src;
     }
   }
 
@@ -168,20 +238,5 @@ export class SettingsService {
         return 'FIN';
         break;
     }
-  }
-
-  /**
-   * Saves all settings in local storage.
-   */
-  public async save() {
-    const promise = new Promise((resolve, reject) => {
-      this.localStorage.setItem('playlistFolder', this.playlistFolder).subscribe(() => {
-        this.localStorage.setItem('defaultPlaylistsPerDance', this.defaultPlaylistsPerDance).subscribe(() => {
-          resolve();
-        });
-      });
-    });
-
-    return promise;
   }
 }

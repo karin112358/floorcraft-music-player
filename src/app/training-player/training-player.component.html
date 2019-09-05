@@ -1,47 +1,95 @@
-<div gdColumns="minmax(auto, 450px)!" gdAreas="a a a" gdGap="16px" class="slots">
+<!-- add new slot -->
+<div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between" class="new-slot">
+    <div class="add-text">Add dance</div>
+    <div *ngFor="let dance of settings.getDancesPerCategory(0); let i = index">
+        <button mat-flat-button color="primary" (click)="addSlot(dance, null)">
+            {{settings.getDanceShortName(dance)}}
+        </button>
+    </div>
+    <div fxFlex="100%"></div>
+    <div>
+        <mat-form-field class="example-full-width">
+            <input type="text" placeholder="Select playlist" matInput [matAutocomplete]="playlistSelect"
+                (keyup)="updateFilter($event)" [(ngModel)]="playlistFilterValue">
+            <mat-autocomplete #playlistSelect="matAutocomplete" (optionSelected)="addSlot(null, $event.option.value)">
+                <mat-option *ngFor="let option of filteredPlaylists | async" [value]="option">
+                    {{option}}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+    </div>
 
-    <div *ngFor="let slot of slots; let i = index">
-        <div class="slot">
-            <div fxLayout="row" fxLayoutAlign="end center">
+    <div>
+        <button mat-flat-button color="primary">
+            <mat-icon>add</mat-icon> Add playlist
+        </button>
+    </div>
+</div>
+
+<div gdColumns="minmax(auto, 450px)!" gdAreas="a a a a a a a" gdGap="16px" class="slots">
+    <div *ngFor="let slot of slots; let index = index">
+        <div class="slot" [ngClass]="{'active': index == currentSlotIndex}">
+            <div fxLayout="row">
+                <div>
+                    <h2>{{settings.getDanceFriendlyName(slot.dance)}}{{slot.playlistName}}</h2>
+                </div>
+                <div fxFlex="100%"></div>
                 <div>
                     <button mat-mini-fab color="primary" (click)="removeSlot(slot)">
                         <mat-icon>clear</mat-icon>
                     </button>
                 </div>
             </div>
-            <h2>{{settings.getDanceFriendlyName(slot.dance)}}{{slot.playlist}}</h2>
+
+            <mat-selection-list (selectionChange)="toggleSelection($event)">
+                <mat-list-option *ngFor="let song of slot.items; let songIndex = index" [value]="song"
+                    [selected]="!song.isDisabled" [ngClass]="{'active': songIndex == slot.currentSongIndex}">
+                    <div>{{settings.getFilename(song.configuration.attributes.src)}}</div>
+                </mat-list-option>
+            </mat-selection-list>
         </div>
     </div>
+</div>
 
-    <!-- add new slot -->
-    <div>
-        <div class="slot">
-            <h2>Add Playlist</h2>
+<div *ngIf="slots.length > 0" class="player">
+    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
+        <div>
+            <button mat-flat-button [disabled]="isPlaying" color="primary" (click)="play()">
+                <mat-icon>play_arrow</mat-icon> Play
+            </button>
+        </div>
+        <div>
+            <button mat-flat-button [disabled]="!isPlaying" (click)="next()">
+                <mat-icon>skip_next</mat-icon>Next
+            </button>
+        </div>
 
-            <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
-                <button mat-flat-button *ngFor="let dance of settings.getDancesPerCategory(0); let i = index"
-                    (click)="addSlot(dance, null)">
-                    {{settings.getDanceShortName(dance)}}
-                </button>
+        <!-- <div>
+            <button *ngIf="practiceConfigured" mat-flat-button [disabled]="isPaused || !isPlaying" (click)="pause()">
+                <mat-icon>pause</mat-icon>Pause
+            </button>
+        </div>-->
+        <div>
+            <button mat-flat-button [disabled]="!isPlaying" (click)="stop()">
+                <mat-icon>stop</mat-icon>Stop
+            </button>
+        </div>
+        <!--<div>
+            <button *ngIf="practiceConfigured" mat-flat-button [disabled]="isPlaying" (click)="play(true)">
+                <mat-icon>volume_up</mat-icon> Preview
+            </button>
+        </div>
+        <div fxFlex="100%"></div>
+        <div>
+            <div class="pauseProgress">
+                <div [hidden]="pauseProgress == 0">
+                    <div class="pauseCountDown">{{pauseDuration - pauseProgress | number:'1.0-0'}}</div>
+                    <mat-spinner diameter="20" strokeWidth="4"></mat-spinner>
+                </div>
             </div>
-
-            <div>
-                <mat-form-field class="example-full-width">
-                    <input type="text" placeholder="Select playlist" matInput [matAutocomplete]="playlistSelect"
-                        (keyup)="updateFilter($event)" [(ngModel)]="playlistFilterValue">
-                    <mat-autocomplete #playlistSelect="matAutocomplete" (optionSelected)="addSlot(null, playlist)">
-                        <mat-option *ngFor="let option of filteredPlaylists | async" [value]="option">
-                            {{option}}
-                        </mat-option>
-                    </mat-autocomplete>
-                </mat-form-field>
-            </div>
-
-            <div>
-                <button mat-flat-button color="primary">
-                    <mat-icon>add</mat-icon> Add
-                </button>
-            </div>
+        </div> -->
+        <div fxFlex="100%"></div>
+        <div>
         </div>
     </div>
 </div>

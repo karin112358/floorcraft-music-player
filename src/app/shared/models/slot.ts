@@ -3,12 +3,13 @@ import { PlaylistItem } from './playlist-item';
 
 export class Slot {
     public dance: Dance;
-    public playlist: string;
+    public playlistName: string;
     public items: PlaylistItem[];
+    public currentSongIndex = 0;
 
-    constructor(dance: Dance, playlist: string) {
+    constructor(dance: Dance, playlistName: string) {
         this.dance = dance;
-        this.playlist = playlist;
+        this.playlistName = playlistName;
         this.items = [];
     }
 }

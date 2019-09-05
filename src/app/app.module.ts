@@ -12,6 +12,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { NgxElectronModule } from 'ngx-electron';
 
@@ -40,6 +41,7 @@ import { TrainingPlayerComponent } from './training-player/training-player.compo
     MatIconModule,
     MatSelectModule,
     MatProgressSpinnerModule,
+    MatListModule,
     FormsModule,
     BrowserModule,
     NgxElectronModule,

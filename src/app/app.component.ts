@@ -15,6 +15,6 @@ export class AppComponent implements OnInit {
 
   async ngOnInit() {
     await this.settings.initialize();
-    this.router.navigate(['']);
+    this.router.navigate(['training']);
   }
 }

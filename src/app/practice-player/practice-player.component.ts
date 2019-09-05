@@ -41,31 +41,24 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
       // TODO: handle errors
       console.error(event);
     };
-
-    this.electronService.ipcRenderer.on('playlistRead', (event, dance: Dance, playlist: any) => {
-      if (playlist && playlist.smil.body) {
-        if (Array.isArray(playlist.smil.body.seq.media)) {
-          this.practicePlaylistsSongs[dance] = playlist.smil.body.seq.media.filter(m => !m.attributes.src.endsWith('.wma') && m.attributes.exists);
-        } else if (!playlist.smil.body.seq.media.attributes.src.endsWith('.wma') && playlist.smil.body.seq.media.attributes.exists) {
-          this.practicePlaylistsSongs[dance] = [playlist.smil.body.seq.media];
-        }
-      }
-    });
-
-
-    this.localStorage.getItem<string>('playlistFolder').subscribe((playlistFolder: any) => {
-      if (playlistFolder) {
-        this.playlistFolder = playlistFolder;
-        this.electronService.ipcRenderer.send('readPlaylist', Dance.Intro, playlistFolder, this.settings.defaultPlaylistsPerDance.Intro);
-        this.settings.getDancesPerCategory(Category.Standard).forEach((dance) => {
-          this.electronService.ipcRenderer.send('readPlaylist', dance, playlistFolder, this.settings.defaultPlaylistsPerDance[dance]);
-        });
-        this.electronService.ipcRenderer.send('readPlaylist', Dance.Finish, playlistFolder, this.settings.defaultPlaylistsPerDance.Finish);
-      }
-    });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    const playlistFolder: string = <string>(await this.localStorage.getItem<string>('playlistFolder').toPromise());
+
+    if (playlistFolder) {
+      console.log('playlistFolder read');
+      this.playlistFolder = playlistFolder;
+
+      this.practicePlaylistsSongs[Dance.Intro] = await this.settings.getPlaylistItems(Dance.Intro, this.settings.defaultPlaylistsPerDance.Intro);
+      this.practicePlaylistsSongs[Dance.Finish] = await this.settings.getPlaylistItems(Dance.Finish, this.settings.defaultPlaylistsPerDance.Finish);
+
+      const dances = this.settings.getDancesPerCategory(Category.Standard);
+      for (let i = 0; i < dances.length; i++) {
+        const dance = dances[i];
+        this.practicePlaylistsSongs[dance] = await this.settings.getPlaylistItems(dance, this.settings.defaultPlaylistsPerDance[dance]);
+      }
+    }
   }
 
   ngOnDestroy() {
@@ -121,7 +114,7 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
     this.isPlaying = true;
     this.isPaused = false;
     this.audio.volume = 1;
-    this.audio.src = song.configuration.attributes.src;
+    this.audio.src = this.settings.getAbsolutePath(song.configuration.attributes.src);
     this.currentSong = song;
     this.audio.play();
     this.currentSong.duration = await this.getCurrentSongDuration();
@@ -161,7 +154,7 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
           }
 
           try {
-            this.audio.src = this.getSource(this.currentSong.configuration.attributes.src);
+            this.audio.src = this.settings.getAbsolutePath(this.currentSong.configuration.attributes.src);
             this.audio.currentTime = this.currentSong.progress;
             this.audio.play();
             this.currentSong.duration = await this.getCurrentSongDuration();
@@ -253,10 +246,6 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
     }, 200);
   }
 
-  public getFilename(path: string) {
-    return path.split('\\').pop();
-  }
-
   public getSongDuration(song: PlaylistItem) {
     return Math.min(song.duration, this.songDuration);
   }
@@ -289,14 +278,6 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
       }
 
       this.currentPractice.dances.push(dancePlaylist);
-    }
-  }
-
-  private getSource(src: string) {
-    if (src.startsWith('..\\')) {
-      return this.playlistFolder + '\\' + src;
-    } else {
-      return src;
     }
   }
 
