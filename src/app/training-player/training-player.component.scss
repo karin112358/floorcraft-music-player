@@ -21,7 +21,7 @@
     padding: 5px 10px 0 10px;
     height: 100%;
     box-sizing: border-box;
-    max-width: 500px;
+    max-width: 450px;
 
     .slot-header {
         background-color: #ddd;
@@ -30,21 +30,14 @@
         padding: 0 16px;
 
         .title {
-            max-width: 260px;
-        }
-
-        h2 {
+            max-width: 210px;
+            font-size: 13px;
             white-space: nowrap;
-            font-weight: normal;
             overflow: hidden;
         }
 
         mat-icon {
             font-size: 16px;
-        }
-
-        .sort-order {
-            padding-top: 6px;
         }
     }
 
@@ -107,4 +100,15 @@ mat-list-item {
     background-color: #eee;
     border-radius: 4px;
     padding: 16px;
+
+    .progress {
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    mat-slider {
+        width: 100%;
+        margin-top: -8px;
+        height: 36px;
+    }
 }

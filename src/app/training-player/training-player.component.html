@@ -34,11 +34,10 @@
         <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="start stretch">
             <div *ngFor="let slot of slots; let slotIndex = index" fxFlex="0 1 min-content">
                 <div class="slot" [ngClass]="{'active': slotIndex == currentSlotIndex}">
-                    <div fxLayout="row" class="slot-header">
-                        <div class="title">
-                            <h2>{{settings.getDanceFriendlyName(slot.dance)}}{{settings.getPlaylistName(slot.playlistName)}}</h2>
+                    <div fxLayout="row" class="slot-header" fxLayoutAlign="start center">
+                        <div fxFlex="100%" class="title">
+                            {{settings.getDanceFriendlyName(slot.dance)}}{{settings.getPlaylistName(slot.playlistName)}}
                         </div>
-                        <div fxFlex="100%"></div>
                         <div>
                             <button mat-icon-button (click)="selectAll(slot)">
                                 <mat-icon>check_box</mat-icon>
@@ -88,7 +87,7 @@
 
     <!-- Audio player controls -->
     <div gdArea="player">
-        <div *ngIf="slots.length > 0" class="player" fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
+        <div *ngIf="slots.length > 0" class="player" fxLayout="row" fxLayoutGap="16px"  fxLayoutAlign="start center">
             <div>
                 <button mat-flat-button [disabled]="isPlaying" color="primary" (click)="play()">
                     <mat-icon>play_arrow</mat-icon> Play
@@ -124,8 +123,17 @@
                 </div>
             </div>
         </div> -->
-            <div fxFlex="100%"></div>
-            <div>
+            <div fxFlex="48px"></div>
+            <div class="progress">
+                {{slots[currentSlotIndex].items[slots[currentSlotIndex].currentSongIndex].progress * 1000 | date:'mm:ss'}}
+                /
+                {{slots[currentSlotIndex].items[slots[currentSlotIndex].currentSongIndex].duration * 1000 | date:'mm:ss'}}
+            </div>
+            <div fxFlex="100%">
+                <mat-slider [min]="0" (input)="updateProgress(slots[currentSlotIndex].items[slots[currentSlotIndex].currentSongIndex], $event)"
+                    [max]="slots[currentSlotIndex].items[slots[currentSlotIndex].currentSongIndex].duration"
+                    [value]="slots[currentSlotIndex].items[slots[currentSlotIndex].currentSongIndex].progress">
+                </mat-slider>
             </div>
         </div>
     </div>

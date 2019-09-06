@@ -12,7 +12,7 @@
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
 $app-primary: mat-palette($mat-red, 800, 200, 900);
-$app-accent: mat-palette($mat-green, A200, A100, A400);
+$app-accent: mat-palette($mat-grey, 500, 300, 700);
 
 // The warn palette is optional (defaults to red).
 $app-warn: mat-palette($mat-orange);
@@ -61,7 +61,7 @@ mat-form-field {
 .mat-list-base .mat-list-item {
     height: 24px !important;
     line-height: 24px;
-    font-size: 13px;
+    font-size: 12px;
     text-overflow: ellipsis;
     white-space: nowrap;
     cursor: pointer;
@@ -69,10 +69,6 @@ mat-form-field {
     &:hover {
         background-color: #eee;
     }
-}
-
-.mat-checkbox-background {
-    background: #999 !important;
 }
 
 .mat-button-toggle-label-content {

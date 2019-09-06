@@ -14,6 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatListModule } from '@angular/material/list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from '@angular/material/icon';
 import { NgxElectronModule } from 'ngx-electron';
 
@@ -44,6 +45,7 @@ import { TrainingPlayerComponent } from './training-player/training-player.compo
     MatProgressSpinnerModule,
     MatListModule,
     MatCheckboxModule,
+    MatSliderModule,
     FormsModule,
     BrowserModule,
     NgxElectronModule,

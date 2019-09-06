@@ -9,6 +9,7 @@ import { MatSelectionListChange } from '@angular/material/list';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { SortOrder } from '../shared/models/sort-order';
 import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatSliderChange } from '@angular/material/slider';
 
 @Component({
   selector: 'app-training-player',
@@ -16,7 +17,7 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
   styleUrls: ['./training-player.component.scss']
 })
 export class TrainingPlayerComponent implements OnInit, OnDestroy {
-  @ViewChild("playlistInput", {static: false}) playlistInput: ElementRef;
+  @ViewChild("playlistInput", { static: false }) playlistInput: ElementRef;
 
   public slots: Slot[] = [];
   public playlistFilterValue = '';
@@ -26,6 +27,7 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
 
   private audio: HTMLAudioElement;
   private filterSubject = new BehaviorSubject<string>('');
+  private reset = false;
 
   constructor(public settings: SettingsService, private ngZone: NgZone) {
     this.audio = new Audio();
@@ -111,6 +113,12 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
   }
 
   public next() {
+    this.reset = true;
+    const song = this.getCurrentSong();
+    if (song) {
+      song.progress = 0;
+    }
+
     if (this.hasEnabledItems()) {
       // change song index of current slot
       if (this.slots[this.currentSlotIndex].items.filter(i => !i.isDisabled).length > 0) {
@@ -143,13 +151,13 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
     }
   }
 
-  public play() {
+  public async play() {
     if (this.hasEnabledItems()) {
       const slot = this.slots[this.currentSlotIndex];
 
       if (slot.items.filter(i => !i.isDisabled).length > 0) {
         this.isPlaying = true;
-        
+
         while (slot.items[slot.currentSongIndex].isDisabled) {
           slot.currentSongIndex++;
           if (slot.currentSongIndex >= slot.items.length) {
@@ -157,8 +165,17 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
           }
         }
 
-        this.audio.src = this.settings.getAbsolutePath(slot.items[slot.currentSongIndex].configuration.attributes.src);
+        let song = slot.items[slot.currentSongIndex];
+        this.audio.src = this.settings.getAbsolutePath(song.configuration.attributes.src);
+        this.reset = false;
         this.audio.play();
+        song.duration = await this.getCurrentSongDuration();
+
+        while (song.progress < song.duration && !this.reset) {
+          song.progress = this.audio.currentTime;
+          await this.delay(100);
+        }
+
       } else {
         this.next();
       }
@@ -168,6 +185,11 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
   }
 
   public stop() {
+    this.reset = true;
+    const song = this.getCurrentSong();
+    if (song) {
+      song.progress = 0;
+    }
     this.isPlaying = false;
     this.audio.pause();
   }
@@ -186,6 +208,22 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
     slot.items.forEach(i => i.isDisabled = true);
   }
 
+  public updateProgress(song: PlaylistItem, event: MatSliderChange) {
+    this.audio.currentTime = event.value;
+  }
+
+  public getCurrentSong() {
+    if (this.currentSlotIndex >= 0 && this.currentSlotIndex < this.slots.length) {
+      const currentSlot = this.slots[this.currentSlotIndex];
+
+      if (currentSlot.currentSongIndex >= 0 && currentSlot.currentSongIndex < currentSlot.items.length) {
+        return currentSlot.items[currentSlot.currentSongIndex];
+      }
+    }
+
+    return null;
+  }
+
   private hasEnabledItems(): boolean {
     let hasEnabledItems = false;
     for (let i = 0; i < this.slots.length && !hasEnabledItems; i++) {
@@ -198,6 +236,17 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
   private filter(value: string): string[] {
     const filterValue = value.toLowerCase();
     return this.settings.playlists.filter(option => option.toLowerCase().includes(filterValue));
+  }
+
+  private getCurrentSongDuration(): Promise<number> {
+    let promise = new Promise<number>((resolve, reject) => {
+      this.audio.onloadedmetadata = () => {
+        console.log('duration loaded')
+        resolve(this.audio.duration);
+      };
+    });
+
+    return promise;
   }
 
   private async setPlaylistItems(slot: Slot) {
@@ -226,5 +275,9 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
   private shuffle(o) {
     for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
     return o;
+  }
+
+  private delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
