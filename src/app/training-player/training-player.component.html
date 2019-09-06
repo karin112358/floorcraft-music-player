@@ -26,31 +26,45 @@
     </div>
 </div>
 
+<!-- List of slots -->
 <div gdColumns="minmax(auto, 450px)!" gdAreas="a a a a a a a" gdGap="16px" class="slots">
-    <div *ngFor="let slot of slots; let index = index">
-        <div class="slot" [ngClass]="{'active': index == currentSlotIndex}">
-            <div fxLayout="row">
+    <div *ngFor="let slot of slots; let slotIndex = index">
+        <div class="slot" [ngClass]="{'active': slotIndex == currentSlotIndex}">
+            <div fxLayout="row" class="slot-header">
                 <div>
                     <h2>{{settings.getDanceFriendlyName(slot.dance)}}{{slot.playlistName}}</h2>
                 </div>
                 <div fxFlex="100%"></div>
                 <div>
-                    <button mat-mini-fab color="primary" (click)="removeSlot(slot)">
+                    <button mat-icon-button (click)="removeSlot(slot)">
                         <mat-icon>clear</mat-icon>
                     </button>
                 </div>
             </div>
 
-            <mat-selection-list (selectionChange)="toggleSelection($event)">
-                <mat-list-option *ngFor="let song of slot.items; let songIndex = index" [value]="song"
-                    [selected]="!song.isDisabled" [ngClass]="{'active': songIndex == slot.currentSongIndex}">
-                    <div>{{settings.getFilename(song.configuration.attributes.src)}}</div>
-                </mat-list-option>
-            </mat-selection-list>
+            <div>
+                <mat-button-toggle-group name="sortOrder" [value]="slot.sortOrder"
+                    (change)="changeSortOrder(slot, $event)">
+                    <mat-button-toggle [value]="0">Random</mat-button-toggle>
+                    <mat-button-toggle [value]="1">PlaylistOrder</mat-button-toggle>
+                    <mat-button-toggle [value]="2">Alphabetic</mat-button-toggle>
+                </mat-button-toggle-group>
+            </div>
+
+            <mat-list (selectionChange)="toggleSelection($event)">
+                <mat-list-item *ngFor="let song of slot.items; let songIndex = index"
+                    [ngClass]="{'active': songIndex == slot.currentSongIndex}" (dblclick)="moveToSong(slotIndex, songIndex)">
+                    <div>
+                        <mat-checkbox [checked]="!song.isDisabled" (change)="toggleSelection(song, $event)"></mat-checkbox>
+                        {{settings.getFilename(song.configuration.attributes.src)}}
+                    </div>
+                </mat-list-item>
+            </mat-list>
         </div>
     </div>
 </div>
 
+<!-- Audio player controls -->
 <div *ngIf="slots.length > 0" class="player">
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
         <div>

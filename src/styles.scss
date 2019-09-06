@@ -58,11 +58,19 @@ mat-form-field {
     background-color: #888;
 }
 
-.mat-list-text {
-    height: 24px;
+.mat-list-base .mat-list-item {
+    height: 24px!important;
     line-height: 24px;
+    font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #eee;
+    }
 }
 
-.mat-pseudo-checkbox-checked {
-    background: #999;
+.mat-checkbox-background {
+    background: #999!important;
 }

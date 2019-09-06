@@ -6,6 +6,9 @@ import { Observable, fromEvent, Subject, BehaviorSubject } from 'rxjs';
 import { startWith, map } from 'rxjs/operators';
 import { PlaylistItem } from '../shared/models/playlist-item';
 import { MatSelectionListChange } from '@angular/material/list';
+import { MatButtonToggleChange } from '@angular/material/button-toggle';
+import { SortOrder } from '../shared/models/sort-order';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-training-player',
@@ -47,7 +50,7 @@ export class TrainingPlayerComponent implements OnInit {
 
     // read songs
     var slot = new Slot(dance, playlistName);
-    slot.items = (await this.settings.getPlaylistItems(dance, playlistName)).map(p => new PlaylistItem(p, 0));
+    await this.setPlaylistItems(slot);
     this.slots.push(slot);
 
     if (!this.isPlaying) {
@@ -77,12 +80,27 @@ export class TrainingPlayerComponent implements OnInit {
     }
   }
 
+  public async changeSortOrder(slot: Slot, event: MatButtonToggleChange) {
+    // get currently selected item
+    const currentSongSrc = slot.items[slot.currentSongIndex].configuration.attributes.src;
+    slot.sortOrder = event.value;
+
+    // change sort order
+    await this.setPlaylistItems(slot);
+
+    // select previously selected item
+    const currentSong = slot.items.find(s => s.configuration.attributes.src === currentSongSrc);
+    if (currentSong) {
+      slot.currentSongIndex = slot.items.indexOf(currentSong);
+    }
+  }
+
   public updateFilter(event: Event) {
     this.filterSubject.next((<HTMLInputElement>event.target).value);
   }
 
-  public toggleSelection(event: MatSelectionListChange) {
-    event.option.value.isDisabled = !event.option.value.isDisabled;
+  public toggleSelection(song: PlaylistItem, event: MatCheckboxChange) {
+    song.isDisabled = !event.checked;
   }
 
   public next() {
@@ -91,6 +109,11 @@ export class TrainingPlayerComponent implements OnInit {
     slot.currentSongIndex++;
     if (slot.currentSongIndex >= slot.items.length) {
       slot.currentSongIndex = 0;
+    }
+
+    if (slot.items[slot.currentSongIndex].isDisabled) {
+      this.next();
+      return;
     }
 
     // move to next slot index
@@ -114,8 +137,42 @@ export class TrainingPlayerComponent implements OnInit {
     this.audio.pause();
   }
 
+  public moveToSong(slotIndex: number, songIndex: number) {
+    this.currentSlotIndex = slotIndex;
+    this.slots[this.currentSlotIndex].currentSongIndex = songIndex;
+    this.play();
+  }
+
   private filter(value: string): string[] {
     const filterValue = value.toLowerCase();
     return this.settings.playlists.filter(option => option.toLowerCase().includes(filterValue));
+  }
+
+  private async setPlaylistItems(slot: Slot) {
+    console.log('set playlist items', slot.playlistName, slot.sortOrder);
+
+    let items = (await this.settings.getPlaylistItems(slot.dance, slot.playlistName)).map(p => new PlaylistItem(p, 0));
+    switch (+slot.sortOrder) {
+      case SortOrder.Random:
+        items = this.shuffle(items);
+        break;
+      case SortOrder.Alphabetic:
+        items = items.sort((a, b) => {
+          if (this.settings.getFilename(a.configuration.attributes.src) < this.settings.getFilename(b.configuration.attributes.src)) {
+            return -1;
+          } else {
+            return 1;
+          }
+        });
+
+        break;
+    }
+
+    slot.items = items;
+  }
+
+  private shuffle(o) {
+    for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+    return o;
   }
 }

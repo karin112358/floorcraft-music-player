@@ -1,36 +1,53 @@
 .slot {
     border-radius: 4px;
-    border: 1px solid #888;
-    padding: 5px 10px;
+    border: 1px solid #999;
+    padding: 5px 10px 0 10px;
     height: 100%;
     box-sizing: border-box;
+
+    .slot-header {
+        background-color: #ddd;
+        border-radius: 4px 4px 0 0;
+        margin: -5px -10px 10px -10px;
+        padding: 0 16px;
+    }
 
     h2 {
         white-space: nowrap;
     }
 
-    mat-list-option.active {
-        background-color: #ddd;
+    mat-list-item.active {
+        background-color: #ccc;
     }
 
     &.active {
-        mat-list-option.active {
+        mat-list-item.active {
+            background-color: #c62828;
+            color: #fff
+        }
+
+        .slot-header {
             background-color: #c62828;
             color: #fff
         }
     }
 }
 
-.mat-selection-list {
+.mat-list {
     margin: 0 -10px;
     overflow-y: scroll;
+    overflow-x: hidden;
     height: calc(100vh - 380px);
 }
 
-mat-list-option.mat-list-item.mat-list-option {
+mat-list-item {
     height: 24px;
     font-size: 13px;
     text-overflow: ellipsis;
+
+    mat-checkbox {
+        padding-right: 8px;
+    }
 }
 
 .new-slot {
