@@ -63,7 +63,7 @@ ipcMain.on('loadPlaylists', (event, arg) => {
             console.error(err);
         }
 
-        event.reply('playlistsLoaded', ['../'].concat(files));
+        event.reply('playlistsLoaded', ['../'].concat(files.filter(f => f.endsWith('.wpl'))));
     });
 });
 

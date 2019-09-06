@@ -1,19 +1,51 @@
+.player-container {
+    height: 100%;
+    overflow: hidden;
+}
+
+
+.slots {
+    height: 100%;
+    overflow: hidden;
+
+    > div {
+        height: 100%;
+        overflow-y: hidden;
+        overflow-x: auto;
+    }
+}
+
 .slot {
     border-radius: 4px;
     border: 1px solid #999;
     padding: 5px 10px 0 10px;
     height: 100%;
     box-sizing: border-box;
+    max-width: 500px;
 
     .slot-header {
         background-color: #ddd;
         border-radius: 4px 4px 0 0;
-        margin: -5px -10px 10px -10px;
+        margin: -5px -10px 0 -10px;
         padding: 0 16px;
-    }
 
-    h2 {
-        white-space: nowrap;
+        .title {
+            max-width: 260px;
+        }
+
+        h2 {
+            white-space: nowrap;
+            font-weight: normal;
+            overflow: hidden;
+        }
+
+        mat-icon {
+            font-size: 16px;
+        }
+
+        .sort-order {
+            padding-top: 6px;
+        }
     }
 
     mat-list-item.active {
@@ -21,6 +53,10 @@
     }
 
     &.active {
+        mat-icon {
+            color: #fff;
+        }
+
         mat-list-item.active {
             background-color: #c62828;
             color: #fff
@@ -37,12 +73,13 @@
     margin: 0 -10px;
     overflow-y: scroll;
     overflow-x: hidden;
-    height: calc(100vh - 380px);
+    height: calc(100% - 40px);
+    //height: calc(100vh - 380px);
 }
 
 mat-list-item {
     height: 24px;
-    font-size: 13px;
+    font-size: 12px;
     text-overflow: ellipsis;
 
     mat-checkbox {
@@ -54,7 +91,6 @@ mat-list-item {
     background-color: #eee;
     border-radius: 4px;
     padding: 16px 16px 0 16px;
-    margin-bottom: 16px;
 
     .add-text {
         white-space: nowrap;
@@ -62,15 +98,13 @@ mat-list-item {
     }
 
     mat-form-field {
-        width: 400px;
-        margin-top: -5px;
+        // width: 400px;
+        margin-top: -11px;
     }
 }
 
 .player {
     background-color: #eee;
     border-radius: 4px;
-    margin-top: 16px;
-    margin-bottom: 16px;
     padding: 16px;
 }

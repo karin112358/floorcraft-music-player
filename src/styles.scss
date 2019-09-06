@@ -12,10 +12,10 @@
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
 $app-primary: mat-palette($mat-red, 800, 200, 900);
-$app-accent:  mat-palette($mat-green, A200, A100, A400);
+$app-accent: mat-palette($mat-green, A200, A100, A400);
 
 // The warn palette is optional (defaults to red).
-$app-warn:    mat-palette($mat-orange);
+$app-warn: mat-palette($mat-orange);
 
 // Create the theme object (a Sass map containing all of the palettes).
 $app-theme: mat-light-theme($app-primary, $app-accent, $app-warn);
@@ -59,7 +59,7 @@ mat-form-field {
 }
 
 .mat-list-base .mat-list-item {
-    height: 24px!important;
+    height: 24px !important;
     line-height: 24px;
     font-size: 13px;
     text-overflow: ellipsis;
@@ -72,5 +72,30 @@ mat-form-field {
 }
 
 .mat-checkbox-background {
-    background: #999!important;
+    background: #999 !important;
+}
+
+.mat-button-toggle-label-content {
+    line-height: 24px!important;
+    padding: 0 3px!important;
+
+    mat-icon {
+        height: 16px;
+    }
+}
+
+.mat-button-toggle-group-appearance-standard {
+    border: solid 1px rgba(255,255,255, 0.3);
+}
+
+.mat-button-toggle-group-appearance-standard .mat-button-toggle + .mat-button-toggle {
+    border-left: solid 1px rgba(255,255,255, 0.3);
+}
+
+.mat-button-toggle-appearance-standard {
+    background: rgba(255,255,255,0);
+}
+
+.mat-button-toggle-checked.mat-button-toggle-appearance-standard {
+    background: rgba(255,255,255,0.3);
 }

@@ -158,6 +158,18 @@ export class SettingsService {
     }
   }
 
+  /**
+   * Gets the name of the playlist without the extension .wpl
+   * @param name 
+   */
+  public getPlaylistName(name: string) {
+    if (name) {
+      return name.replace(/.wpl/, '');
+    } else {
+      return name;
+    }
+  }
+
   public getDanceFriendlyName(dance: Dance): string {
     switch (dance) {
       case Dance.Intro:

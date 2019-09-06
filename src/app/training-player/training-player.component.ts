@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, NgZone } from '@angular/core';
+import { Component, OnInit, ViewChild, NgZone, ElementRef, OnDestroy } from '@angular/core';
 import { Slot } from '../shared/models/slot';
 import { Dance } from '../shared/models/dance';
 import { SettingsService } from '../shared/services/settings.service';
@@ -15,7 +15,9 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
   templateUrl: './training-player.component.html',
   styleUrls: ['./training-player.component.scss']
 })
-export class TrainingPlayerComponent implements OnInit {
+export class TrainingPlayerComponent implements OnInit, OnDestroy {
+  @ViewChild("playlistInput", {static: false}) playlistInput: ElementRef;
+
   public slots: Slot[] = [];
   public playlistFilterValue = '';
   public filteredPlaylists: Observable<string[]>;
@@ -44,7 +46,12 @@ export class TrainingPlayerComponent implements OnInit {
       );
   }
 
+  ngOnDestroy() {
+    this.stop();
+  }
+
   public async addSlot(dance: Dance, playlistName: string) {
+    this.playlistInput.nativeElement.value = '';
     this.playlistFilterValue = '';
     this.filterSubject.next('');
 
@@ -104,32 +111,60 @@ export class TrainingPlayerComponent implements OnInit {
   }
 
   public next() {
-    // change song index of current slot
-    const slot = this.slots[this.currentSlotIndex];
-    slot.currentSongIndex++;
-    if (slot.currentSongIndex >= slot.items.length) {
-      slot.currentSongIndex = 0;
-    }
+    if (this.hasEnabledItems()) {
+      // change song index of current slot
+      if (this.slots[this.currentSlotIndex].items.filter(i => !i.isDisabled).length > 0) {
+        const slot = this.slots[this.currentSlotIndex];
+        slot.currentSongIndex++;
+        if (slot.currentSongIndex >= slot.items.length) {
+          slot.currentSongIndex = 0;
+        }
 
-    if (slot.items[slot.currentSongIndex].isDisabled) {
-      this.next();
-      return;
-    }
+        if (slot.items[slot.currentSongIndex].isDisabled) {
+          this.next();
+          return;
+        }
+      }
 
-    // move to next slot index
-    this.currentSlotIndex++;
-    if (this.currentSlotIndex >= this.slots.length) {
-      this.currentSlotIndex = 0;
-    }
+      // move to next slot index
+      this.currentSlotIndex++;
+      if (this.currentSlotIndex >= this.slots.length) {
+        this.currentSlotIndex = 0;
+      }
 
-    this.play();
+      if (this.slots[this.currentSlotIndex].items.filter(i => !i.isDisabled).length === 0) {
+        this.next();
+        return;
+      }
+
+      this.play();
+    } else {
+      this.stop();
+    }
   }
 
   public play() {
-    this.isPlaying = true;
-    const slot = this.slots[this.currentSlotIndex];
-    this.audio.src = this.settings.getAbsolutePath(slot.items[slot.currentSongIndex].configuration.attributes.src);
-    this.audio.play();
+    if (this.hasEnabledItems()) {
+      const slot = this.slots[this.currentSlotIndex];
+
+      if (slot.items.filter(i => !i.isDisabled).length > 0) {
+        this.isPlaying = true;
+        
+        while (slot.items[slot.currentSongIndex].isDisabled) {
+          slot.currentSongIndex++;
+          if (slot.currentSongIndex >= slot.items.length) {
+            slot.currentSongIndex = 0;
+          }
+        }
+
+        this.audio.src = this.settings.getAbsolutePath(slot.items[slot.currentSongIndex].configuration.attributes.src);
+        this.audio.play();
+      } else {
+        this.next();
+      }
+    } else {
+      this.stop();
+    }
   }
 
   public stop() {
@@ -141,6 +176,23 @@ export class TrainingPlayerComponent implements OnInit {
     this.currentSlotIndex = slotIndex;
     this.slots[this.currentSlotIndex].currentSongIndex = songIndex;
     this.play();
+  }
+
+  public selectAll(slot: Slot) {
+    slot.items.forEach(i => i.isDisabled = false);
+  }
+
+  public unselectAll(slot: Slot) {
+    slot.items.forEach(i => i.isDisabled = true);
+  }
+
+  private hasEnabledItems(): boolean {
+    let hasEnabledItems = false;
+    for (let i = 0; i < this.slots.length && !hasEnabledItems; i++) {
+      hasEnabledItems = hasEnabledItems || (this.slots[i].items.filter(i => !i.isDisabled).length > 0);
+    }
+
+    return hasEnabledItems;
   }
 
   private filter(value: string): string[] {
