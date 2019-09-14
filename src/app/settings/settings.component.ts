@@ -26,4 +26,9 @@ export class SettingsComponent {
   public playlistSelectionChanged(event: any) {
     this.settings.save();
   }
+
+  public clearSelection(dance: string) {
+    this.settings.defaultPlaylistsPerDance[dance] = null;
+    this.settings.save();
+  }
 }

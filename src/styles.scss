@@ -1,3 +1,4 @@
+@import 'styles/colors.scss';
 /* You can add global styles to this file, and also import other style files */
 @import '~@angular/material/theming';
 // Plus imports for other components in your app.
@@ -72,8 +73,8 @@ mat-form-field {
 }
 
 .mat-button-toggle-label-content {
-    line-height: 24px!important;
-    padding: 0 3px!important;
+    line-height: 24px !important;
+    padding: 0 3px !important;
 
     mat-icon {
         height: 16px;
@@ -81,17 +82,23 @@ mat-form-field {
 }
 
 .mat-button-toggle-group-appearance-standard {
-    border: solid 1px rgba(255,255,255, 0.3);
+    border: solid 1px rgba(255, 255, 255, 0.3);
 }
 
-.mat-button-toggle-group-appearance-standard .mat-button-toggle + .mat-button-toggle {
-    border-left: solid 1px rgba(255,255,255, 0.3);
+.mat-button-toggle-group-appearance-standard .mat-button-toggle+.mat-button-toggle {
+    border-left: solid 1px rgba(255, 255, 255, 0.3);
 }
 
 .mat-button-toggle-appearance-standard {
-    background: rgba(255,255,255,0);
+    background: rgba(255, 255, 255, 0);
 }
 
 .mat-button-toggle-checked.mat-button-toggle-appearance-standard {
-    background: rgba(255,255,255,0.3);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.container {
+    background-color: #eee;
+    border-radius: 4px;
+    padding: 16px;
 }

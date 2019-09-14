@@ -5,7 +5,7 @@ const convert = require('xml-js');
 const fs = require("fs");
 const { readdir, stat } = require("fs");
 
-require('electron-debug')();
+//require('electron-debug')();
 
 let win;
 
@@ -63,7 +63,7 @@ ipcMain.on('loadPlaylists', (event, arg) => {
             console.error(err);
         }
 
-        event.reply('playlistsLoaded', ['../'].concat(files.filter(f => f.endsWith('.wpl'))));
+        event.reply('playlistsLoaded', files.filter(f => f.endsWith('.wpl')));
     });
 });
 

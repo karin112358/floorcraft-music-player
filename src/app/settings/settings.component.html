@@ -12,54 +12,76 @@
         </div>
     </div>
 
-    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
+    <div fxLayout="row" fxLayoutGap="32px" fxLayoutAlign="space-between">
         <div fxFlex="50">
             <mat-form-field>
                 <mat-select placeholder="Intro" (selectionChange)="playlistSelectionChanged($event)"
                     [(value)]="settings.defaultPlaylistsPerDance.Intro">
-                    <mat-option *ngFor="let item of settings.playlists" [value]="item">
-                        {{item}}
+                    <mat-option *ngFor="let item of settings.playlists" [value]="item.name">
+                        {{item.title}}
                     </mat-option>
                 </mat-select>
+                <button mat-button *ngIf="settings.defaultPlaylistsPerDance.Intro" matSuffix mat-icon-button
+                    aria-label="Clear" (click)="clearSelection('Intro')">
+                    <mat-icon>close</mat-icon>
+                </button>
             </mat-form-field>
         </div>
+
         <div fxFlex="50">
             <mat-form-field>
                 <mat-select placeholder="Finish" (selectionChange)="playlistSelectionChanged($event)"
                     [(value)]="settings.defaultPlaylistsPerDance.Finish">
-                    <mat-option *ngFor="let item of settings.playlists" [value]="item">
-                        {{item}}
+                    <mat-option *ngFor="let item of settings.playlists" [value]="item.name">
+                        {{item.title}}
                     </mat-option>
                 </mat-select>
+                <button mat-button *ngIf="settings.defaultPlaylistsPerDance.Finish" matSuffix mat-icon-button
+                    aria-label="Clear" (click)="clearSelection('Finish')">
+                    <mat-icon>close</mat-icon>
+                </button>
             </mat-form-field>
         </div>
     </div>
 
-    <h2>Standard</h2>
+    <div fxLayout="row" fxLayoutGap="32px" fxLayoutAlign="space-between" class="default-playlists">
+        <div fxFlex="50">
+            <h2>Standard</h2>
 
-    <div *ngFor="let dance of settings.getDancesPerCategory(categories[0])">
-        <mat-form-field>
-            <mat-select placeholder="{{settings.getDanceFriendlyName(dance)}}"
-                (selectionChange)="playlistSelectionChanged($event)"
-                [(value)]="settings.defaultPlaylistsPerDance[dance]">
-                <mat-option *ngFor="let item of settings.playlists" [value]="item">
-                    {{item}}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-    </div>
+            <div *ngFor="let dance of settings.getDancesPerCategory(categories[0])">
+                <mat-form-field>
+                    <mat-select placeholder="{{settings.getDanceFriendlyName(dance)}}"
+                        (selectionChange)="playlistSelectionChanged($event)"
+                        [(value)]="settings.defaultPlaylistsPerDance[dance]">
+                        <mat-option *ngFor="let item of settings.playlists" [value]="item.name">
+                            {{item.title}}
+                        </mat-option>
+                    </mat-select>
+                    <button mat-button *ngIf="settings.defaultPlaylistsPerDance[dance]" matSuffix mat-icon-button
+                        aria-label="Clear" (click)="clearSelection(dance)">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </mat-form-field>
+            </div>
+        </div>
+        <div fxFlex="50">
+            <h2>Latin</h2>
 
-    <h2>Latin</h2>
-
-    <div *ngFor="let dance of settings.getDancesPerCategory(categories[1])">
-        <mat-form-field>
-            <mat-select placeholder="{{settings.getDanceFriendlyName(dance)}}"
-                (selectionChange)="playlistSelectionChanged($event)"
-                [(value)]="settings.defaultPlaylistsPerDance[dance]">
-                <mat-option *ngFor="let item of settings.playlists" [value]="item">
-                    {{item}}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
+            <div *ngFor="let dance of settings.getDancesPerCategory(categories[1])">
+                <mat-form-field>
+                    <mat-select placeholder="{{settings.getDanceFriendlyName(dance)}}"
+                        (selectionChange)="playlistSelectionChanged($event)"
+                        [(value)]="settings.defaultPlaylistsPerDance[dance]">
+                        <mat-option *ngFor="let item of settings.playlists" [value]="item.name">
+                            {{item.title}}
+                        </mat-option>
+                    </mat-select>
+                    <button mat-button *ngIf="settings.defaultPlaylistsPerDance[dance]" matSuffix mat-icon-button
+                        aria-label="Clear" (click)="clearSelection(dance)">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </mat-form-field>
+            </div>
+        </div>
     </div>
 </div>

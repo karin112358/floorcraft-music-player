@@ -10,6 +10,7 @@ import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { SortOrder } from '../shared/models/sort-order';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatSliderChange } from '@angular/material/slider';
+import { Playlist } from '../shared/models/playlist';
 
 @Component({
   selector: 'app-training-player',
@@ -21,8 +22,9 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
 
   public slots: Slot[] = [];
   public playlistFilterValue = '';
-  public filteredPlaylists: Observable<string[]>;
+  public filteredPlaylists: Observable<Playlist[]>;
   public isPlaying = false;
+  public isPaused = false;
   public currentSlotIndex = -1;
 
   private audio: HTMLAudioElement;
@@ -36,9 +38,10 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
       console.error(event);
     };
 
-    this.audio.onended = (event) => {
-      this.ngZone.run(() => this.next());
-    };
+    // this.audio.onended = (event) => {
+    //   console.log('audio.onended');
+    //   this.ngZone.run(() => this.next());
+    // };
   }
 
   ngOnInit() {
@@ -52,13 +55,13 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
     this.stop();
   }
 
-  public async addSlot(dance: Dance, playlistName: string) {
+  public async addSlot(dance: Dance, playlist: Playlist) {
     this.playlistInput.nativeElement.value = '';
     this.playlistFilterValue = '';
     this.filterSubject.next('');
 
     // read songs
-    var slot = new Slot(dance, playlistName);
+    var slot = new Slot(dance, playlist);
     await this.setPlaylistItems(slot);
     this.slots.push(slot);
 
@@ -103,6 +106,13 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
       slot.currentSongIndex = slot.items.indexOf(currentSong);
     }
   }
+
+  // public resetFilter() {
+  //   setTimeout(() => {
+  //     this.playlistFilterValue = '';
+  //     this.filterSubject.next('');
+  //   });
+  // }
 
   public updateFilter(event: Event) {
     this.filterSubject.next((<HTMLInputElement>event.target).value);
@@ -151,7 +161,9 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
     }
   }
 
-  public async play() {
+  public async play(fromStart = false) {
+    this.isPaused = false;
+
     if (this.hasEnabledItems()) {
       const slot = this.slots[this.currentSlotIndex];
 
@@ -165,17 +177,37 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
           }
         }
 
-        let song = slot.items[slot.currentSongIndex];
-        this.audio.src = this.settings.getAbsolutePath(song.configuration.attributes.src);
-        this.reset = false;
-        this.audio.play();
-        song.duration = await this.getCurrentSongDuration();
+        try {
+          let song = slot.items[slot.currentSongIndex]
+          this.audio.src = this.settings.getAbsolutePath(song.configuration.attributes.src);
+          if (fromStart) {
+            song.progress = 0;
+          }
 
-        while (song.progress < song.duration && !this.reset) {
-          song.progress = this.audio.currentTime;
-          await this.delay(100);
+          this.audio.currentTime = song.progress;
+          this.reset = false;
+          this.audio.play();
+
+          song.duration = await this.getCurrentSongDuration();
+
+          while (song.progress < song.duration && !this.reset && !this.isPaused) {
+            song.progress = Math.min(this.audio.currentTime, song.duration);
+            await this.delay(100);
+          }
+
+        } catch (ex) {
+          console.log(ex);
         }
 
+        console.log('finished song');
+        if (!this.reset && !this.isPaused) {
+          this.next();
+        }
+        // this.audio.pause();
+
+        // if (!this.reset) {
+        //   this.stop();
+        // }
       } else {
         this.next();
       }
@@ -184,7 +216,14 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
     }
   }
 
+  public pause() {
+    this.reset = true;
+    this.isPaused = true;
+    this.audio.pause();
+  }
+
   public stop() {
+    this.isPaused = false;
     this.reset = true;
     const song = this.getCurrentSong();
     if (song) {
@@ -197,7 +236,7 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
   public moveToSong(slotIndex: number, songIndex: number) {
     this.currentSlotIndex = slotIndex;
     this.slots[this.currentSlotIndex].currentSongIndex = songIndex;
-    this.play();
+    this.play(true);
   }
 
   public selectAll(slot: Slot) {
@@ -233,9 +272,9 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
     return hasEnabledItems;
   }
 
-  private filter(value: string): string[] {
+  private filter(value: string): Playlist[] {
     const filterValue = value.toLowerCase();
-    return this.settings.playlists.filter(option => option.toLowerCase().includes(filterValue));
+    return this.settings.playlists.filter(item => item.title.toLowerCase().includes(filterValue));
   }
 
   private getCurrentSongDuration(): Promise<number> {
@@ -250,16 +289,14 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
   }
 
   private async setPlaylistItems(slot: Slot) {
-    console.log('set playlist items', slot.playlistName, slot.sortOrder);
-
-    let items = (await this.settings.getPlaylistItems(slot.dance, slot.playlistName)).map(p => new PlaylistItem(p, 0));
+    let items = (await this.settings.getPlaylistItems(slot.dance, (slot.playlist ? slot.playlist.name : null)))[1].map(p => new PlaylistItem(p, 0));
     switch (+slot.sortOrder) {
       case SortOrder.Random:
         items = this.shuffle(items);
         break;
       case SortOrder.Alphabetic:
         items = items.sort((a, b) => {
-          if (this.settings.getFilename(a.configuration.attributes.src) < this.settings.getFilename(b.configuration.attributes.src)) {
+          if (this.settings.getFilename(a.configuration.attributes.src.toLowerCase()) < this.settings.getFilename(b.configuration.attributes.src.toLowerCase())) {
             return -1;
           } else {
             return 1;

@@ -4,6 +4,7 @@
         <a routerLink="/training" routerLinkActive="active">Training</a>
         <a routerLink="/practice" routerLinkActive="active">Practice</a>
         <a routerLink="/settings" routerLinkActive="active">Settings</a>
+        <a (click)="settings.initialize()">Reload playlists</a>
     </span>
     <span class="fill-space"></span>
     <span>UTSC Music Player</span>
@@ -11,4 +12,7 @@
 
 <div class="content">
     <router-outlet></router-outlet>
+    <div class="busy" *ngIf="!settings.initialized" fxLayout="row" fxFlexFill fxLayoutAlign="center center">
+        <mat-spinner></mat-spinner>
+    </div>
 </div>

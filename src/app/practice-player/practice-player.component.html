@@ -1,108 +1,110 @@
-<div class="settings">
-    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
-        <div>
-            <button mat-flat-button color="primary" [disabled]="isPlaying" (click)="configureSemifinal()">
-                <mat-icon>looks_two</mat-icon> Create semifinal
-            </button>
-        </div>
+<div gdAreas="configure | songs | player" gdRows="auto 1fr auto" gdGap="16px" class="player-container">
+    <div class="container settings" gdArea="configure">
+        <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
+            <div>
+                <button mat-flat-button color="primary" [disabled]="isPlaying" (click)="configureSemifinal()">
+                    <mat-icon>looks_two</mat-icon> Create semifinal
+                </button>
+            </div>
 
-        <div>
-            <button mat-flat-button color="primary" [disabled]="isPlaying" (click)="configureFinal()">
-                <mat-icon>looks_one</mat-icon> Create final
-            </button>
-        </div>
+            <div>
+                <button mat-flat-button color="primary" [disabled]="isPlaying" (click)="configureFinal()">
+                    <mat-icon>looks_one</mat-icon> Create final
+                </button>
+            </div>
 
-        <div fxFlex="100%"></div>
+            <div fxFlex="100%"></div>
 
-        <div>
-            <mat-form-field>
-                <input [disabled]="isPlaying" matInput type="number" placeholder="Duration [sec]"
-                    [(ngModel)]="songDuration">
-            </mat-form-field>
-        </div>
+            <div>
+                <mat-form-field>
+                    <input [disabled]="isPlaying" matInput type="number" placeholder="Duration [sec]"
+                        [(ngModel)]="songDuration">
+                </mat-form-field>
+            </div>
 
-        <div>
-            <mat-form-field>
-                <input [disabled]="isPlaying" matInput type="number" placeholder="Pause [sec]"
-                    [(ngModel)]="pauseDuration">
-            </mat-form-field>
-        </div>
+            <div>
+                <mat-form-field>
+                    <input [disabled]="isPlaying" matInput type="number" placeholder="Pause [sec]"
+                        [(ngModel)]="pauseDuration">
+                </mat-form-field>
+            </div>
 
-        <div>
-            <mat-form-field>
-                <input [disabled]="isPlaying" matInput type="number" placeholder="Heats" [(ngModel)]="heats">
-            </mat-form-field>
-        </div>
+            <div>
+                <mat-form-field>
+                    <input [disabled]="isPlaying" matInput type="number" placeholder="Heats" [(ngModel)]="heats">
+                </mat-form-field>
+            </div>
 
-        <div>
-            <button mat-flat-button [disabled]="isPlaying" color="primary" (click)="configurePractice()">
-                <mat-icon>create</mat-icon> Create
-            </button>
-        </div>
-    </div>
-</div>
-
-<div *ngIf="practiceConfigured" class="player">
-    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
-        <div>
-            <button *ngIf="practiceConfigured" mat-flat-button [disabled]="isPlaying && !isPaused" color="primary"
-                (click)="play()">
-                <mat-icon>play_arrow</mat-icon> Play
-            </button>
-        </div>
-        <div>
-            <button *ngIf="practiceConfigured" mat-flat-button [disabled]="isPaused || !isPlaying" (click)="next()">
-                <mat-icon>skip_next</mat-icon>Next
-            </button>
-        </div>
-
-        <div>
-            <button *ngIf="practiceConfigured" mat-flat-button [disabled]="isPaused || !isPlaying" (click)="pause()">
-                <mat-icon>pause</mat-icon>Pause
-            </button>
-        </div>
-        <div>
-            <button *ngIf="practiceConfigured" mat-flat-button [disabled]="!isPlaying" (click)="stop()">
-                <mat-icon>stop</mat-icon>Stop
-            </button>
-        </div>
-        <div>
-            <button *ngIf="practiceConfigured" mat-flat-button [disabled]="isPlaying" (click)="play(true)">
-                <mat-icon>volume_up</mat-icon> Preview
-            </button>
-        </div>
-        <div fxFlex="100%"></div>
-        <div>
-            <div class="pauseProgress">
-                <div [hidden]="pauseProgress == 0">
-                    <div class="pauseCountDown">{{pauseDuration - pauseProgress | number:'1.0-0'}}</div>
-                    <mat-spinner diameter="20" strokeWidth="4"></mat-spinner>
-                </div>
+            <div>
+                <button mat-flat-button [disabled]="isPlaying" color="primary" (click)="configurePractice()">
+                    <mat-icon>create</mat-icon> Create
+                </button>
             </div>
         </div>
     </div>
-</div>
 
-<div *ngIf="practiceConfigured" class="practicePlaylist">
-    <div *ngFor="let dance of currentPractice.dances">
-        <h2>{{settings.getDanceFriendlyName(dance.dance)}}</h2>
+    <div *ngIf="practiceConfigured" class="practicePlaylist" gdArea="songs" class="songs-container">
+        <div *ngFor="let dance of currentPractice.dances">
+            <h2>{{settings.getDanceFriendlyName(dance.dance)}}</h2>
 
-        <div *ngFor="let song of dance.items; let i = index" class="song">
-            <mat-progress-bar mode="determinate" [value]="song.progress / getSongDuration(song) * 100">
-            </mat-progress-bar>
-            <div class="title" title="{{song.configuration.attributes.src}}">
-                {{settings.getFilename(song.configuration.attributes.src)}}</div>
-            <button mat-icon-button [disabled]="isPlaying" class="playFromSong" (click)="playFromSong(song)">
-                <mat-icon>play_arrow</mat-icon>
-            </button>
-            <button mat-icon-button [disabled]="isPlaying" class="selectNewSong" (click)="selectNew(dance, i)">
-                <mat-icon>sync</mat-icon>
-            </button>
-            <button mat-icon-button [disabled]="isPlaying" class="testSong"
-                (click)="playSong(song)">
-                <mat-icon>volume_up</mat-icon>
-            </button>
-            <div>{{song.error}}</div>
+            <div *ngFor="let song of dance.items; let i = index" class="song">
+                <mat-progress-bar mode="determinate" [value]="song.progress / getSongDuration(song) * 100">
+                </mat-progress-bar>
+                <div class="title" title="{{song.configuration.attributes.src}}">
+                    {{settings.getFilename(song.configuration.attributes.src)}}</div>
+                <button mat-icon-button [disabled]="isPlaying" class="playFromSong" (click)="playFromSong(song)">
+                    <mat-icon>play_arrow</mat-icon>
+                </button>
+                <button mat-icon-button [disabled]="isPlaying" class="selectNewSong" (click)="selectNew(dance, i)">
+                    <mat-icon>sync</mat-icon>
+                </button>
+                <button mat-icon-button [disabled]="isPlaying" class="testSong" (click)="playSong(song)">
+                    <mat-icon>volume_up</mat-icon>
+                </button>
+                <div>{{song.error}}</div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="practiceConfigured" class="container player" gdArea="player">
+        <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
+            <div>
+                <button *ngIf="practiceConfigured" mat-flat-button [disabled]="isPlaying && !isPaused" color="primary"
+                    (click)="play()">
+                    <mat-icon>play_arrow</mat-icon> Play
+                </button>
+            </div>
+            <div>
+                <button *ngIf="practiceConfigured" mat-flat-button [disabled]="isPaused || !isPlaying" (click)="next()">
+                    <mat-icon>skip_next</mat-icon>Next
+                </button>
+            </div>
+
+            <div>
+                <button *ngIf="practiceConfigured" mat-flat-button [disabled]="isPaused || !isPlaying"
+                    (click)="pause()">
+                    <mat-icon>pause</mat-icon>Pause
+                </button>
+            </div>
+            <div>
+                <button *ngIf="practiceConfigured" mat-flat-button [disabled]="!isPlaying" (click)="stop()">
+                    <mat-icon>stop</mat-icon>Stop
+                </button>
+            </div>
+            <div>
+                <button *ngIf="practiceConfigured" mat-flat-button [disabled]="isPlaying" (click)="play(true)">
+                    <mat-icon>volume_up</mat-icon> Preview
+                </button>
+            </div>
+            <div fxFlex="100%"></div>
+            <div>
+                <div class="pauseProgress">
+                    <div [hidden]="pauseProgress == 0">
+                        <div class="pauseCountDown">{{pauseDuration - pauseProgress | number:'1.0-0'}}</div>
+                        <mat-spinner diameter="20" strokeWidth="4"></mat-spinner>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

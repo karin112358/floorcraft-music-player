@@ -6,13 +6,14 @@ import { Dance } from '../models/dance';
 import { retry } from 'rxjs/operators';
 import { PlaylistItem } from '../models/playlist-item';
 import { Observable } from 'rxjs';
+import { Playlist } from '../models/playlist';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SettingsService {
   public initialized = false;
-  public playlists: string[] = [];
+  public playlists: Playlist[] = [];
   public defaultPlaylistsPerDance: any = {};
 
   get playlistFolder(): string {
@@ -28,37 +29,15 @@ export class SettingsService {
   private resolveReadPlaylist: (value?: unknown) => void;
 
   private constructor(private localStorage: LocalStorage, private electronService: ElectronService) {
-    // handle ipc callbacks
-    this.electronService.ipcRenderer.on('playlistsLoaded', (event, args) => {
-      this.playlists = args;
-      this.playlists.unshift('');
-
-      if (this.resolveLoadPlaylists) {
-        this.resolveLoadPlaylists();
-        this.resolveLoadPlaylists = null;
-      }
-    });
-
-    this.electronService.ipcRenderer.on('playlistRead', (event, dance: Dance, playlist: any) => {
-      console.log('playlist read', dance, playlist);
-      let response = null;
-
-      if (this.resolveReadPlaylist && playlist && playlist.smil.body) {
-        if (Array.isArray(playlist.smil.body.seq.media)) {
-          response = playlist.smil.body.seq.media.filter(m => !m.attributes.src.endsWith('.wma') && m.attributes.exists);
-        } else if (!playlist.smil.body.seq.media.attributes.src.endsWith('.wma') && playlist.smil.body.seq.media.attributes.exists) {
-          response = [playlist.smil.body.seq.media];
-        }
-      }
-
-      this.resolveReadPlaylist(response);
-    });
+    this.handleIPCCallbacks();
   }
 
   /**
    * Load settings from the local storage.
    */
   public async initialize() {
+    this.initialized = false;
+
     // load playlist folder and playlists and default playlists per dance
     const playlistFolder = await this.localStorage.getItem<string>('playlistFolder').toPromise() as string;
     if (playlistFolder) {
@@ -125,8 +104,8 @@ export class SettingsService {
    * Get all items per playlist.
    * @param playlist 
    */
-  public async getPlaylistItems(dance: Dance, playlistName: string): Promise<PlaylistItem[]> {
-    const promise = new Promise<PlaylistItem[]>((resolve, reject) => {
+  public async getPlaylistItems(dance: Dance, playlistName: string): Promise<[string, PlaylistItem[]]> {
+    const promise = new Promise<[string, PlaylistItem[]]>((resolve, reject) => {
       if (!playlistName && dance) {
         playlistName = this.defaultPlaylistsPerDance[dance];
       }
@@ -250,5 +229,52 @@ export class SettingsService {
         return 'FIN';
         break;
     }
+  }
+
+  private handleIPCCallbacks() {
+    // handle ipc callbacks
+    this.electronService.ipcRenderer.on('playlistsLoaded', async (event, args) => {
+      const playlists: Playlist[] = args.map(item => new Playlist(item, item));
+
+      if (this.resolveLoadPlaylists) {
+        for (let i = 0; i < playlists.length; i++) {
+          const result = await this.getPlaylistItems(null, playlists[i].name);
+          playlists[i].title = result[0];
+          playlists[i].items = result[1];
+        }
+
+        this.playlists = playlists.filter(p => p.items && p.items.length > 0).sort((a, b) => {
+          if (a.title.toLowerCase() < b.title.toLowerCase()) {
+            return -1;
+          } else {
+            return 1;
+          }
+        });
+
+        this.resolveLoadPlaylists();
+        this.resolveLoadPlaylists = null;
+      }
+    });
+
+    this.electronService.ipcRenderer.on('playlistRead', (event, dance: Dance, playlist: any) => {
+      let response: [string, any] = ['', null];
+
+      if (this.resolveReadPlaylist && playlist) {
+        if (playlist.smil.head && playlist.smil.head.title && playlist.smil.head.title._text) {
+          response[0] = playlist.smil.head.title._text;
+        }
+
+        if (playlist.smil.body) {
+          if (Array.isArray(playlist.smil.body.seq.media)) {
+            response[1] = playlist.smil.body.seq.media.filter(m => !m.attributes.src.endsWith('.wma') && m.attributes.exists);
+          } else if (!playlist.smil.body.seq.media.attributes.src.endsWith('.wma') && playlist.smil.body.seq.media.attributes.exists) {
+            response[1] = [playlist.smil.body.seq.media];
+          }
+        }
+      }
+
+      this.resolveReadPlaylist(response);
+      this.resolveReadPlaylist = null;
+    });
   }
 }

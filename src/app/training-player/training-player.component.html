@@ -1,6 +1,6 @@
 <div gdAreas="add | slots | player" gdRows="auto 1fr auto" gdGap="16px" class="player-container">
     <!-- add new slot -->
-    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between" class="new-slot" gdArea="add">
+    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between" class="container new-slot" gdArea="add">
         <div class="add-text">Add dance</div>
         <div *ngFor="let dance of settings.getDancesPerCategory(0); let i = index">
             <button mat-flat-button color="primary" (click)="addSlot(dance, null)">
@@ -10,23 +10,21 @@
         <div fxFlex="48px"></div>
         <div class="add-text">Add playlist</div>
         <div fxFlex="100%">
-            <mat-form-field class="example-full-width">
+            <mat-form-field>
                 <input type="text" placeholder="Select playlist" matInput [matAutocomplete]="playlistSelect"
                     (keyup)="updateFilter($event)" [(ngModel)]="playlistFilterValue" #playlistInput>
+                <button mat-button *ngIf="playlistFilterValue" matSuffix mat-icon-button aria-label="Clear"
+                    (click)="playlistFilterValue=''">
+                    <mat-icon>close</mat-icon>
+                </button>
                 <mat-autocomplete #playlistSelect="matAutocomplete"
                     (optionSelected)="addSlot(null, $event.option.value)">
                     <mat-option *ngFor="let option of filteredPlaylists | async" [value]="option">
-                        {{settings.getPlaylistName(option)}}
+                        <span title="{{option.name}}">{{option.title}} ({{option.items?.length}})</span>
                     </mat-option>
                 </mat-autocomplete>
             </mat-form-field>
         </div>
-
-        <!-- <div>
-            <button mat-flat-button color="primary">
-                <mat-icon>add</mat-icon> Add playlist
-            </button>
-        </div> -->
     </div>
 
     <!-- List of slots -->
@@ -36,17 +34,7 @@
                 <div class="slot" [ngClass]="{'active': slotIndex == currentSlotIndex}">
                     <div fxLayout="row" class="slot-header" fxLayoutAlign="start center">
                         <div fxFlex="100%" class="title">
-                            {{settings.getDanceFriendlyName(slot.dance)}}{{settings.getPlaylistName(slot.playlistName)}}
-                        </div>
-                        <div>
-                            <button mat-icon-button (click)="selectAll(slot)">
-                                <mat-icon>check_box</mat-icon>
-                            </button>
-                        </div>
-                        <div>
-                            <button mat-icon-button (click)="unselectAll(slot)">
-                                <mat-icon>check_box_outline_blank</mat-icon>
-                            </button>
+                            {{settings.getDanceFriendlyName(slot.dance)}}{{slot.playlist?.title}}
                         </div>
                         <div class="sort-order">
                             <mat-button-toggle-group name="sortOrder" [value]="slot.sortOrder"
@@ -61,6 +49,16 @@
                                     <mat-icon>sort_by_alpha</mat-icon>
                                 </mat-button-toggle>
                             </mat-button-toggle-group>
+                        </div>
+                        <div>
+                            <button mat-icon-button (click)="selectAll(slot)">
+                                <mat-icon>check_box</mat-icon>
+                            </button>
+                        </div>
+                        <div>
+                            <button mat-icon-button (click)="unselectAll(slot)">
+                                <mat-icon>check_box_outline_blank</mat-icon>
+                            </button>
                         </div>
                         <div>
                             <button mat-icon-button (click)="removeSlot(slot)">
@@ -87,42 +85,29 @@
 
     <!-- Audio player controls -->
     <div gdArea="player">
-        <div *ngIf="slots.length > 0" class="player" fxLayout="row" fxLayoutGap="16px"  fxLayoutAlign="start center">
+        <div *ngIf="slots.length > 0" class="container player" fxLayout="row" fxLayoutGap="16px"
+            fxLayoutAlign="start center">
             <div>
-                <button mat-flat-button [disabled]="isPlaying" color="primary" (click)="play()">
+                <button mat-flat-button [disabled]="isPlaying && !isPaused" color="primary" (click)="play()">
                     <mat-icon>play_arrow</mat-icon> Play
                 </button>
             </div>
             <div>
-                <button mat-flat-button [disabled]="!isPlaying" (click)="next()">
+                <button mat-flat-button [disabled]="isPaused || !isPlaying" (click)="next()">
                     <mat-icon>skip_next</mat-icon>Next
                 </button>
             </div>
-
-            <!-- <div>
-            <button *ngIf="practiceConfigured" mat-flat-button [disabled]="isPaused || !isPlaying" (click)="pause()">
-                <mat-icon>pause</mat-icon>Pause
-            </button>
-        </div>-->
+            <div>
+                <button mat-flat-button [disabled]="isPaused || !isPlaying"
+                    (click)="pause()">
+                    <mat-icon>pause</mat-icon>Pause
+                </button>
+            </div>
             <div>
                 <button mat-flat-button [disabled]="!isPlaying" (click)="stop()">
                     <mat-icon>stop</mat-icon>Stop
                 </button>
             </div>
-            <!--<div>
-            <button *ngIf="practiceConfigured" mat-flat-button [disabled]="isPlaying" (click)="play(true)">
-                <mat-icon>volume_up</mat-icon> Preview
-            </button>
-        </div>
-        <div fxFlex="100%"></div>
-        <div>
-            <div class="pauseProgress">
-                <div [hidden]="pauseProgress == 0">
-                    <div class="pauseCountDown">{{pauseDuration - pauseProgress | number:'1.0-0'}}</div>
-                    <mat-spinner diameter="20" strokeWidth="4"></mat-spinner>
-                </div>
-            </div>
-        </div> -->
             <div fxFlex="48px"></div>
             <div class="progress">
                 {{slots[currentSlotIndex].items[slots[currentSlotIndex].currentSongIndex].progress * 1000 | date:'mm:ss'}}
@@ -130,7 +115,8 @@
                 {{slots[currentSlotIndex].items[slots[currentSlotIndex].currentSongIndex].duration * 1000 | date:'mm:ss'}}
             </div>
             <div fxFlex="100%">
-                <mat-slider [min]="0" (input)="updateProgress(slots[currentSlotIndex].items[slots[currentSlotIndex].currentSongIndex], $event)"
+                <mat-slider [min]="0"
+                    (input)="updateProgress(slots[currentSlotIndex].items[slots[currentSlotIndex].currentSongIndex], $event)"
                     [max]="slots[currentSlotIndex].items[slots[currentSlotIndex].currentSongIndex].duration"
                     [value]="slots[currentSlotIndex].items[slots[currentSlotIndex].currentSongIndex].progress">
                 </mat-slider>

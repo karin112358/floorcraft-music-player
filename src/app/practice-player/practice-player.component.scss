@@ -1,28 +1,44 @@
-.player {
-    background-color: #eee;
-    border-radius: 4px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    padding: 16px;
+.player-container {
+    height: 100%;
+    overflow: hidden;
 }
 
-.pauseProgress {
-    position: relative;
-    font-size: 12px;
-    line-height: 20px;
-    height: 20px;
+.settings {
+    padding-bottom: 0;
 
-    .pauseCountDown {
-        position: absolute;
-        right: 30px;
-        top: 8px;
+    mat-form-field {
+        width: 100px;
     }
+}
 
-    mat-spinner {
-        position: absolute;
-        right: 0;
-        top: 8px;
+.player {
+    .pauseProgress {
+        position: relative;
+        font-size: 12px;
+        line-height: 20px;
+        height: 20px;
+
+        .pauseCountDown {
+            position: absolute;
+            right: 30px;
+            top: 8px;
+        }
+
+        mat-spinner {
+            position: absolute;
+            right: 0;
+            top: 8px;
+        }
     }
+}
+
+.songs-container {
+    height: 100%;
+    border-radius: 4px;
+    overflow: auto;
+    border: 1px solid #999;
+    padding: 16px;
+    box-sizing: border-box;
 }
 
 .song {

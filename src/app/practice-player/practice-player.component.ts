@@ -50,13 +50,13 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
       console.log('playlistFolder read');
       this.playlistFolder = playlistFolder;
 
-      this.practicePlaylistsSongs[Dance.Intro] = await this.settings.getPlaylistItems(Dance.Intro, this.settings.defaultPlaylistsPerDance.Intro);
-      this.practicePlaylistsSongs[Dance.Finish] = await this.settings.getPlaylistItems(Dance.Finish, this.settings.defaultPlaylistsPerDance.Finish);
+      this.practicePlaylistsSongs[Dance.Intro] = (await this.settings.getPlaylistItems(Dance.Intro, this.settings.defaultPlaylistsPerDance.Intro))[1];
+      this.practicePlaylistsSongs[Dance.Finish] = (await this.settings.getPlaylistItems(Dance.Finish, this.settings.defaultPlaylistsPerDance.Finish))[1];
 
       const dances = this.settings.getDancesPerCategory(Category.Standard);
       for (let i = 0; i < dances.length; i++) {
         const dance = dances[i];
-        this.practicePlaylistsSongs[dance] = await this.settings.getPlaylistItems(dance, this.settings.defaultPlaylistsPerDance[dance]);
+        this.practicePlaylistsSongs[dance] = (await this.settings.getPlaylistItems(dance, this.settings.defaultPlaylistsPerDance[dance]))[1];
       }
     }
   }
