@@ -78,6 +78,28 @@
                             </div>
                         </mat-list-item>
                     </mat-list>
+
+                    <div fxLayout="row" class="slot-footer" fxLayoutAlign="start center" fxLayoutGap="16px">
+                        <div>Speed</div>
+                        <div>
+                            <mat-form-field class="example-full-width">
+                                <input matInput type="number" [value]="slot.playbackRate" step="0.05"
+                                    (change)="changePlaybackRate(slot, $event.currentTarget.value)">
+                            </mat-form-field>
+                        </div>
+                        <div fxLayout="row">
+                            <button mat-icon-button (click)="changePlaybackRate(slot, slot.playbackRate - 0.05)">
+                                <mat-icon>keyboard_arrow_down</mat-icon>
+                            </button>
+                            <button mat-icon-button (click)="changePlaybackRate(slot, slot.playbackRate + 0.05)">
+                                <mat-icon>keyboard_arrow_up</mat-icon>
+                            </button>
+                            <button mat-icon-button (click)="changePlaybackRate(slot, 1)">
+                                <mat-icon>undo</mat-icon>
+                            </button>
+                        </div>
+                        <div fxFlex="100%"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -98,8 +120,7 @@
                 </button>
             </div>
             <div>
-                <button mat-flat-button [disabled]="isPaused || !isPlaying"
-                    (click)="pause()">
+                <button mat-flat-button [disabled]="isPaused || !isPlaying" (click)="pause()">
                     <mat-icon>pause</mat-icon>Pause
                 </button>
             </div>

@@ -9,6 +9,7 @@ export class Slot {
     public items: PlaylistItem[];
     public currentSongIndex = 0;
     public sortOrder = SortOrder.Random;
+    public playbackRate = 1;
 
     constructor(dance: Dance, playlist: Playlist) {
         this.dance = dance;

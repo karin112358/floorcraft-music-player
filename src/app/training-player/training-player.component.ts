@@ -30,6 +30,8 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
   private audio: HTMLAudioElement;
   private filterSubject = new BehaviorSubject<string>('');
   private reset = false;
+  private context = new AudioContext();
+  private scriptProcessor: ScriptProcessorNode;
 
   constructor(public settings: SettingsService, private ngZone: NgZone) {
     this.audio = new Audio();
@@ -185,10 +187,13 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
           }
 
           this.audio.currentTime = song.progress;
+          this.audio.playbackRate = slot.playbackRate;
           this.reset = false;
           this.audio.play();
 
           song.duration = await this.getCurrentSongDuration();
+
+          console.log('loaded', this.audio);
 
           while (song.progress < song.duration && !this.reset && !this.isPaused) {
             song.progress = Math.min(this.audio.currentTime, song.duration);
@@ -237,6 +242,13 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
     this.currentSlotIndex = slotIndex;
     this.slots[this.currentSlotIndex].currentSongIndex = songIndex;
     this.play(true);
+  }
+
+  public changePlaybackRate(slot: Slot, value: number) {
+    slot.playbackRate = Math.round(value * 100) / 100;
+    if (slot === this.slots[this.currentSlotIndex]) {
+      this.audio.playbackRate = slot.playbackRate;
+    }
   }
 
   public selectAll(slot: Slot) {
