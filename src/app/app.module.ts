@@ -16,6 +16,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgxElectronModule } from 'ngx-electron';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -46,6 +47,7 @@ import { TrainingPlayerComponent } from './training-player/training-player.compo
     MatListModule,
     MatCheckboxModule,
     MatSliderModule,
+    MatTooltipModule,
     FormsModule,
     BrowserModule,
     NgxElectronModule,

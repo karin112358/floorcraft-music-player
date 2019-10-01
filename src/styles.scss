@@ -50,6 +50,23 @@ h2 {
     margin-block-end: 0.4em;
 }
 
+.content-container {
+    height: 100%;
+    overflow: hidden;
+}
+
+.container {
+    background-color: #eee;
+    padding: 16px;
+}
+
+.main-container {
+    padding: 16px;
+    box-sizing: border-box;
+    overflow: auto;
+    height: 100%;
+}
+
 mat-form-field {
     width: 100%;
     max-width: 100%;
@@ -72,33 +89,55 @@ mat-form-field {
     }
 }
 
-.mat-button-toggle-label-content {
-    line-height: 24px !important;
-    padding: 0 3px !important;
+/* toggle button */
+.training-container {
+    .mat-button-toggle-label-content {
+        line-height: 24px !important;
+        padding: 0 3px !important;
 
-    mat-icon {
-        height: 16px;
+        mat-icon {
+            height: 16px;
+        }
+    }
+
+    .mat-button-toggle-group-appearance-standard {
+        border: solid 1px rgba(255, 255, 255, 0.3);
+    }
+
+    .mat-button-toggle-group-appearance-standard .mat-button-toggle+.mat-button-toggle {
+        border-left: solid 1px rgba(255, 255, 255, 0.3);
+    }
+
+    .mat-button-toggle-appearance-standard {
+        background: rgba(255, 255, 255, 0);
+    }
+
+    .mat-button-toggle-checked.mat-button-toggle-appearance-standard {
+        background: rgba(255, 255, 255, 0.3);
     }
 }
 
-.mat-button-toggle-group-appearance-standard {
-    border: solid 1px rgba(255, 255, 255, 0.3);
-}
+.practice-container {
+    .mat-button-toggle-label-content {
+        line-height: 36px !important;
+        padding: 0 3px !important;
 
-.mat-button-toggle-group-appearance-standard .mat-button-toggle+.mat-button-toggle {
-    border-left: solid 1px rgba(255, 255, 255, 0.3);
-}
+        mat-icon {
+            height: 24px;
+        }
+    }
 
-.mat-button-toggle-appearance-standard {
-    background: rgba(255, 255, 255, 0);
-}
+    mat-button-toggle-group {
+        border: none;
+    }
 
-.mat-button-toggle-checked.mat-button-toggle-appearance-standard {
-    background: rgba(255, 255, 255, 0.3);
-}
+    mat-button-toggle {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
 
-.container {
-    background-color: #eee;
-    border-radius: 4px;
-    padding: 16px;
+    .mat-button-toggle-checked.mat-button-toggle-appearance-standard {
+        background-color:#c62828;
+        color: #fff;
+    }
 }

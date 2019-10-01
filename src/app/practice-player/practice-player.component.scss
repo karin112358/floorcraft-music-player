@@ -1,14 +1,13 @@
-.player-container {
-    height: 100%;
-    overflow: hidden;
-}
-
 .settings {
     padding-bottom: 0;
 
     mat-form-field {
         width: 100px;
     }
+}
+
+.configuration-input {
+    margin-top: -8px;
 }
 
 .player {
@@ -30,15 +29,6 @@
             top: 8px;
         }
     }
-}
-
-.songs-container {
-    height: 100%;
-    border-radius: 4px;
-    overflow: auto;
-    border: 1px solid #999;
-    padding: 16px;
-    box-sizing: border-box;
 }
 
 .song {

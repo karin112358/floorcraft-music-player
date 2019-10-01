@@ -17,6 +17,7 @@
   "private": true,
   "dependencies": {
     "fs": "0.0.1-security",
+    "music-metadata": "^4.8.0",
     "xml-js": "^1.6.11"
   },
   "devDependencies": {

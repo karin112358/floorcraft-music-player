@@ -3,11 +3,12 @@
     <span>
         <a routerLink="/training" routerLinkActive="active">Training</a>
         <a routerLink="/practice" routerLinkActive="active">Practice</a>
-        <a routerLink="/settings" routerLinkActive="active">Settings</a>
-        <a (click)="settings.initialize()">Reload playlists</a>
     </span>
     <span class="fill-space"></span>
-    <span>UTSC Music Player</span>
+    <span class="settings">
+        <a routerLink="/settings" routerLinkActive="active"><mat-icon>build</mat-icon></a>
+        <a (click)="settings.initialize()"><mat-icon>refresh</mat-icon></a>
+    </span>
 </mat-toolbar>
 
 <div class="content">

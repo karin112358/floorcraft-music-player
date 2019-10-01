@@ -6,14 +6,13 @@
 
 .content {
     position: relative;
-    padding: 16px;
-    height: calc(100vh - 64px);
+    height: calc(100vh - 48px);
     box-sizing: border-box;
     width: 100vw;
 }
 
 mat-toolbar {
-    background-color: #c62828;
+    background-color: darken(#615252, 30%);
     color: #fff;
     text-transform: uppercase;
 
@@ -28,10 +27,26 @@ mat-toolbar {
 
         &.active {
             background-color: #fff;
-            color: #c62828;
+            color: darken(#615252, 30%);
 
         }
     }
+
+    .settings {
+        a {
+            margin-right: 0;
+        }
+
+        mat-icon {
+            font-size: 20px;
+            vertical-align: middle;
+        }
+    }
+}
+
+.mat-toolbar-single-row {
+    padding: 0 16px;
+    height: 48px;
 }
 
 .busy { 

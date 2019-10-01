@@ -1,6 +1,16 @@
-<div gdAreas="configure | songs | player" gdRows="auto 1fr auto" gdGap="16px" class="player-container">
+<div gdAreas="configure | songs | player" gdRows="auto 1fr auto" class="content-container practice-container">
     <div class="container settings" gdArea="configure">
         <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
+            <div>
+                <mat-button-toggle-group name="category" [value]="category" (change)="category = $event.value" [disabled]="isPlaying">
+                    <mat-button-toggle [value]="0">
+                        Standard
+                    </mat-button-toggle>
+                    <mat-button-toggle [value]="1">
+                        Latin
+                    </mat-button-toggle>
+                </mat-button-toggle-group>
+            </div>
             <div>
                 <button mat-flat-button color="primary" [disabled]="isPlaying" (click)="configureSemifinal()">
                     <mat-icon>looks_two</mat-icon> Create semifinal
@@ -15,21 +25,21 @@
 
             <div fxFlex="100%"></div>
 
-            <div>
+            <div class="configuration-input">
                 <mat-form-field>
                     <input [disabled]="isPlaying" matInput type="number" placeholder="Duration [sec]"
                         [(ngModel)]="songDuration">
                 </mat-form-field>
             </div>
 
-            <div>
+            <div class="configuration-input">
                 <mat-form-field>
                     <input [disabled]="isPlaying" matInput type="number" placeholder="Pause [sec]"
                         [(ngModel)]="pauseDuration">
                 </mat-form-field>
             </div>
 
-            <div>
+            <div class="configuration-input">
                 <mat-form-field>
                     <input [disabled]="isPlaying" matInput type="number" placeholder="Heats" [(ngModel)]="heats">
                 </mat-form-field>
@@ -43,7 +53,7 @@
         </div>
     </div>
 
-    <div *ngIf="practiceConfigured" class="practicePlaylist" gdArea="songs" class="songs-container">
+    <div *ngIf="practiceConfigured" class="practicePlaylist" gdArea="songs" class="songs-container main-container">
         <div *ngFor="let dance of currentPractice.dances">
             <h2>{{settings.getDanceFriendlyName(dance.dance)}}</h2>
 

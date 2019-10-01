@@ -28,12 +28,13 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
   public isPlaying = false;
   public isPaused = false;
   public pauseProgress = 0;
+  public category = 0;
 
   private audio: HTMLAudioElement;
   private reset = false;
   private fadeOutDuration = 5;
   private currentSong: PlaylistItem = null;
-  private playlistFolder = '';
+  //private playlistFolder = '';
 
   constructor(public settings: SettingsService, private localStorage: LocalStorage, private electronService: ElectronService) {
     this.audio = new Audio();
@@ -44,21 +45,27 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    const playlistFolder: string = <string>(await this.localStorage.getItem<string>('playlistFolder').toPromise());
+    //const playlistFolder: string = <string>(await this.localStorage.getItem<string>('playlistFolder').toPromise());
 
-    if (playlistFolder) {
-      console.log('playlistFolder read');
-      this.playlistFolder = playlistFolder;
+    // if (playlistFolder) {
+    //   console.log('playlistFolder read');
+    //   this.playlistFolder = playlistFolder;
 
       this.practicePlaylistsSongs[Dance.Intro] = (await this.settings.getPlaylistItems(Dance.Intro, this.settings.defaultPlaylistsPerDance.Intro))[1];
       this.practicePlaylistsSongs[Dance.Finish] = (await this.settings.getPlaylistItems(Dance.Finish, this.settings.defaultPlaylistsPerDance.Finish))[1];
 
-      const dances = this.settings.getDancesPerCategory(Category.Standard);
+      let dances = this.settings.getDancesPerCategory(Category.Standard);
       for (let i = 0; i < dances.length; i++) {
         const dance = dances[i];
         this.practicePlaylistsSongs[dance] = (await this.settings.getPlaylistItems(dance, this.settings.defaultPlaylistsPerDance[dance]))[1];
       }
-    }
+
+      dances = this.settings.getDancesPerCategory(Category.Latin);
+      for (let i = 0; i < dances.length; i++) {
+        const dance = dances[i];
+        this.practicePlaylistsSongs[dance] = (await this.settings.getPlaylistItems(dance, this.settings.defaultPlaylistsPerDance[dance]))[1];
+      }
+    //}
   }
 
   ngOnDestroy() {
@@ -83,7 +90,7 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
     this.currentPractice.dances = [];
 
     this.selectSongs(Dance.Intro, 1);
-    this.settings.getDancesPerCategory(Category.Standard).forEach(dance => {
+    this.settings.getDancesPerCategory(this.category).forEach(dance => {
       this.selectSongs(dance, this.heats);
     });
     this.selectSongs(Dance.Finish, 1);

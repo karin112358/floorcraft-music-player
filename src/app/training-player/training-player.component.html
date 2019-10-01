@@ -1,11 +1,22 @@
-<div gdAreas="add | slots | player" gdRows="auto 1fr auto" gdGap="16px" class="player-container">
+<div gdAreas="add | slots | player" gdRows="auto 1fr auto" class="content-container training-container">
     <!-- add new slot -->
-    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between" class="container new-slot" gdArea="add">
+    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="start center" class="container new-slot" gdArea="add">
         <div class="add-text">Add dance</div>
-        <div *ngFor="let dance of settings.getDancesPerCategory(0); let i = index">
-            <button mat-flat-button color="primary" (click)="addSlot(dance, null)">
-                {{settings.getDanceShortName(dance)}}
-            </button>
+        <div fxLayout="column" fxLayoutGap="8px">
+            <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="space-between">
+                <div *ngFor="let dance of settings.getDancesPerCategory(0); let i = index">
+                    <button mat-flat-button color="primary" (click)="addSlot(dance, null)" [matTooltip]="settings.getDanceFriendlyName(dance)">
+                        {{settings.getDanceShortName(dance)}}
+                    </button>
+                </div>
+            </div>
+            <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="space-between">
+                <div *ngFor="let dance of settings.getDancesPerCategory(1); let i = index">
+                    <button mat-flat-button color="primary" (click)="addSlot(dance, null)" [matTooltip]="settings.getDanceFriendlyName(dance)">
+                        {{settings.getDanceShortName(dance)}}
+                    </button>
+                </div>
+            </div>
         </div>
         <div fxFlex="48px"></div>
         <div class="add-text">Add playlist</div>
@@ -28,7 +39,7 @@
     </div>
 
     <!-- List of slots -->
-    <div class="slots" gdArea="slots">
+    <div class="slots main-container" gdArea="slots">
         <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="start stretch">
             <div *ngFor="let slot of slots; let slotIndex = index" fxFlex="0 1 min-content">
                 <div class="slot" [ngClass]="{'active': slotIndex == currentSlotIndex}">
@@ -39,29 +50,29 @@
                         <div class="sort-order">
                             <mat-button-toggle-group name="sortOrder" [value]="slot.sortOrder"
                                 (change)="changeSortOrder(slot, $event)">
-                                <mat-button-toggle [value]="0">
+                                <mat-button-toggle [value]="0" matTooltip="Shuffle">
                                     <mat-icon>shuffle</mat-icon>
                                 </mat-button-toggle>
-                                <mat-button-toggle [value]="1">
+                                <mat-button-toggle [value]="1" matTooltip="Playlist order">
                                     <mat-icon>arrow_downward</mat-icon>
                                 </mat-button-toggle>
-                                <mat-button-toggle [value]="2">
+                                <mat-button-toggle [value]="2" matTooltip="Alphabetic">
                                     <mat-icon>sort_by_alpha</mat-icon>
                                 </mat-button-toggle>
                             </mat-button-toggle-group>
                         </div>
                         <div>
-                            <button mat-icon-button (click)="selectAll(slot)">
+                            <button mat-icon-button (click)="selectAll(slot)" matTooltip="Select all">
                                 <mat-icon>check_box</mat-icon>
                             </button>
                         </div>
                         <div>
-                            <button mat-icon-button (click)="unselectAll(slot)">
+                            <button mat-icon-button (click)="unselectAll(slot)" matTooltip="Clear all">
                                 <mat-icon>check_box_outline_blank</mat-icon>
                             </button>
                         </div>
                         <div>
-                            <button mat-icon-button (click)="removeSlot(slot)">
+                            <button mat-icon-button (click)="removeSlot(slot)" matTooltip="Remove slot">
                                 <mat-icon>clear</mat-icon>
                             </button>
                         </div>
@@ -94,7 +105,7 @@
                             <button mat-icon-button (click)="changePlaybackRate(slot, slot.playbackRate + 0.05)">
                                 <mat-icon>keyboard_arrow_up</mat-icon>
                             </button>
-                            <button mat-icon-button (click)="changePlaybackRate(slot, 1)">
+                            <button mat-icon-button (click)="changePlaybackRate(slot, 1)" matTooltip="Reset speed">
                                 <mat-icon>undo</mat-icon>
                             </button>
                         </div>

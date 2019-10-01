@@ -27,6 +27,7 @@ export class SettingsService {
   private _playlistFolder: string;
   private resolveLoadPlaylists: (value?: unknown) => void;
   private resolveReadPlaylist: (value?: unknown) => void;
+  private resolveReadPlaylistDetails: (value?: unknown) => void;
 
   private constructor(private localStorage: LocalStorage, private electronService: ElectronService) {
     this.handleIPCCallbacks();
@@ -112,6 +113,19 @@ export class SettingsService {
 
       this.resolveReadPlaylist = resolve;
       this.electronService.ipcRenderer.send('readPlaylist', dance, this._playlistFolder, playlistName);
+    });
+
+    return promise;
+  }
+
+  /**
+   * Get the details for all items in a playlist.
+   * @param playlist 
+   */
+  public async loadPlaylistDetails(items: PlaylistItem[]): Promise<any[]> {
+    const promise = new Promise<any[]>((resolve, reject) => {
+      this.resolveReadPlaylistDetails = resolve;
+      this.electronService.ipcRenderer.send('readPlaylistDetails', this._playlistFolder, items);
     });
 
     return promise;
@@ -275,6 +289,26 @@ export class SettingsService {
 
       this.resolveReadPlaylist(response);
       this.resolveReadPlaylist = null;
+    });
+
+    this.electronService.ipcRenderer.on('playlistDetailsRead', (event, items: any) => {
+      if (this.resolveReadPlaylistDetails && items) {
+        console.log('playlistDetailsRead', items);
+        // if (playlist.smil.head && playlist.smil.head.title && playlist.smil.head.title._text) {
+        //   response[0] = playlist.smil.head.title._text;
+        // }
+
+        // if (playlist.smil.body) {
+        //   if (Array.isArray(playlist.smil.body.seq.media)) {
+        //     response[1] = playlist.smil.body.seq.media.filter(m => !m.attributes.src.endsWith('.wma') && m.attributes.exists);
+        //   } else if (!playlist.smil.body.seq.media.attributes.src.endsWith('.wma') && playlist.smil.body.seq.media.attributes.exists) {
+        //     response[1] = [playlist.smil.body.seq.media];
+        //   }
+        // }
+      }
+
+      this.resolveReadPlaylistDetails(items);
+      this.resolveReadPlaylistDetails = null;
     });
   }
 }

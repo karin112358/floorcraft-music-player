@@ -125,6 +125,7 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
   }
 
   public next() {
+    console.log('next');
     this.reset = true;
     const song = this.getCurrentSong();
     if (song) {
@@ -164,6 +165,7 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
   }
 
   public async play(fromStart = false) {
+    console.log('play');
     this.isPaused = false;
 
     if (this.hasEnabledItems()) {
@@ -180,8 +182,10 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
         }
 
         try {
-          let song = slot.items[slot.currentSongIndex]
+          const song = slot.items[slot.currentSongIndex];
           this.audio.src = this.settings.getAbsolutePath(song.configuration.attributes.src);
+          const path = this.audio.src;
+
           if (fromStart) {
             song.progress = 0;
           }
@@ -193,26 +197,22 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
 
           song.duration = await this.getCurrentSongDuration();
 
-          console.log('loaded', this.audio);
+          console.log('loaded', song);
 
-          while (song.progress < song.duration && !this.reset && !this.isPaused) {
+          while (path === this.audio.src && song.progress < song.duration && !this.reset && !this.isPaused) {
+            // console.log('progress', song.configuration.attributes.src, song.progress, song.duration);
             song.progress = Math.min(this.audio.currentTime, song.duration);
             await this.delay(100);
           }
 
+          console.log('finished song', song);
+
+          if (path === this.audio.src && !this.reset && !this.isPaused) {
+            this.next();
+          }
         } catch (ex) {
           console.log(ex);
         }
-
-        console.log('finished song');
-        if (!this.reset && !this.isPaused) {
-          this.next();
-        }
-        // this.audio.pause();
-
-        // if (!this.reset) {
-        //   this.stop();
-        // }
       } else {
         this.next();
       }
@@ -317,6 +317,8 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
 
         break;
     }
+
+    await this.settings.loadPlaylistDetails(items);
 
     slot.items = items;
   }
