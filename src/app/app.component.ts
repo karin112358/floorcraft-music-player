@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { SettingsService } from './shared/services/settings.service';
@@ -8,12 +8,12 @@ import { SettingsService } from './shared/services/settings.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements AfterViewInit {
   constructor(public settings: SettingsService, private router: Router) {
     
   }
 
-  async ngOnInit() {
+  async ngAfterViewInit() {
     await this.settings.initialize();
     this.router.navigate(['training']);
   }

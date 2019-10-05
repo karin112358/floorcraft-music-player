@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { ElectronService } from 'ngx-electron';
 import { LocalStorage } from '@ngx-pwa/local-storage';
 import { Category } from '../models/category';
 import { Dance } from '../models/dance';
-import { retry } from 'rxjs/operators';
+import { retry, debounceTime } from 'rxjs/operators';
 import { PlaylistItem } from '../models/playlist-item';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { Playlist } from '../models/playlist';
 
 @Injectable({
@@ -13,8 +13,10 @@ import { Playlist } from '../models/playlist';
 })
 export class SettingsService {
   public initialized = false;
+  public busyText = '';
   public playlists: Playlist[] = [];
   public defaultPlaylistsPerDance: any = {};
+  public busyTextSubject = new Subject<string>();
 
   get playlistFolder(): string {
     return this._playlistFolder;
@@ -29,7 +31,13 @@ export class SettingsService {
   private resolveReadPlaylist: (value?: unknown) => void;
   private resolveReadPlaylistDetails: (value?: unknown) => void;
 
-  private constructor(private localStorage: LocalStorage, private electronService: ElectronService) {
+  private constructor(
+    private localStorage: LocalStorage,
+    private electronService: ElectronService,
+    private zone: NgZone) {
+    this.busyTextSubject.pipe(debounceTime(100)).subscribe((busyText) => {
+      this.zone.run(() => this.busyText = busyText);
+    });
     this.handleIPCCallbacks();
   }
 
@@ -289,6 +297,7 @@ export class SettingsService {
 
       this.resolveReadPlaylist(response);
       this.resolveReadPlaylist = null;
+      this.busyTextSubject.next('');
     });
 
     this.electronService.ipcRenderer.on('playlistDetailsRead', (event, items: any) => {
@@ -309,6 +318,11 @@ export class SettingsService {
 
       this.resolveReadPlaylistDetails(items);
       this.resolveReadPlaylistDetails = null;
+    });
+
+    this.electronService.ipcRenderer.on('readPlaylistData', (event: any, playlist: string) => {
+      //this.zone.run(() => this.busyTextSubject.next('Loading ' + playlist));
+      this.busyTextSubject.next('Loading ' + playlist)
     });
   }
 }

@@ -6,9 +6,9 @@ const fs = require('fs');
 const { readdir, stat } = require('fs');
 
 const mm = require('music-metadata');
-const util = require('util')
+const util = require('util');
 
-require('electron-debug')();
+//require('electron-debug')();
 
 let win;
 
@@ -71,8 +71,9 @@ ipcMain.on('loadPlaylists', (event, arg) => {
 });
 
 ipcMain.on('readPlaylist', async (event, dance, folder, file) => {
-    //console.log('readPlaylist', file);
-    if (file && fs.existsSync(folder + '/' + file)) {
+    if (file && fs.existsSync(folder + '\\' + file)) {
+        event.reply('readPlaylistData', folder + '\\' + file);
+
         fs.readFile(folder + '/' + file, async (err, data) => {
             var options = { ignoreComment: true, alwaysChildren: true, compact: true, attributesKey: 'attributes' };
             var json = convert.xml2js(data, options);
@@ -98,31 +99,33 @@ ipcMain.on('readPlaylist', async (event, dance, folder, file) => {
 ipcMain.on('readPlaylistDetails', async (event, folder, items) => {
     if (items) {
         console.log('read playlist details ...');
+
         for (var i = 0; i < items.length; i++) {
             let src = getFilePath(folder, items[i].configuration.attributes.src);
             items[i].configuration.attributes.exists = fs.existsSync(src);
 
-            if (items[i].configuration.attributes.exists) {
-                try {
-                    let metadata = await mm.parseFile(src);
-                    items[i].configuration.metadata = {
-                        common: {
-                            title: metadata.common.title,
-                            genre: metadata.common.genre,
-                            artists: metadata.common.artists,
-                            album: metadata.common.album,
-                            year: metadata.common.year
-                        },
-                        format: {
-                            duration: metadata.format.duration
-                        }
-                    };
-                    //console.log(items[i]);
-                    //let result = util.inspect(metadata, { showHidden: false, depth: null });
-                } catch (err) {
-                    console.log(err);
-                }
-            }
+            // read metadata
+            // if (items[i].configuration.attributes.exists) {
+            //     try {
+            //         let metadata = await mm.parseFile(src);
+            //         items[i].configuration.metadata = {
+            //             common: {
+            //                 title: metadata.common.title,
+            //                 genre: metadata.common.genre,
+            //                 artists: metadata.common.artists,
+            //                 album: metadata.common.album,
+            //                 year: metadata.common.year
+            //             },
+            //             format: {
+            //                 duration: metadata.format.duration
+            //             }
+            //         };
+            //         //console.log(items[i]);
+            //         //let result = util.inspect(metadata, { showHidden: false, depth: null });
+            //     } catch (err) {
+            //         console.log(err);
+            //     }
+            // }
         }
     }
     //console.log('playlist details read', util.inspect(items, { showHidden: false, depth: null }));
