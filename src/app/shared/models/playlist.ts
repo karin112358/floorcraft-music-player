@@ -6,6 +6,7 @@ import { Dance } from './dance';
 export class Playlist {
     public name: string;
     public title: string;
+    public filename: string;
     public items: PlaylistItem[] = [];
 
     constructor(name: string, title: string = '', items: PlaylistItem[] = []) {

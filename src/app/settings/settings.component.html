@@ -2,12 +2,24 @@
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
         <div fxFlex="100">
             <mat-form-field>
+                <input matInput [readonly]=true type="text" placeholder="Music Folder"
+                    [(ngModel)]="settings.musicFolder">
+            </mat-form-field>
+        </div>
+        <div fxFlex="auto">
+            <button mat-flat-button color="primary" (click)="musicFolderInput.click()">Select music folder</button>
+            <input hidden type="file" webkitdirectory #musicFolderInput (change)="musicFolderChanged($event)" />
+        </div>
+    </div>
+    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
+        <div fxFlex="100">
+            <mat-form-field>
                 <input matInput [readonly]=true type="text" placeholder="Playlist Folder"
                     [(ngModel)]="settings.playlistFolder">
             </mat-form-field>
         </div>
         <div fxFlex="auto">
-            <button mat-flat-button color="primary" (click)="folderInput.click()">Select playlist</button>
+            <button mat-flat-button color="primary" (click)="folderInput.click()">Select playlist folder</button>
             <input hidden type="file" webkitdirectory #folderInput (change)="folderChanged($event)" />
         </div>
     </div>
@@ -82,6 +94,12 @@
                     </button>
                 </mat-form-field>
             </div>
+        </div>
+    </div>
+
+    <div fxLayout="row" fxLayoutGap="32px" fxLayoutAlign="space-between">
+        <div fxFlex="auto">
+            <button mat-flat-button color="primary" (click)="settings.readMetadata()" [disabled]="!settings.musicFolder">Update Database</button>
         </div>
     </div>
 </div>

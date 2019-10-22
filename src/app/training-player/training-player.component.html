@@ -5,14 +5,16 @@
         <div fxLayout="column" fxLayoutGap="8px">
             <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="space-between">
                 <div *ngFor="let dance of settings.getDancesPerCategory(0); let i = index">
-                    <button mat-flat-button color="primary" (click)="addSlot(dance, null)" [matTooltip]="settings.getDanceFriendlyName(dance)">
+                    <button mat-flat-button color="primary" (click)="addSlot(dance, null)"
+                        [matTooltip]="settings.getDanceFriendlyName(dance)">
                         {{settings.getDanceShortName(dance)}}
                     </button>
                 </div>
             </div>
             <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="space-between">
                 <div *ngFor="let dance of settings.getDancesPerCategory(1); let i = index">
-                    <button mat-flat-button color="primary" (click)="addSlot(dance, null)" [matTooltip]="settings.getDanceFriendlyName(dance)">
+                    <button mat-flat-button color="primary" (click)="addSlot(dance, null)"
+                        [matTooltip]="settings.getDanceFriendlyName(dance)">
                         {{settings.getDanceShortName(dance)}}
                     </button>
                 </div>
@@ -45,7 +47,8 @@
                 <div class="slot" [ngClass]="{'active': slotIndex == currentSlotIndex}">
                     <div fxLayout="row" class="slot-header" fxLayoutAlign="start center">
                         <div fxFlex="100%" class="title">
-                            {{settings.getDanceFriendlyName(slot.dance)}}{{slot.playlist?.title}}
+                            <span>{{settings.getDanceFriendlyName(slot.dance)}}</span><span
+                                *ngIf="!slot.dance">{{slot.playlist?.title}}</span>
                         </div>
                         <div class="sort-order">
                             <mat-button-toggle-group name="sortOrder" [value]="slot.sortOrder"
@@ -83,9 +86,16 @@
                             [ngClass]="{'active': songIndex == slot.currentSongIndex}"
                             (dblclick)="moveToSong(slotIndex, songIndex)">
                             <div>
-                                <mat-checkbox [checked]="!song.isDisabled" (change)="toggleSelection(song, $event)">
+                                <mat-checkbox [disabled]="!song.configuration.exists" [checked]="!song.isDisabled"
+                                    (change)="toggleSelection(song, $event)">
                                 </mat-checkbox>
-                                {{settings.getFilename(song.configuration.attributes.src)}}
+
+                                <span *ngIf="song.configuration.exists"
+                                    title="{{song.configuration.path}}">{{song.configuration.metadata?.title}} -
+                                    {{song.configuration.metadata?.genre}} -
+                                    {{formatDuration(song.configuration.metadata?.duration)}}</span>
+                                <span class="not-exists"
+                                    *ngIf="!song.configuration.exists">{{song.configuration.path}}</span>
                             </div>
                         </mat-list-item>
                     </mat-list>

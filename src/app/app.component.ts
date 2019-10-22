@@ -10,11 +10,16 @@ import { SettingsService } from './shared/services/settings.service';
 })
 export class AppComponent implements AfterViewInit {
   constructor(public settings: SettingsService, private router: Router) {
-    
+
   }
 
   async ngAfterViewInit() {
     await this.settings.initialize();
-    this.router.navigate(['training']);
+
+    if (this.settings.musicFolder) {
+      this.router.navigate(['training']);
+    } else {
+      this.router.navigate(['settings']);
+    }
   }
 }

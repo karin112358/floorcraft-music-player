@@ -7,8 +7,9 @@ const { readdir, stat } = require('fs');
 
 const mm = require('music-metadata');
 const util = require('util');
+const loki = require('lokijs');
 
-//require('electron-debug')();
+require('electron-debug')();
 
 let win;
 
@@ -59,19 +60,42 @@ app.on('activate', () => {
     }
 });
 
-ipcMain.on('loadPlaylists', (event, arg) => {
-    //event.returnValue = 'test';
-    readdir(arg, (err, files) => {
-        if (err) {
-            console.error(err);
-        }
+let db = null;
 
-        event.reply('playlistsLoaded', files.filter(f => f.endsWith('.wpl')));
+ipcMain.on('loadPlaylists', (event, arg) => {
+    db = new loki(arg + '\\music-player.db', {
+        autoload: true,
+        autoloadCallback: (async () => {
+            // add collections to database
+            var songs = db.getCollection('songs');
+            if (songs === null) {
+                songs = db.addCollection('songs');
+            }
+
+            var playlists = db.getCollection('playlists');
+            if (playlists === null) {
+                playlists = db.addCollection('playlists');
+            }
+
+            // await readMetadata(folder, folder, songs, playlists, 0);
+            // db.saveDatabase();
+            event.reply('playlistsLoaded', playlists.data);
+        }),
+        autosave: true,
+        autosaveInterval: 5000
     });
+
+    // readdir(arg, (err, files) => {
+    //     if (err) {
+    //         console.error(err);
+    //     }
+
+    //     event.reply('playlistsLoaded', files.filter(f => f.endsWith('.wpl')));
+    // });
 });
 
 ipcMain.on('readPlaylist', async (event, dance, folder, file) => {
-    if (file && fs.existsSync(folder + '\\' + file)) {
+    if (file && fileIsValid(folder + '\\' + file)) {
         event.reply('readPlaylistData', folder + '\\' + file);
 
         fs.readFile(folder + '/' + file, async (err, data) => {
@@ -82,10 +106,10 @@ ipcMain.on('readPlaylist', async (event, dance, folder, file) => {
                 if (Array.isArray(json.smil.body.seq.media)) {
                     json.smil.body.seq.media.forEach(async (item) => {
                         let src = getFilePath(folder, item.attributes.src);
-                        item.attributes.exists = fs.existsSync(src);
+                        item.attributes.exists = fileIsValid(src);
                     });
                 } else {
-                    json.smil.body.seq.media.attributes.exists = fs.existsSync(getFilePath(folder, json.smil.body.seq.media.attributes.src));
+                    json.smil.body.seq.media.attributes.exists = fileIsValid(getFilePath(folder, json.smil.body.seq.media.attributes.src));
                 }
             }
 
@@ -96,42 +120,146 @@ ipcMain.on('readPlaylist', async (event, dance, folder, file) => {
     }
 });
 
-ipcMain.on('readPlaylistDetails', async (event, folder, items) => {
+ipcMain.on('readPlaylistDetails', async (event, root, playlist, items) => {
     if (items) {
         console.log('read playlist details ...');
 
         for (var i = 0; i < items.length; i++) {
-            let src = getFilePath(folder, items[i].configuration.attributes.src);
-            items[i].configuration.attributes.exists = fs.existsSync(src);
+            let src = path.join(root, path.dirname(playlist.path), items[i].path);
+            items[i].exists = fileIsValid(src);
+            items[i].absolutePath = src;
 
-            // read metadata
-            // if (items[i].configuration.attributes.exists) {
-            //     try {
-            //         let metadata = await mm.parseFile(src);
-            //         items[i].configuration.metadata = {
-            //             common: {
-            //                 title: metadata.common.title,
-            //                 genre: metadata.common.genre,
-            //                 artists: metadata.common.artists,
-            //                 album: metadata.common.album,
-            //                 year: metadata.common.year
-            //             },
-            //             format: {
-            //                 duration: metadata.format.duration
-            //             }
-            //         };
-            //         //console.log(items[i]);
-            //         //let result = util.inspect(metadata, { showHidden: false, depth: null });
-            //     } catch (err) {
-            //         console.log(err);
-            //     }
-            // }
+            // load metadata
+            var songs = db.getCollection('songs');
+            results = songs.find({ 'path': { '$eq': src.replace(root, '') } });
+
+            if (results.length > 0) {
+                let metadata = results[0];
+                if (!metadata.title) {
+                    metadata.title = metadata.filename;
+                }
+
+                items[i].metadata = metadata;
+            } else {
+                // TODO: read metadata
+            }
         }
     }
-    //console.log('playlist details read', util.inspect(items, { showHidden: false, depth: null }));
 
+    //console.log(items);
     event.reply('playlistDetailsRead', items);
 });
+
+ipcMain.on('readMetadata', async (event, folder) => {
+    await readMetadata(folder, folder, db.getCollection('songs'), db.getCollection('playlists'), 0);
+    db.saveDatabase();
+    event.reply('metadataRead', null);
+});
+
+async function readMetadata(root, folder, songs, playlists, level) {
+    var items = fs.readdirSync(folder);
+    for (var i = 0; i < items.length; i++) {
+        var item = path.join(folder, items[i]);
+
+        if (fs.lstatSync(item).isDirectory()) {
+            readMetadata(root, item, songs, playlists, level++);
+        } else {
+            if (!item.endsWith('.xml') && !item.endsWith('.db')) {
+                try {
+                    let itemPath = item.replace(root, '');
+
+                    if (itemPath.endsWith('.wpl')) {
+                        // playlist
+                        results = playlists.find({ 'path': { '$eq': itemPath } });
+                        let playlist = null;
+
+                        if (results.length < 1) {
+                            playlist = {
+                                path: itemPath,
+                                filename: path.basename(itemPath)
+                            };
+
+                            playlist = playlists.insert(playlist);
+                        } else {
+                            playlist = results[0];
+                        }
+
+                        await updatePlaylist(playlist, root);
+
+                        console.log(playlist);
+                        playlists.update(playlist);
+                    } else {
+                        // song
+                        results = songs.find({ 'path': { '$eq': itemPath } });
+
+                        if (results.length < 1) {
+                            let metadata = null;
+                            try {
+                                metadata = await mm.parseFile(item, { skipCovers: true, duration: true });
+                            } catch (e) {
+                                //console.log('file not supported', item, e);
+                            }
+
+                            if (metadata) {
+                                let itemData = {
+                                    path: itemPath,
+                                    filename: path.basename(itemPath),
+                                    title: metadata.common.title,
+                                    genre: metadata.common.genre,
+                                    artists: metadata.common.artists,
+                                    album: metadata.common.album,
+                                    year: metadata.common.year,
+                                    duration: metadata.format.duration
+                                };
+
+                                songs.insert(itemData);
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.log('error', item, e);
+                }
+            }
+        }
+    }
+}
+
+async function updatePlaylist(playlist, root) {
+    console.log('update playlist', path.join(root, playlist.path));
+    var playlistItems = [];
+
+    data = await fs.readFileSync(path.join(root, playlist.path));
+    var options = { ignoreComment: true, alwaysChildren: true, compact: true, attributesKey: 'attributes' };
+    var json = convert.xml2js(data, options);
+
+    if (json && json.smil && json.smil.body && json.smil.body.seq && json.smil.body.seq.media) {
+        playlist.title = json.smil.head.title._text;
+
+        if (Array.isArray(json.smil.body.seq.media)) {
+            json.smil.body.seq.media.forEach(async (item) => {
+                let src = item.attributes.src;
+                if (!path.isAbsolute(src)) {
+                    src = path.join(root, path.dirname(playlist.path), item.attributes.src);
+                }
+
+                let exists = fileIsValid(src);
+                playlistItems.push({ path: item.attributes.src, exists: exists })
+            });
+        } else {
+            let item = json.smil.body.seq.media;
+            let src = item.attributes.src;
+            if (!path.isAbsolute(src)) {
+                src = path.join(root, path.dirname(playlist.path), item.attributes.src);
+            }
+
+            let exists = fileIsValid(src);
+            playlistItems.push({ path: item.attributes.src, exists: exists })
+        }
+    }
+
+    //console.log(playlistItems);
+    playlist.items = playlistItems;
+}
 
 function getFilePath(folder, src) {
     if (src.startsWith('..\\')) {
@@ -139,4 +267,8 @@ function getFilePath(folder, src) {
     } else {
         return src;
     }
+}
+
+function fileIsValid(src) {
+    return fs.existsSync(src) && !src.endsWith('.wma');
 }

@@ -16,6 +16,13 @@ export class SettingsComponent {
     public settings: SettingsService) {
   }
 
+  public musicFolderChanged(event: any) {
+    if (event.target.files.length > 0) {
+      this.settings.musicFolder = event.target.files[0].path;
+      this.settings.save();
+    }
+  }
+
   public folderChanged(event: any) {
     if (event.target.files.length > 0) {
       this.settings.playlistFolder = event.target.files[0].path;

@@ -26,8 +26,17 @@ export class SettingsService {
     this.loadPlaylists();
   }
 
+  get musicFolder(): string {
+    return this._musicFolder;
+  }
+  set musicFolder(value: string) {
+    this._musicFolder = value;
+  }
+
   private _playlistFolder: string;
+  private _musicFolder: string;
   private resolveLoadPlaylists: (value?: unknown) => void;
+  private resolveReadMetadata: (value?: unknown) => void;
   private resolveReadPlaylist: (value?: unknown) => void;
   private resolveReadPlaylistDetails: (value?: unknown) => void;
 
@@ -48,6 +57,11 @@ export class SettingsService {
     this.initialized = false;
 
     // load playlist folder and playlists and default playlists per dance
+    const musicFolder = await this.localStorage.getItem<string>('musicFolder').toPromise() as string;
+    if (musicFolder) {
+      this._musicFolder = musicFolder;
+    }
+
     const playlistFolder = await this.localStorage.getItem<string>('playlistFolder').toPromise() as string;
     if (playlistFolder) {
       this._playlistFolder = playlistFolder;
@@ -76,7 +90,19 @@ export class SettingsService {
   public async loadPlaylists() {
     const promise = new Promise((resolve, reject) => {
       this.resolveLoadPlaylists = resolve;
-      this.electronService.ipcRenderer.send('loadPlaylists', this.playlistFolder);
+      this.electronService.ipcRenderer.send('loadPlaylists', this._musicFolder);
+    });
+
+    return promise;
+  }
+
+  /**
+   * Load all playlists from the playlist folder.
+   */
+  public async readMetadata() {
+    const promise = new Promise((resolve, reject) => {
+      this.resolveReadMetadata = resolve;
+      this.electronService.ipcRenderer.send('readMetadata', this.musicFolder);
     });
 
     return promise;
@@ -99,9 +125,11 @@ export class SettingsService {
  */
   public async save() {
     const promise = new Promise((resolve, reject) => {
-      this.localStorage.setItem('playlistFolder', this.playlistFolder).subscribe(() => {
-        this.localStorage.setItem('defaultPlaylistsPerDance', this.defaultPlaylistsPerDance).subscribe(() => {
-          resolve();
+      this.localStorage.setItem('musicFolder', this.musicFolder).subscribe(() => {
+        this.localStorage.setItem('playlistFolder', this.playlistFolder).subscribe(() => {
+          this.localStorage.setItem('defaultPlaylistsPerDance', this.defaultPlaylistsPerDance).subscribe(() => {
+            resolve();
+          });
         });
       });
     });
@@ -130,10 +158,10 @@ export class SettingsService {
    * Get the details for all items in a playlist.
    * @param playlist 
    */
-  public async loadPlaylistDetails(items: PlaylistItem[]): Promise<any[]> {
+  public async readPlaylistDetails(playlist: Playlist, items: PlaylistItem[]): Promise<any[]> {
     const promise = new Promise<any[]>((resolve, reject) => {
       this.resolveReadPlaylistDetails = resolve;
-      this.electronService.ipcRenderer.send('readPlaylistDetails', this._playlistFolder, items);
+      this.electronService.ipcRenderer.send('readPlaylistDetails', this.musicFolder, playlist, items);
     });
 
     return promise;
@@ -255,15 +283,16 @@ export class SettingsService {
 
   private handleIPCCallbacks() {
     // handle ipc callbacks
-    this.electronService.ipcRenderer.on('playlistsLoaded', async (event, args) => {
-      const playlists: Playlist[] = args.map(item => new Playlist(item, item));
+    this.electronService.ipcRenderer.on('playlistsLoaded', async (event, playlists) => {
+      console.log(playlists);
+      //const playlists: Playlist[] = args.map(item => new Playlist(item, item));
 
       if (this.resolveLoadPlaylists) {
-        for (let i = 0; i < playlists.length; i++) {
-          const result = await this.getPlaylistItems(null, playlists[i].name);
-          playlists[i].title = result[0];
-          playlists[i].items = result[1];
-        }
+        // for (let i = 0; i < playlists.length; i++) {
+        //   const result = await this.getPlaylistItems(null, playlists[i].name);
+        //   playlists[i].title = result[0];
+        //   playlists[i].items = result[1];
+        // }
 
         this.playlists = playlists.filter(p => p.items && p.items.length > 0).sort((a, b) => {
           if (a.title.toLowerCase() < b.title.toLowerCase()) {
@@ -276,6 +305,12 @@ export class SettingsService {
         this.resolveLoadPlaylists();
         this.resolveLoadPlaylists = null;
       }
+    });
+
+    this.electronService.ipcRenderer.on('metadataRead', async (event, args) => {
+      this.resolveReadMetadata();
+      this.resolveReadMetadata = null;
+      console.log('metadata read');
     });
 
     this.electronService.ipcRenderer.on('playlistRead', (event, dance: Dance, playlist: any) => {
