@@ -62,6 +62,9 @@
                                 <mat-button-toggle [value]="2" matTooltip="Alphabetic">
                                     <mat-icon>sort_by_alpha</mat-icon>
                                 </mat-button-toggle>
+                                <mat-button-toggle [value]="3" matTooltip="Genre">
+                                    <mat-icon>queue_music</mat-icon>
+                                </mat-button-toggle>
                             </mat-button-toggle-group>
                         </div>
                         <div>
@@ -85,16 +88,26 @@
                         <mat-list-item *ngFor="let song of slot.items; let songIndex = index"
                             [ngClass]="{'active': songIndex == slot.currentSongIndex}"
                             (dblclick)="moveToSong(slotIndex, songIndex)">
-                            <div [matTooltip]="getTooltip(song)">
-                                <mat-checkbox [disabled]="!song.configuration.exists" [checked]="!song.isDisabled"
-                                    (change)="toggleSelection(song, $event)">
-                                </mat-checkbox>
-
-                                <span *ngIf="song.configuration.exists">{{song.configuration.metadata?.title}} -
-                                    {{song.configuration.metadata?.genre}} -
-                                    {{formatDuration(song.configuration.metadata?.duration)}}</span>
-                                <span class="not-exists"
-                                    *ngIf="!song.configuration.exists">{{song.configuration.path}}</span>
+                            <div [matTooltip]="getTooltip(song)" class="list-item-content">
+                                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                                    <div>
+                                        <mat-checkbox [disabled]="!song.configuration.exists"
+                                            [checked]="!song.isDisabled" (change)="toggleSelection(song, $event)">
+                                        </mat-checkbox>
+                                    </div>
+                                    <div fxFlex="100%" class="song-title">
+                                        <span [ngClass]="{'not-exists': !song.configuration.exists}"
+                                            *ngIf="song.configuration.metadata">{{song.configuration.metadata?.title}}</span>
+                                        <span [ngClass]="{'not-exists': !song.configuration.exists}"
+                                            *ngIf="!song.configuration.metadata">{{song.configuration.path}}</span>
+                                    </div>
+                                    <div>
+                                        {{song.configuration.metadata?.genre}}
+                                    </div>
+                                    <div>
+                                        {{formatDuration(song.configuration.metadata?.duration)}}
+                                    </div>
+                                </div>
                             </div>
                         </mat-list-item>
                     </mat-list>

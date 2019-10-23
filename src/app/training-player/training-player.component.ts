@@ -365,6 +365,22 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
           });
 
           break;
+        case SortOrder.Genre:
+            items = items.sort((a, b) => {
+              if (!a.configuration.exists || !a.configuration.metadata || !a.configuration.metadata.genre) {
+                return 1;
+              }
+              if (!b.configuration.exists || !b.configuration.metadata || !b.configuration.metadata.genre) {
+                return -1;
+              }
+              if (this.settings.getFilename(a.configuration.metadata.genre[0].toLowerCase()) < this.settings.getFilename(b.configuration.metadata.genre[0].toLowerCase())) {
+                return -1;
+              } else {
+                return 1;
+              }
+            });
+
+          break;
       }
 
       slot.items = items;

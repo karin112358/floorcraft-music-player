@@ -4,7 +4,7 @@
     padding: 5px 10px 0 10px;
     height: 100%;
     box-sizing: border-box;
-    max-width: 450px;
+    max-width: 500px;
 
     .slot-header {
         background-color: #ddd;
@@ -52,6 +52,15 @@
         .not-exists {
             color: #bbb;
         }
+    }
+
+    .list-item-content {
+        width: 100%;
+    }
+
+    .song-title {
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .slot-footer {
