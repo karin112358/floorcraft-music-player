@@ -85,13 +85,12 @@
                         <mat-list-item *ngFor="let song of slot.items; let songIndex = index"
                             [ngClass]="{'active': songIndex == slot.currentSongIndex}"
                             (dblclick)="moveToSong(slotIndex, songIndex)">
-                            <div>
+                            <div [matTooltip]="getTooltip(song)">
                                 <mat-checkbox [disabled]="!song.configuration.exists" [checked]="!song.isDisabled"
                                     (change)="toggleSelection(song, $event)">
                                 </mat-checkbox>
 
-                                <span *ngIf="song.configuration.exists"
-                                    title="{{song.configuration.path}}">{{song.configuration.metadata?.title}} -
+                                <span *ngIf="song.configuration.exists">{{song.configuration.metadata?.title}} -
                                     {{song.configuration.metadata?.genre}} -
                                     {{formatDuration(song.configuration.metadata?.duration)}}</span>
                                 <span class="not-exists"

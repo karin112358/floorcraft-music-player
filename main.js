@@ -62,8 +62,8 @@ app.on('activate', () => {
 
 let db = null;
 
-ipcMain.on('loadPlaylists', (event, arg) => {
-    db = new loki(arg + '\\music-player.db', {
+ipcMain.on('loadPlaylists', (event, folder) => {
+    db = new loki(folder + '\\music-player.db', {
         autoload: true,
         autoloadCallback: (async () => {
             // add collections to database
@@ -77,7 +77,7 @@ ipcMain.on('loadPlaylists', (event, arg) => {
                 playlists = db.addCollection('playlists');
             }
 
-            // await readMetadata(folder, folder, songs, playlists, 0);
+            await readMetadata(folder, folder, songs, playlists, 0, false);
             // db.saveDatabase();
             event.reply('playlistsLoaded', playlists.data);
         }),
@@ -132,17 +132,19 @@ ipcMain.on('readPlaylistDetails', async (event, root, playlist, items) => {
             // load metadata
             var songs = db.getCollection('songs');
             results = songs.find({ 'path': { '$eq': src.replace(root, '') } });
+            result = null;
 
             if (results.length > 0) {
-                let metadata = results[0];
-                if (!metadata.title) {
-                    metadata.title = metadata.filename;
-                }
-
-                items[i].metadata = metadata;
+                result = results[0];
             } else {
-                // TODO: read metadata
+                result = await insertSong(songs, src, src.replace(root, ''));
             }
+
+            if (result && !result.title) {
+                result.title = result.filename;
+            }
+
+            items[i].metadata = result;
         }
     }
 
@@ -151,12 +153,12 @@ ipcMain.on('readPlaylistDetails', async (event, root, playlist, items) => {
 });
 
 ipcMain.on('readMetadata', async (event, folder) => {
-    await readMetadata(folder, folder, db.getCollection('songs'), db.getCollection('playlists'), 0);
+    await readMetadata(folder, folder, db.getCollection('songs'), db.getCollection('playlists'), 0, true);
     db.saveDatabase();
     event.reply('metadataRead', null);
 });
 
-async function readMetadata(root, folder, songs, playlists, level) {
+async function readMetadata(root, folder, songs, playlists, level, readAllFiles) {
     var items = fs.readdirSync(folder);
     for (var i = 0; i < items.length; i++) {
         var item = path.join(folder, items[i]);
@@ -186,34 +188,14 @@ async function readMetadata(root, folder, songs, playlists, level) {
 
                         await updatePlaylist(playlist, root);
 
-                        console.log(playlist);
+                        //console.log(playlist);
                         playlists.update(playlist);
-                    } else {
+                    } else if (readAllFiles) {
                         // song
                         results = songs.find({ 'path': { '$eq': itemPath } });
 
                         if (results.length < 1) {
-                            let metadata = null;
-                            try {
-                                metadata = await mm.parseFile(item, { skipCovers: true, duration: true });
-                            } catch (e) {
-                                //console.log('file not supported', item, e);
-                            }
-
-                            if (metadata) {
-                                let itemData = {
-                                    path: itemPath,
-                                    filename: path.basename(itemPath),
-                                    title: metadata.common.title,
-                                    genre: metadata.common.genre,
-                                    artists: metadata.common.artists,
-                                    album: metadata.common.album,
-                                    year: metadata.common.year,
-                                    duration: metadata.format.duration
-                                };
-
-                                songs.insert(itemData);
-                            }
+                            await insertSong(songs, item, itemPath);
                         }
                     }
                 } catch (e) {
@@ -222,6 +204,32 @@ async function readMetadata(root, folder, songs, playlists, level) {
             }
         }
     }
+}
+
+async function insertSong(songs, file, relativePath) {
+    let metadata = null;
+    try {
+        metadata = await mm.parseFile(file, { skipCovers: true, duration: true });
+    } catch (e) {
+        //console.log('file not supported', file, e);
+    }
+
+    if (metadata) {
+        let itemData = {
+            path: relativePath,
+            filename: path.basename(relativePath),
+            title: metadata.common.title,
+            genre: metadata.common.genre,
+            artists: metadata.common.artists,
+            album: metadata.common.album,
+            year: metadata.common.year,
+            duration: metadata.format.duration
+        };
+
+        return songs.insert(itemData);
+    }
+
+    return null;
 }
 
 async function updatePlaylist(playlist, root) {

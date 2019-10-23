@@ -89,6 +89,14 @@ mat-form-field {
     }
 }
 
+.mat-tooltip {
+    white-space: pre-line;
+    font-size: 12px;
+    padding: 8px;
+    line-height: 1.4em;
+    max-width: 500px!important;
+}
+
 /* toggle button */
 .training-container {
     .mat-button-toggle-label-content {
@@ -137,7 +145,7 @@ mat-form-field {
     }
 
     .mat-button-toggle-checked.mat-button-toggle-appearance-standard {
-        background-color:#c62828;
+        background-color: #c62828;
         color: #fff;
     }
 }

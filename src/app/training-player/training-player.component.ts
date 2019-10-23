@@ -171,10 +171,10 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
     if (this.hasEnabledItems()) {
       const slot = this.slots[this.currentSlotIndex];
 
-      if (slot.items.filter(i => !i.isDisabled).length > 0) {
+      if (slot.items.filter(i => !i.isDisabled && i.configuration.exists).length > 0) {
         this.isPlaying = true;
 
-        while (slot.items[slot.currentSongIndex].isDisabled) {
+        while (slot.items[slot.currentSongIndex].isDisabled || !slot.items[slot.currentSongIndex].configuration.exists) {
           slot.currentSongIndex++;
           if (slot.currentSongIndex >= slot.items.length) {
             slot.currentSongIndex = 0;
@@ -286,6 +286,28 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
     } else {
       return '-';
     }
+  }
+
+  public getTooltip(song: PlaylistItem) {
+    let tooltip = '';
+    if (song.configuration.metadata) {
+      tooltip += 'Title: ' + song.configuration.metadata.title + '\n';
+      tooltip += 'Duration: ' + this.formatDuration(song.configuration.metadata.duration) + '\n';
+      tooltip += 'Album: ' + song.configuration.metadata.album + '\n';
+
+      if (song.configuration.metadata.artists) {
+        tooltip += 'Artists: ' + song.configuration.metadata.artists.join(', ') + '\n';
+      }
+
+      if (song.configuration.metadata.genre) {
+        tooltip += 'Genre: ' + song.configuration.metadata.genre.join(', ') + '\n';
+      }
+
+      tooltip += 'Path: ' + song.configuration.path + '\n';
+    } else {
+      tooltip += song.configuration.path + '\n';
+    }
+    return tooltip;
   }
 
   private hasEnabledItems(): boolean {
