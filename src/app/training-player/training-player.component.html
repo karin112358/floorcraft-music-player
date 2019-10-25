@@ -88,7 +88,7 @@
                         <mat-list-item *ngFor="let song of slot.items; let songIndex = index"
                             [ngClass]="{'active': songIndex == slot.currentSongIndex}"
                             (dblclick)="moveToSong(slotIndex, songIndex)">
-                            <div [matTooltip]="getTooltip(song)" class="list-item-content">
+                            <div [matTooltip]="getTooltip(song)" [matTooltipShowDelay]="1000" [matTooltipHideDelay]="0" [matTooltipPosition]="'after'" class="list-item-content">
                                 <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
                                     <div>
                                         <mat-checkbox [disabled]="!song.configuration.exists"
@@ -101,10 +101,10 @@
                                         <span [ngClass]="{'not-exists': !song.configuration.exists}"
                                             *ngIf="!song.configuration.metadata">{{song.configuration.path}}</span>
                                     </div>
-                                    <div>
+                                    <div [ngClass]="{'not-exists': !song.configuration.exists}">
                                         {{song.configuration.metadata?.genre}}
                                     </div>
-                                    <div>
+                                    <div [ngClass]="{'not-exists': !song.configuration.exists}">
                                         {{formatDuration(song.configuration.metadata?.duration)}}
                                     </div>
                                 </div>

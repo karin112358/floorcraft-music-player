@@ -100,7 +100,7 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
     slot.sortOrder = event.value;
 
     // change sort order
-    await this.setPlaylistItems(slot);
+    this.updatePlaylistSortOrder(slot, slot.items);
 
     // select previously selected item
     const currentSong = slot.items.find(s => s.configuration.absolutePath === currentSongSrc);
@@ -240,7 +240,8 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
 
   public moveToSong(slotIndex: number, songIndex: number) {
     if (this.slots[slotIndex].items[songIndex].configuration.exists) {
-      this.slots[this.currentSlotIndex].items[this.currentSlotIndex].progress = 0;
+      this.slots[this.currentSlotIndex].items[this.slots[this.currentSlotIndex].currentSongIndex].progress = 0;
+
       this.currentSlotIndex = slotIndex;
       this.slots[this.currentSlotIndex].currentSongIndex = songIndex;
       this.play(true);
@@ -344,74 +345,101 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
       let items = slot.playlist.items;
       items = await this.settings.readPlaylistDetails(slot.playlist, items);
       items = items.map(p => new PlaylistItem(p, 0));
-
-      switch (+slot.sortOrder) {
-        case SortOrder.Random:
-          items = this.shuffle(items);
-          break;
-        case SortOrder.Alphabetic:
-          items = items.sort((a, b) => {
-            if (!a.configuration.exists || !a.configuration.metadata || !a.configuration.metadata.title) {
-              return 1;
-            }
-            if (!b.configuration.exists || !b.configuration.metadata || !b.configuration.metadata.title) {
-              return -1;
-            }
-            if (this.settings.getFilename(a.configuration.metadata.title.toLowerCase()) < this.settings.getFilename(b.configuration.metadata.title.toLowerCase())) {
-              return -1;
-            } else {
-              return 1;
-            }
-          });
-
-          break;
-        case SortOrder.Genre:
-            items = items.sort((a, b) => {
-              if (!a.configuration.exists || !a.configuration.metadata || !a.configuration.metadata.genre) {
-                return 1;
-              }
-              if (!b.configuration.exists || !b.configuration.metadata || !b.configuration.metadata.genre) {
-                return -1;
-              }
-              if (this.settings.getFilename(a.configuration.metadata.genre[0].toLowerCase()) < this.settings.getFilename(b.configuration.metadata.genre[0].toLowerCase())) {
-                return -1;
-              } else {
-                return 1;
-              }
-            });
-
-          break;
-      }
-
-      slot.items = items;
+      this.updatePlaylistSortOrder(slot, items);
     } else {
       alert('Default playlist for ' + this.settings.getDanceFriendlyName(slot.dance) + ' not found.');
     }
-    // let items = (await this.settings.getPlaylistItems(slot.dance, (slot.playlist ? slot.playlist.name : null)))[1].map(p => new PlaylistItem(p, 0));
-    // switch (+slot.sortOrder) {
-    //   case SortOrder.Random:
-    //     items = this.shuffle(items);
-    //     break;
-    //   case SortOrder.Alphabetic:
-    //     items = items.sort((a, b) => {
-    //       if (this.settings.getFilename(a.configuration.attributes.src.toLowerCase()) < this.settings.getFilename(b.configuration.attributes.src.toLowerCase())) {
-    //         return -1;
-    //       } else {
-    //         return 1;
-    //       }
-    //     });
+  }
 
-    //     break;
-    // }
+  private updatePlaylistSortOrder(slot: Slot, items: PlaylistItem[]) {
+    switch (+slot.sortOrder) {
+      case SortOrder.Random:
+        items = this.shuffle(items);
+        break;
+      case SortOrder.PlaylistOrder:
+        items = items.sort((a, b) => {
+          if (!a.configuration.exists && !b.configuration.exists) {
+            return this.getTitleSortOrder(a, b);
+          } else if (!a.configuration.exists) {
+            return 1;
+          } else if (!b.configuration.exists) {
+            return -1;
+          }
 
-    // await this.settings.readPlaylistDetails(items);
+          return a.configuration.sortOrder > b.configuration.sortOrder ? 1 : -1;
+        });
+        break;
+      case SortOrder.Alphabetic:
+        items = items.sort((a, b) => {
+          if (!a.configuration.exists && !b.configuration.exists) {
+            return this.getTitleSortOrder(a, b);
+          } else if (!a.configuration.exists) {
+            return 1;
+          } else if (!b.configuration.exists) {
+            return -1;
+          }
 
-    // slot.items = items;
+          return this.getTitleSortOrder(a, b);
+        });
+
+        break;
+      case SortOrder.Genre:
+        items = items.sort((a, b) => {
+          if (!a.configuration.exists && !b.configuration.exists) {
+            return this.getGenreSortOrder(a, b);
+          } else if (!a.configuration.exists) {
+            return 1;
+          } else if (!b.configuration.exists) {
+            return -1;
+          }
+
+          return this.getGenreSortOrder(a, b);
+        });
+
+        break;
+    }
+
+    slot.items = items;
+  }
+
+  private getTitleSortOrder(a, b): number {
+    if (!a.configuration.metadata || !a.configuration.metadata.title) {
+      return 1;
+    }
+    if (!b.configuration.metadata || !b.configuration.metadata.title) {
+      return -1;
+    }
+    if (this.settings.getFilename(a.configuration.metadata.title.toLowerCase()) < this.settings.getFilename(b.configuration.metadata.title.toLowerCase())) {
+      return -1;
+    } else {
+      return 1;
+    }
+  }
+
+  private getGenreSortOrder(a, b): number {
+    if (!a.configuration.metadata || !a.configuration.metadata.genre) {
+      return 1;
+    }
+    if (!b.configuration.metadata || !b.configuration.metadata.genre) {
+      return -1;
+    }
+    if (this.settings.getFilename(a.configuration.metadata.genre[0].toLowerCase()) < this.settings.getFilename(b.configuration.metadata.genre[0].toLowerCase())) {
+      return -1;
+    } if (this.settings.getFilename(a.configuration.metadata.genre[0].toLowerCase()) > this.settings.getFilename(b.configuration.metadata.genre[0].toLowerCase())) {
+      return 1;
+    } else {
+      return this.getTitleSortOrder(a, b);
+    }
   }
 
   private shuffle(o) {
-    for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-    return o;
+    var exists = o.filter(i => i.configuration.exists);
+    var missing = o.filter(i => !i.configuration.exists);
+
+    for (var j, x, i = exists.length; i; j = Math.floor(Math.random() * i), x = exists[--i], exists[i] = exists[j], exists[j] = x);
+    for (var j, x, i = missing.length; i; j = Math.floor(Math.random() * i), x = missing[--i], missing[i] = missing[j], missing[j] = x);
+
+    return exists.concat(missing);
   }
 
   private delay(ms: number) {

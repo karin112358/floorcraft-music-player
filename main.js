@@ -126,6 +126,7 @@ ipcMain.on('readPlaylistDetails', async (event, root, playlist, items) => {
 
         for (var i = 0; i < items.length; i++) {
             let src = path.join(root, path.dirname(playlist.path), items[i].path);
+            items[i].sortOrder = i;
             items[i].exists = fileIsValid(src);
             items[i].absolutePath = src;
 
@@ -171,6 +172,8 @@ async function readMetadata(root, folder, songs, playlists, level, readAllFiles)
                     let itemPath = item.replace(root, '');
 
                     if (itemPath.endsWith('.wpl')) {
+                        const lastModified = fs.statSync(item).mtimeMs;
+
                         // playlist
                         results = playlists.find({ 'path': { '$eq': itemPath } });
                         let playlist = null;
@@ -186,7 +189,9 @@ async function readMetadata(root, folder, songs, playlists, level, readAllFiles)
                             playlist = results[0];
                         }
 
-                        await updatePlaylist(playlist, root);
+                        if (playlist.lastModified != lastModified) {
+                            await updatePlaylist(playlist, root, lastModified);
+                        }
 
                         //console.log(playlist);
                         playlists.update(playlist);
@@ -232,7 +237,7 @@ async function insertSong(songs, file, relativePath) {
     return null;
 }
 
-async function updatePlaylist(playlist, root) {
+async function updatePlaylist(playlist, root, lastModified) {
     console.log('update playlist', path.join(root, playlist.path));
     var playlistItems = [];
 
@@ -267,6 +272,7 @@ async function updatePlaylist(playlist, root) {
 
     //console.log(playlistItems);
     playlist.items = playlistItems;
+    playlist.lastModified = lastModified;
 }
 
 function getFilePath(folder, src) {
