@@ -29,7 +29,7 @@
             <mat-form-field>
                 <mat-select placeholder="Intro" (selectionChange)="playlistSelectionChanged($event)"
                     [(value)]="settings.defaultPlaylistsPerDance.Intro">
-                    <mat-option *ngFor="let item of settings.playlists" [value]="item.name">
+                    <mat-option *ngFor="let item of settings.playlists" [value]="item.filename">
                         {{item.title}}
                     </mat-option>
                 </mat-select>
@@ -44,7 +44,7 @@
             <mat-form-field>
                 <mat-select placeholder="Finish" (selectionChange)="playlistSelectionChanged($event)"
                     [(value)]="settings.defaultPlaylistsPerDance.Finish">
-                    <mat-option *ngFor="let item of settings.playlists" [value]="item.name">
+                    <mat-option *ngFor="let item of settings.playlists" [value]="item.filename">
                         {{item.title}}
                     </mat-option>
                 </mat-select>
@@ -65,7 +65,7 @@
                     <mat-select placeholder="{{settings.getDanceFriendlyName(dance)}}"
                         (selectionChange)="playlistSelectionChanged($event)"
                         [(value)]="settings.defaultPlaylistsPerDance[dance]">
-                        <mat-option *ngFor="let item of settings.playlists" [value]="item.name">
+                        <mat-option *ngFor="let item of settings.playlists" [value]="item.filename">
                             {{item.title}}
                         </mat-option>
                     </mat-select>
@@ -84,7 +84,7 @@
                     <mat-select placeholder="{{settings.getDanceFriendlyName(dance)}}"
                         (selectionChange)="playlistSelectionChanged($event)"
                         [(value)]="settings.defaultPlaylistsPerDance[dance]">
-                        <mat-option *ngFor="let item of settings.playlists" [value]="item.name">
+                        <mat-option *ngFor="let item of settings.playlists" [value]="item.filename">
                             {{item.title}}
                         </mat-option>
                     </mat-select>

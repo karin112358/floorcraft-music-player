@@ -5,6 +5,9 @@
         <a routerLink="/practice" routerLinkActive="active">Practice</a>
     </span>
     <span class="fill-space"></span>
+    <span *ngIf="settings.initialized">
+        {{settings.busyText}}
+    </span>
     <span class="settings">
         <a routerLink="/settings" routerLinkActive="active"><mat-icon>build</mat-icon></a>
         <a (click)="settings.initialize()"><mat-icon>refresh</mat-icon></a>

@@ -9,7 +9,7 @@ const mm = require('music-metadata');
 const util = require('util');
 const loki = require('lokijs');
 
-require('electron-debug')();
+//require('electron-debug')();
 
 let win;
 

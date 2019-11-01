@@ -88,24 +88,40 @@
                         <mat-list-item *ngFor="let song of slot.items; let songIndex = index"
                             [ngClass]="{'active': songIndex == slot.currentSongIndex}"
                             (dblclick)="moveToSong(slotIndex, songIndex)">
-                            <div [matTooltip]="getTooltip(song)" [matTooltipShowDelay]="1000" [matTooltipHideDelay]="0" [matTooltipPosition]="'after'" class="list-item-content">
-                                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-                                    <div>
-                                        <mat-checkbox [disabled]="!song.configuration.exists"
-                                            [checked]="!song.isDisabled" (change)="toggleSelection(song, $event)">
-                                        </mat-checkbox>
+                            <div gdAreas="overview | details" gdRows="auto auto" class="song"
+                                [ngClass]="{'not-exists': !song.configuration.exists, 'show-details': slot.showDetails}">
+                                <div gdArea="overview" [matTooltip]="getTooltip(song)" [matTooltipShowDelay]="1000"
+                                    [matTooltipHideDelay]="0" [matTooltipPosition]="'after'" class="list-item-content">
+                                    <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                                        <div>
+                                            <mat-checkbox [disabled]="!song.configuration.exists"
+                                                [checked]="!song.isDisabled" (change)="toggleSelection(song, $event)">
+                                            </mat-checkbox>
+                                        </div>
+                                        <div fxFlex="100%" class="song-title">
+                                            <span
+                                                *ngIf="song.configuration.metadata">{{song.configuration.metadata?.title}}</span>
+                                            <span
+                                                *ngIf="!song.configuration.metadata">{{song.configuration.path}}</span>
+                                        </div>
+                                        <div class="song-genre">
+                                            {{song.configuration.metadata?.genre}}
+                                        </div>
+                                        <div class="song-duration">
+                                            {{formatDuration(song.configuration.metadata?.duration)}}
+                                        </div>
                                     </div>
-                                    <div fxFlex="100%" class="song-title">
-                                        <span [ngClass]="{'not-exists': !song.configuration.exists}"
-                                            *ngIf="song.configuration.metadata">{{song.configuration.metadata?.title}}</span>
-                                        <span [ngClass]="{'not-exists': !song.configuration.exists}"
-                                            *ngIf="!song.configuration.metadata">{{song.configuration.path}}</span>
-                                    </div>
-                                    <div [ngClass]="{'not-exists': !song.configuration.exists}">
-                                        {{song.configuration.metadata?.genre}}
-                                    </div>
-                                    <div [ngClass]="{'not-exists': !song.configuration.exists}">
-                                        {{formatDuration(song.configuration.metadata?.duration)}}
+                                </div>
+                                <div gdArea="details" class="song-details" *ngIf="slot.showDetails">
+                                    <div gdAuto="row" gdRows="auto!" gdColumns="auto 1fr" gdGap="0 8px">
+                                        <div>Album</div>
+                                        <div>{{song.configuration.metadata?.album}}</div>
+
+                                        <div>Artists</div>
+                                        <div>{{song.configuration.metadata?.artists}}</div>
+
+                                        <div>Path</div>
+                                        <div>{{song.configuration.path}}</div>
                                     </div>
                                 </div>
                             </div>
@@ -132,6 +148,16 @@
                             </button>
                         </div>
                         <div fxFlex="100%"></div>
+                        <div>
+                            <button mat-icon-button matTooltip="Show details" *ngIf="!slot.showDetails"
+                                (click)="slot.showDetails = true">
+                                <mat-icon>visibility</mat-icon>
+                            </button>
+                            <button mat-icon-button matTooltip="Hide details" *ngIf="slot.showDetails"
+                                (click)="slot.showDetails = false">
+                                <mat-icon>visibility_off</mat-icon>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

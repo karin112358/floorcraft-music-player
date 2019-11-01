@@ -144,7 +144,7 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
     let fadeOutDuration = this.fadeOutDuration;
     if (testRun) {
       songDuration = 6;
-      pauseDuration = 0.5;
+      pauseDuration = 0;
       fadeOutDuration = 0;
     }
 

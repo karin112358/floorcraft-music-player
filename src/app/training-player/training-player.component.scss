@@ -41,7 +41,6 @@
     }
 
     mat-list-item {
-        height: 24px;
         font-size: 12px;
         text-overflow: ellipsis;
 
@@ -52,15 +51,42 @@
         .not-exists {
             color: #bbb;
         }
+
+        .song {
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            &.show-details {
+                .song-title, .song-genre, .song-duration {
+                    font-weight: bolder;
+                }
+            }
+        }
+
+        .song-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .song-genre,
+        .song-duration {
+            font-size: 10px;
+        }
+
+        .song-details {
+            margin-left: 32px;
+            max-width: 100%;
+            overflow: hidden;
+            line-height: 1.5em;
+            font-size: 11px;
+            white-space: normal;
+            margin-bottom: 5px;
+        }
     }
 
     .list-item-content {
         width: 100%;
-    }
-
-    .song-title {
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
 
     .slot-footer {

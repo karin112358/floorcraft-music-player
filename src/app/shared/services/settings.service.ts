@@ -23,7 +23,6 @@ export class SettingsService {
   }
   set playlistFolder(value: string) {
     this._playlistFolder = value;
-    this.loadPlaylists();
   }
 
   get musicFolder(): string {
@@ -31,6 +30,7 @@ export class SettingsService {
   }
   set musicFolder(value: string) {
     this._musicFolder = value;
+    this.loadPlaylists();
   }
 
   private _playlistFolder: string;
@@ -48,6 +48,10 @@ export class SettingsService {
       this.zone.run(() => this.busyText = busyText);
     });
     this.handleIPCCallbacks();
+
+    if (this.musicFolder) {
+      this.loadPlaylists();
+    }
   }
 
   /**
@@ -58,13 +62,17 @@ export class SettingsService {
 
     // load playlist folder and playlists and default playlists per dance
     const musicFolder = await this.localStorage.getItem<string>('musicFolder').toPromise() as string;
+    const playlistFolder = await this.localStorage.getItem<string>('playlistFolder').toPromise() as string;
+
     if (musicFolder) {
       this._musicFolder = musicFolder;
     }
 
-    const playlistFolder = await this.localStorage.getItem<string>('playlistFolder').toPromise() as string;
     if (playlistFolder) {
       this._playlistFolder = playlistFolder;
+    }
+
+    if (musicFolder && playlistFolder) {
       await this.loadPlaylists();
     }
 
@@ -117,6 +125,8 @@ export class SettingsService {
       return [Dance.EnglishWaltz, Dance.Tango, Dance.VienneseWaltz, Dance.Slowfox, Dance.Quickstep];
     } else if (category === Category.Latin) {
       return [Dance.Samba, Dance.ChaChaCha, Dance.Rumba, Dance.PasoDoble, Dance.Jive];
+    } else if (category === Category.Mixed) {
+      return [Dance.EnglishWaltz, Dance.Samba, Dance.Tango, Dance.ChaChaCha, Dance.VienneseWaltz, Dance.Rumba, Dance.Slowfox, Dance.PasoDoble, Dance.Quickstep, Dance.Jive];
     }
   }
 
@@ -288,12 +298,6 @@ export class SettingsService {
       //const playlists: Playlist[] = args.map(item => new Playlist(item, item));
 
       if (this.resolveLoadPlaylists) {
-        // for (let i = 0; i < playlists.length; i++) {
-        //   const result = await this.getPlaylistItems(null, playlists[i].name);
-        //   playlists[i].title = result[0];
-        //   playlists[i].items = result[1];
-        // }
-
         this.playlists = playlists.filter(p => p.items && p.items.length > 0).sort((a, b) => {
           if (a.title.toLowerCase() < b.title.toLowerCase()) {
             return -1;

@@ -2,12 +2,16 @@
     <div class="container settings" gdArea="configure">
         <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
             <div>
-                <mat-button-toggle-group name="category" [value]="category" (change)="category = $event.value" [disabled]="isPlaying">
+                <mat-button-toggle-group name="category" [value]="category" (change)="category = $event.value"
+                    [disabled]="isPlaying">
                     <mat-button-toggle [value]="0">
                         Standard
                     </mat-button-toggle>
                     <mat-button-toggle [value]="1">
                         Latin
+                    </mat-button-toggle>
+                    <mat-button-toggle [value]="2">
+                        Mixed
                     </mat-button-toggle>
                 </mat-button-toggle-group>
             </div>
@@ -54,6 +58,13 @@
     </div>
 
     <div *ngIf="practiceConfigured" class="practicePlaylist" gdArea="songs" class="songs-container main-container">
+        <div class="pause-progress">
+            <div [hidden]="pauseProgress == 0">
+                <div class="pause-count-down">{{pauseDuration - pauseProgress | number:'1.0-0'}}</div>
+                <mat-spinner diameter="20" strokeWidth="4"></mat-spinner>
+            </div>
+        </div>
+
         <div *ngFor="let dance of currentPractice.dances">
             <h2>{{settings.getDanceFriendlyName(dance.dance)}}</h2>
 
@@ -65,7 +76,8 @@
                 <button mat-icon-button [disabled]="isPlaying" class="playFromSong" (click)="playFromSong(song)">
                     <mat-icon>play_arrow</mat-icon>
                 </button>
-                <button mat-icon-button [disabled]="isPlaying" class="selectNewSong" (click)="selectNew(dance, i)">
+                <button mat-icon-button [disabled]="song.progress > 0" class="selectNewSong"
+                    (click)="selectNew(dance, i)">
                     <mat-icon>sync</mat-icon>
                 </button>
                 <button mat-icon-button [disabled]="isPlaying" class="testSong" (click)="playSong(song)">
@@ -107,14 +119,6 @@
                 </button>
             </div>
             <div fxFlex="100%"></div>
-            <div>
-                <div class="pauseProgress">
-                    <div [hidden]="pauseProgress == 0">
-                        <div class="pauseCountDown">{{pauseDuration - pauseProgress | number:'1.0-0'}}</div>
-                        <mat-spinner diameter="20" strokeWidth="4"></mat-spinner>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>

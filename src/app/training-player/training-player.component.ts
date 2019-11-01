@@ -63,9 +63,11 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
     this.filterSubject.next('');
 
     // read songs
+    this.settings.busyTextSubject.next('Loading playlist');
     var slot = new Slot(dance, playlist);
     await this.setPlaylistItems(slot);
     this.slots.push(slot);
+    this.settings.busyTextSubject.next('');
 
     if (!this.isPlaying) {
       if (this.currentSlotIndex < 0) {
@@ -358,14 +360,6 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
         break;
       case SortOrder.PlaylistOrder:
         items = items.sort((a, b) => {
-          if (!a.configuration.exists && !b.configuration.exists) {
-            return this.getTitleSortOrder(a, b);
-          } else if (!a.configuration.exists) {
-            return 1;
-          } else if (!b.configuration.exists) {
-            return -1;
-          }
-
           return a.configuration.sortOrder > b.configuration.sortOrder ? 1 : -1;
         });
         break;
@@ -403,13 +397,17 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
   }
 
   private getTitleSortOrder(a, b): number {
-    if (!a.configuration.metadata || !a.configuration.metadata.title) {
-      return 1;
+    var titleA = a.configuration.path;
+    var titleB = b.configuration.path;
+
+    if (a.configuration.metadata && a.configuration.metadata.title) {
+      titleA = a.configuration.metadata.title;
     }
-    if (!b.configuration.metadata || !b.configuration.metadata.title) {
-      return -1;
+
+    if (b.configuration.metadata && b.configuration.metadata.title) {
+      titleB = b.configuration.metadata.title;
     }
-    if (this.settings.getFilename(a.configuration.metadata.title.toLowerCase()) < this.settings.getFilename(b.configuration.metadata.title.toLowerCase())) {
+    if (titleA < titleB) {
       return -1;
     } else {
       return 1;
@@ -417,6 +415,10 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
   }
 
   private getGenreSortOrder(a, b): number {
+    if ((!a.configuration.metadata || !a.configuration.metadata.genre)
+      && (!b.configuration.metadata || !b.configuration.metadata.genre)) {
+      return this.getTitleSortOrder(a, b);
+    }
     if (!a.configuration.metadata || !a.configuration.metadata.genre) {
       return 1;
     }
@@ -437,7 +439,10 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
     var missing = o.filter(i => !i.configuration.exists);
 
     for (var j, x, i = exists.length; i; j = Math.floor(Math.random() * i), x = exists[--i], exists[i] = exists[j], exists[j] = x);
-    for (var j, x, i = missing.length; i; j = Math.floor(Math.random() * i), x = missing[--i], missing[i] = missing[j], missing[j] = x);
+    //for (var j, x, i = missing.length; i; j = Math.floor(Math.random() * i), x = missing[--i], missing[i] = missing[j], missing[j] = x);
+    missing = missing.sort((a, b) => {
+      return this.getTitleSortOrder(a, b);
+    });
 
     return exists.concat(missing);
   }

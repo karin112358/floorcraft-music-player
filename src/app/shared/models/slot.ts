@@ -10,6 +10,7 @@ export class Slot {
     public currentSongIndex = 0;
     public sortOrder = SortOrder.Random;
     public playbackRate = 1;
+    public showDetails = false;
 
     constructor(dance: Dance, playlist: Playlist) {
         this.dance = dance;

@@ -10,14 +10,18 @@
     margin-top: -8px;
 }
 
-.player {
-    .pauseProgress {
-        position: relative;
+.songs-container {
+    position: relative;
+
+    .pause-progress {
+        position: absolute;
         font-size: 12px;
         line-height: 20px;
         height: 20px;
+        top: 8px;
+        right: 16px;
 
-        .pauseCountDown {
+        .pause-count-down {
             position: absolute;
             right: 30px;
             top: 8px;

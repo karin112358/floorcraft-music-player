@@ -14,6 +14,7 @@ export class SettingsComponent {
   public categories = [ Category.Standard, Category.Latin ];
   constructor(
     public settings: SettingsService) {
+      console.log(settings);
   }
 
   public musicFolderChanged(event: any) {
