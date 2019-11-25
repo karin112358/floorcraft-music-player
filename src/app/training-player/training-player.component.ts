@@ -1,4 +1,7 @@
 import { Component, OnInit, ViewChild, NgZone, ElementRef, OnDestroy } from '@angular/core';
+
+import { NotificationsService } from 'angular2-notifications';
+
 import { Slot } from '../shared/models/slot';
 import { Dance } from '../shared/models/dance';
 import { SettingsService } from '../shared/services/settings.service';
@@ -30,20 +33,25 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
   private audio: HTMLAudioElement;
   private filterSubject = new BehaviorSubject<string>('');
   private reset = false;
-  private context = new AudioContext();
-  private scriptProcessor: ScriptProcessorNode;
 
-  constructor(public settings: SettingsService, private ngZone: NgZone) {
+  constructor(public settings: SettingsService, private notificationsService: NotificationsService, private ngZone: NgZone) {
     this.audio = new Audio();
     this.audio.onerror = (event) => {
-      // TODO: handle errors
-      console.error(event);
-    };
+      console.error('Cannot play song', event);
 
-    // this.audio.onended = (event) => {
-    //   console.log('audio.onended');
-    //   this.ngZone.run(() => this.next());
-    // };
+      this.ngZone.run(() => {
+        const songConfiguration = this.getCurrentSong().configuration;
+        const song = ((songConfiguration.metadata && songConfiguration.metadata.title) ? songConfiguration.metadata.title : songConfiguration.path);
+        const slot = this.slots[this.currentSlotIndex];
+        const slotTitle = slot.dance ? settings.getDanceFriendlyName(slot.dance) : (slot.playlist ? slot.playlist.title : '');
+
+        this.notificationsService.error(
+          'Error',
+          `Cannot play song "${song}" in slot ${slotTitle}.`);
+
+        this.next()
+      });
+    };
   }
 
   ngOnInit() {

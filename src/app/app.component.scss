@@ -42,14 +42,32 @@ mat-toolbar {
             vertical-align: middle;
         }
     }
+
+    .busy-indicator {
+        margin-right: 24px;
+        font-size: 14px;
+    }
+
+    .busy-animation {
+        animation: busyAnimation 1s infinite;
+        animation-direction: alternate;
+        animation-timing-function: linear;
+        // color: #c62828;
+        text-transform: none;
+    }
 }
+
+@keyframes busyAnimation {
+    from {opacity: 1;}
+    to {opacity: 0.3;}
+  }
 
 .mat-toolbar-single-row {
     padding: 0 16px;
     height: 48px;
 }
 
-.busy { 
+.busy {
     position: absolute;
     top: 0;
     left: 0;

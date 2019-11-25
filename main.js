@@ -284,5 +284,5 @@ function getFilePath(folder, src) {
 }
 
 function fileIsValid(src) {
-    return fs.existsSync(src) && !src.endsWith('.wma');
+    return fs.existsSync(src);
 }

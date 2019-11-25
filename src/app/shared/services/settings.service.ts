@@ -33,8 +33,16 @@ export class SettingsService {
     this.loadPlaylists();
   }
 
+  get extensionsToExclude(): string {
+    return this._extensionsToExclude;
+  }
+  set extensionsToExclude(value: string) {
+    this._extensionsToExclude = value;
+  }
+
   private _playlistFolder: string;
   private _musicFolder: string;
+  private _extensionsToExclude: string;
   private resolveLoadPlaylists: (value?: unknown) => void;
   private resolveReadMetadata: (value?: unknown) => void;
   private resolveReadPlaylist: (value?: unknown) => void;
@@ -63,6 +71,7 @@ export class SettingsService {
     // load playlist folder and playlists and default playlists per dance
     const musicFolder = await this.localStorage.getItem<string>('musicFolder').toPromise() as string;
     const playlistFolder = await this.localStorage.getItem<string>('playlistFolder').toPromise() as string;
+    const extensionsToExclude = await this.localStorage.getItem<string>('extensionsToExclude').toPromise() as string;
 
     if (musicFolder) {
       this._musicFolder = musicFolder;
@@ -70,6 +79,10 @@ export class SettingsService {
 
     if (playlistFolder) {
       this._playlistFolder = playlistFolder;
+    }
+
+    if (extensionsToExclude) {
+      this._extensionsToExclude = extensionsToExclude;
     }
 
     if (musicFolder && playlistFolder) {
@@ -135,10 +148,12 @@ export class SettingsService {
  */
   public async save() {
     const promise = new Promise((resolve, reject) => {
-      this.localStorage.setItem('musicFolder', this.musicFolder).subscribe(() => {
-        this.localStorage.setItem('playlistFolder', this.playlistFolder).subscribe(() => {
-          this.localStorage.setItem('defaultPlaylistsPerDance', this.defaultPlaylistsPerDance).subscribe(() => {
-            resolve();
+      this.localStorage.setItem('extensionsToExclude', this.extensionsToExclude).subscribe(() => {
+        this.localStorage.setItem('musicFolder', this.musicFolder).subscribe(() => {
+          this.localStorage.setItem('playlistFolder', this.playlistFolder).subscribe(() => {
+            this.localStorage.setItem('defaultPlaylistsPerDance', this.defaultPlaylistsPerDance).subscribe(() => {
+              resolve();
+            });
           });
         });
       });
@@ -326,9 +341,12 @@ export class SettingsService {
         }
 
         if (playlist.smil.body) {
+          console.log('playlistRead', playlist.smil.body.seq)
           if (Array.isArray(playlist.smil.body.seq.media)) {
-            response[1] = playlist.smil.body.seq.media.filter(m => !m.attributes.src.endsWith('.wma') && m.attributes.exists);
-          } else if (!playlist.smil.body.seq.media.attributes.src.endsWith('.wma') && playlist.smil.body.seq.media.attributes.exists) {
+            //!m.attributes.src.endsWith('.wma') && 
+            response[1] = playlist.smil.body.seq.media.filter(m => m.attributes.exists);
+            //!playlist.smil.body.seq.media.attributes.src.endsWith('.wma') && 
+          } else if (playlist.smil.body.seq.media.attributes.exists) {
             response[1] = [playlist.smil.body.seq.media];
           }
         }
@@ -340,22 +358,23 @@ export class SettingsService {
     });
 
     this.electronService.ipcRenderer.on('playlistDetailsRead', (event, items: any) => {
-      if (this.resolveReadPlaylistDetails && items) {
+      if (this.resolveReadPlaylistDetails) {
         console.log('playlistDetailsRead', items);
-        // if (playlist.smil.head && playlist.smil.head.title && playlist.smil.head.title._text) {
-        //   response[0] = playlist.smil.head.title._text;
-        // }
 
-        // if (playlist.smil.body) {
-        //   if (Array.isArray(playlist.smil.body.seq.media)) {
-        //     response[1] = playlist.smil.body.seq.media.filter(m => !m.attributes.src.endsWith('.wma') && m.attributes.exists);
-        //   } else if (!playlist.smil.body.seq.media.attributes.src.endsWith('.wma') && playlist.smil.body.seq.media.attributes.exists) {
-        //     response[1] = [playlist.smil.body.seq.media];
-        //   }
-        // }
+        if (items && this.extensionsToExclude) {
+          items.forEach(item => {
+            this.extensionsToExclude.split(',').forEach(extension => {
+              if (item.path.endsWith(extension)) {
+                item.exists = false;
+              }
+            });
+            
+          });
+        }
+
+        this.resolveReadPlaylistDetails(items);
       }
 
-      this.resolveReadPlaylistDetails(items);
       this.resolveReadPlaylistDetails = null;
     });
 

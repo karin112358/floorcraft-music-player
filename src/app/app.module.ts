@@ -18,6 +18,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgxElectronModule } from 'ngx-electron';
+import { SimpleNotificationsModule } from 'angular2-notifications';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -53,7 +54,8 @@ import { TrainingPlayerComponent } from './training-player/training-player.compo
     NgxElectronModule,
     AppRoutingModule,
     FlexLayoutModule,
-    StorageModule.forRoot({ IDBNoWrap: true })
+    StorageModule.forRoot({ IDBNoWrap: true }),
+    SimpleNotificationsModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -5,12 +5,16 @@
         <a routerLink="/practice" routerLinkActive="active">Practice</a>
     </span>
     <span class="fill-space"></span>
-    <span *ngIf="settings.initialized">
-        {{settings.busyText}}
+    <span *ngIf="settings.initialized && settings.busyText" class="busy-indicator">
+        <span class="busy-animation">{{settings.busyText}}</span>
     </span>
     <span class="settings">
-        <a routerLink="/settings" routerLinkActive="active"><mat-icon>build</mat-icon></a>
-        <a (click)="settings.initialize()"><mat-icon>refresh</mat-icon></a>
+        <a routerLink="/settings" routerLinkActive="active">
+            <mat-icon>build</mat-icon>
+        </a>
+        <a (click)="settings.initialize()">
+            <mat-icon>refresh</mat-icon>
+        </a>
     </span>
 </mat-toolbar>
 
@@ -21,3 +25,5 @@
         <div class="busy-text">{{settings.busyText}}</div>
     </div>
 </div>
+
+<simple-notifications></simple-notifications>
