@@ -1,13 +1,17 @@
+
+@import '../../styles/colors.scss';
+
 .slot {
     border-radius: 4px;
-    border: 1px solid #999;
+    //border: 1px solid #999;
+    background-color: mat-color($mat-gray, 100);
     padding: 5px 10px 0 10px;
     height: 100%;
     box-sizing: border-box;
-    max-width: 500px;
+    max-width: 450px;
 
     .slot-header {
-        background-color: #ddd;
+        background-color: mat-color($mat-gray, 300);
         border-radius: 4px 4px 0 0;
         margin: -5px -10px 0 -10px;
         padding: 0 16px;
@@ -41,7 +45,7 @@
     }
 
     mat-list-item {
-        font-size: 12px;
+        font-size: 12px!important;
         text-overflow: ellipsis;
 
         mat-checkbox {
@@ -91,7 +95,7 @@
 
     .slot-footer {
         height: 40px;
-        background-color: #eee;
+        background-color: mat-color($mat-gray, 300);
         padding: 0 16px;
         margin: 0 -10px 0 -10px;
         font-size: 12px;
@@ -117,22 +121,16 @@
     }
 
     mat-list-item.active {
-        background-color: #ccc;
+        background-color: mat-color($mat-gray, 300);
     }
 
     &.active {
-        mat-icon {
-            color: #fff;
-        }
-
         mat-list-item.active {
-            background-color: #c62828;
-            color: #fff
+            background-color: mat-color($app-primary, 300);
         }
 
         .slot-header {
-            background-color: #c62828;
-            color: #fff
+            background-color: mat-color($app-primary, 300);
         }
     }
 }
@@ -141,11 +139,8 @@
     .add-text {
         white-space: nowrap;
         line-height: 36px;
-    }
-
-    mat-form-field {
-        // width: 400px;
-        margin-top: -11px;
+        font-size: 13px;
+        width: 120px;
     }
 }
 

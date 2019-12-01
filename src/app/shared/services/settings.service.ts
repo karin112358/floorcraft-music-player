@@ -162,22 +162,22 @@ export class SettingsService {
     return promise;
   }
 
-  /**
-   * Get all items per playlist.
-   * @param playlist 
-   */
-  public async getPlaylistItems(dance: Dance, playlistName: string): Promise<[string, PlaylistItem[]]> {
-    const promise = new Promise<[string, PlaylistItem[]]>((resolve, reject) => {
-      if (!playlistName && dance) {
-        playlistName = this.defaultPlaylistsPerDance[dance];
-      }
+  // /**
+  //  * Get all items per playlist.
+  //  * @param playlist 
+  //  */
+  // public async getPlaylistItems(dance: Dance, playlistName: string): Promise<[string, PlaylistItem[]]> {
+  //   const promise = new Promise<[string, PlaylistItem[]]>((resolve, reject) => {
+  //     if (!playlistName && dance) {
+  //       playlistName = this.defaultPlaylistsPerDance[dance];
+  //     }
 
-      this.resolveReadPlaylist = resolve;
-      this.electronService.ipcRenderer.send('readPlaylist', dance, this._playlistFolder, playlistName);
-    });
+  //     this.resolveReadPlaylist = resolve;
+  //     this.electronService.ipcRenderer.send('readPlaylist', dance, this._playlistFolder, playlistName);
+  //   });
 
-    return promise;
-  }
+  //   return promise;
+  // }
 
   /**
    * Get the details for all items in a playlist.
@@ -230,7 +230,7 @@ export class SettingsService {
         return 'Intro';
         break;
       case Dance.EnglishWaltz:
-        return 'English Waltz';
+        return 'Waltz';
         break;
       case Dance.Tango:
         return 'Tango';
@@ -239,7 +239,7 @@ export class SettingsService {
         return 'Viennese Waltz';
         break;
       case Dance.Slowfox:
-        return 'Slow Fox';
+        return 'Slow Foxtrot';
         break;
       case Dance.Quickstep:
         return 'Quickstep';
@@ -306,6 +306,38 @@ export class SettingsService {
     }
   }
 
+  public getTooltip(song: PlaylistItem) {
+    let tooltip = '';
+    if (song.configuration.metadata) {
+      tooltip += 'Title: ' + song.configuration.metadata.title + '\n';
+      tooltip += 'Duration: ' + this.formatDuration(song.configuration.metadata.duration) + '\n';
+      tooltip += 'Album: ' + song.configuration.metadata.album + '\n';
+
+      if (song.configuration.metadata.artists) {
+        tooltip += 'Artists: ' + song.configuration.metadata.artists.join(', ') + '\n';
+      }
+
+      if (song.configuration.metadata.genre) {
+        tooltip += 'Genre: ' + song.configuration.metadata.genre.join(', ') + '\n';
+      }
+
+      tooltip += 'Path: ' + song.configuration.path + '\n';
+    } else {
+      tooltip += song.configuration.path + '\n';
+    }
+    return tooltip;
+  }
+
+  public formatDuration(duration: number) {
+    if (duration) {
+      var minutes = Math.round(duration / 60);
+      var seconds = Math.round(duration % 60 + 100);
+      return minutes.toString() + ':' + seconds.toString().substr(1);
+    } else {
+      return '-';
+    }
+  }
+
   private handleIPCCallbacks() {
     // handle ipc callbacks
     this.electronService.ipcRenderer.on('playlistsLoaded', async (event, playlists) => {
@@ -332,31 +364,6 @@ export class SettingsService {
       console.log('metadata read');
     });
 
-    this.electronService.ipcRenderer.on('playlistRead', (event, dance: Dance, playlist: any) => {
-      let response: [string, any] = ['', null];
-
-      if (this.resolveReadPlaylist && playlist) {
-        if (playlist.smil.head && playlist.smil.head.title && playlist.smil.head.title._text) {
-          response[0] = playlist.smil.head.title._text;
-        }
-
-        if (playlist.smil.body) {
-          console.log('playlistRead', playlist.smil.body.seq)
-          if (Array.isArray(playlist.smil.body.seq.media)) {
-            //!m.attributes.src.endsWith('.wma') && 
-            response[1] = playlist.smil.body.seq.media.filter(m => m.attributes.exists);
-            //!playlist.smil.body.seq.media.attributes.src.endsWith('.wma') && 
-          } else if (playlist.smil.body.seq.media.attributes.exists) {
-            response[1] = [playlist.smil.body.seq.media];
-          }
-        }
-      }
-
-      this.resolveReadPlaylist(response);
-      this.resolveReadPlaylist = null;
-      this.busyTextSubject.next('');
-    });
-
     this.electronService.ipcRenderer.on('playlistDetailsRead', (event, items: any) => {
       if (this.resolveReadPlaylistDetails) {
         console.log('playlistDetailsRead', items);
@@ -368,7 +375,7 @@ export class SettingsService {
                 item.exists = false;
               }
             });
-            
+
           });
         }
 

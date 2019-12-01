@@ -1,25 +1,4 @@
 @import 'styles/colors.scss';
-/* You can add global styles to this file, and also import other style files */
-@import '~@angular/material/theming';
-// Plus imports for other components in your app.
-@import '~material-design-icons/iconfont/material-icons.css';
-
-// Include the common styles for Angular Material. We include this here so that you only
-// have to load a single css file for Angular Material in your app.
-// Be sure that you only ever include this mixin once!
-@include mat-core();
-
-// Define the palettes for your theme using the Material Design palettes available in palette.scss
-// (imported above). For each palette, you can optionally specify a default, lighter, and darker
-// hue. Available color palettes: https://material.io/design/color/
-$app-primary: mat-palette($mat-red, 800, 200, 900);
-$app-accent: mat-palette($mat-grey, 500, 300, 700);
-
-// The warn palette is optional (defaults to red).
-$app-warn: mat-palette($mat-orange);
-
-// Create the theme object (a Sass map containing all of the palettes).
-$app-theme: mat-light-theme($app-primary, $app-accent, $app-warn);
 
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
@@ -73,7 +52,7 @@ mat-form-field {
 }
 
 .mat-progress-bar-buffer {
-    background-color: #888;
+    //background-color: #888;
 }
 
 .mat-list-base .mat-list-item {
@@ -94,7 +73,27 @@ mat-form-field {
     font-size: 12px;
     padding: 8px;
     line-height: 1.4em;
-    max-width: 500px!important;
+    max-width: 500px !important;
+    background-color: mat-color($app-primary, 700);
+    color: #000;
+}
+
+.mat-button, .mat-flat-button, .mat-button-toggle-button {
+    font-size: 13px!important;
+
+    .mat-button-wrapper>* {
+        font-size: 20px;
+    }
+}
+
+.mat-form-field-infix {
+    font-size: 13px;
+}
+
+.mat-option {
+    font-size: 13px!important;
+    line-height: 36px!important;
+    height: 36px!important;
 }
 
 /* toggle button */
@@ -108,13 +107,13 @@ mat-form-field {
         }
     }
 
-    .mat-button-toggle-group-appearance-standard {
-        border: solid 1px rgba(255, 255, 255, 0.3);
-    }
+    // .mat-button-toggle-group-appearance-standard {
+    //     border: solid 1px rgba(255, 255, 255, 0.3);
+    // }
 
-    .mat-button-toggle-group-appearance-standard .mat-button-toggle+.mat-button-toggle {
-        border-left: solid 1px rgba(255, 255, 255, 0.3);
-    }
+    // .mat-button-toggle-group-appearance-standard .mat-button-toggle+.mat-button-toggle {
+    //     border-left: solid 1px rgba(255, 255, 255, 0.3);
+    // }
 
     .mat-button-toggle-appearance-standard {
         background: rgba(255, 255, 255, 0);
@@ -145,13 +144,16 @@ mat-form-field {
     }
 
     .mat-button-toggle-checked.mat-button-toggle-appearance-standard {
-        background-color: #c62828;
-        color: #fff;
+        background-color: mat-color($app-primary);
     }
 }
 
 .simple-notification {
     .sn-content {
-        font-size: 12px!important;
+        font-size: 12px !important;
+    }
+
+    &.error {
+        background: mat-color($app-warn, 700);
     }
 }

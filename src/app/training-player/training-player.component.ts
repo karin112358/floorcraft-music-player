@@ -49,7 +49,7 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
           'Error',
           `Cannot play song "${song}" in slot ${slotTitle}.`);
 
-        this.next()
+        this.next(true);
       });
     };
   }
@@ -134,7 +134,7 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
     song.isDisabled = !event.checked;
   }
 
-  public next() {
+  public next(sameSlot = false) {
     console.log('next');
     this.reset = true;
     const song = this.getCurrentSong();
@@ -158,9 +158,11 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
       }
 
       // move to next slot index
-      this.currentSlotIndex++;
-      if (this.currentSlotIndex >= this.slots.length) {
-        this.currentSlotIndex = 0;
+      if (!sameSlot) {
+        this.currentSlotIndex++;
+        if (this.currentSlotIndex >= this.slots.length) {
+          this.currentSlotIndex = 0;
+        }
       }
 
       if (this.slots[this.currentSlotIndex].items.filter(i => !i.isDisabled).length === 0) {
@@ -287,38 +289,6 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
     }
 
     return null;
-  }
-
-  public formatDuration(duration: number) {
-    if (duration) {
-      var minutes = Math.round(duration / 60);
-      var seconds = Math.round(duration % 60 + 100);
-      return minutes.toString() + ':' + seconds.toString().substr(1);
-    } else {
-      return '-';
-    }
-  }
-
-  public getTooltip(song: PlaylistItem) {
-    let tooltip = '';
-    if (song.configuration.metadata) {
-      tooltip += 'Title: ' + song.configuration.metadata.title + '\n';
-      tooltip += 'Duration: ' + this.formatDuration(song.configuration.metadata.duration) + '\n';
-      tooltip += 'Album: ' + song.configuration.metadata.album + '\n';
-
-      if (song.configuration.metadata.artists) {
-        tooltip += 'Artists: ' + song.configuration.metadata.artists.join(', ') + '\n';
-      }
-
-      if (song.configuration.metadata.genre) {
-        tooltip += 'Genre: ' + song.configuration.metadata.genre.join(', ') + '\n';
-      }
-
-      tooltip += 'Path: ' + song.configuration.path + '\n';
-    } else {
-      tooltip += song.configuration.path + '\n';
-    }
-    return tooltip;
   }
 
   private hasEnabledItems(): boolean {

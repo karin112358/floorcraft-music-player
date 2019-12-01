@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
 import { take } from 'rxjs/operators';
 
 import { ElectronService } from 'ngx-electron';
@@ -36,36 +36,33 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
   private currentSong: PlaylistItem = null;
   //private playlistFolder = '';
 
-  constructor(public settings: SettingsService, private localStorage: LocalStorage, private electronService: ElectronService) {
+  constructor(public settings: SettingsService, private localStorage: LocalStorage, private electronService: ElectronService, private ngZone: NgZone) {
     this.audio = new Audio();
     this.audio.onerror = (event) => {
       // TODO: handle errors
       console.error(event);
+
+      this.ngZone.run(() => {
+        if (this.currentSong) {
+          this.playFromSong(this.currentSong, true, true);
+        }
+      });
     };
   }
 
   async ngOnInit() {
-    //const playlistFolder: string = <string>(await this.localStorage.getItem<string>('playlistFolder').toPromise());
+    await this.loadSongs(Dance.Intro);
+    await this.loadSongs(Dance.Finish);
 
-    // if (playlistFolder) {
-    //   console.log('playlistFolder read');
-    //   this.playlistFolder = playlistFolder;
+    let dances = this.settings.getDancesPerCategory(Category.Standard);
+    for (let i = 0; i < dances.length; i++) {
+      await this.loadSongs(dances[i]);
+    }
 
-      this.practicePlaylistsSongs[Dance.Intro] = (await this.settings.getPlaylistItems(Dance.Intro, this.settings.defaultPlaylistsPerDance.Intro))[1];
-      this.practicePlaylistsSongs[Dance.Finish] = (await this.settings.getPlaylistItems(Dance.Finish, this.settings.defaultPlaylistsPerDance.Finish))[1];
-
-      let dances = this.settings.getDancesPerCategory(Category.Standard);
-      for (let i = 0; i < dances.length; i++) {
-        const dance = dances[i];
-        this.practicePlaylistsSongs[dance] = (await this.settings.getPlaylistItems(dance, this.settings.defaultPlaylistsPerDance[dance]))[1];
-      }
-
-      dances = this.settings.getDancesPerCategory(Category.Latin);
-      for (let i = 0; i < dances.length; i++) {
-        const dance = dances[i];
-        this.practicePlaylistsSongs[dance] = (await this.settings.getPlaylistItems(dance, this.settings.defaultPlaylistsPerDance[dance]))[1];
-      }
-    //}
+    dances = this.settings.getDancesPerCategory(Category.Latin);
+    for (let i = 0; i < dances.length; i++) {
+      await this.loadSongs(dances[i]);
+    }
   }
 
   ngOnDestroy() {
@@ -98,18 +95,21 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
     this.practiceConfigured = true;
   }
 
-  public selectNew(dancePlaylist: PracticeDancePlaylist, heat: number) {
+  public selectNew(dancePlaylist: PracticeDancePlaylist, heat: number): PlaylistItem {
     let retryCount = 0;
     let dance = dancePlaylist.dance;
     let index = Math.floor(Math.random() * this.practicePlaylistsSongs[dance].length);
 
     while (retryCount < 10
-      && dancePlaylist.items.filter((item, i) => i !== heat && item.configuration.attributes.src == this.practicePlaylistsSongs[dance][index].attributes.src).length > 0) {
+      && !this.practicePlaylistsSongs[dance][index].exists
+      && dancePlaylist.items.filter((item, i) => i !== heat && item.configuration.absolutePath == this.practicePlaylistsSongs[dance][index].absolutePath).length > 0) {
       index = Math.floor(Math.random() * this.practicePlaylistsSongs[dance].length);
       retryCount++;
     }
 
-    dancePlaylist.items.splice(heat, 1, new PlaylistItem(this.practicePlaylistsSongs[dance][index], this.songDuration));
+    const newPlaylistItem = new PlaylistItem(this.practicePlaylistsSongs[dance][index], this.songDuration);
+    dancePlaylist.items.splice(heat, 1, newPlaylistItem);
+    return newPlaylistItem;
   }
 
   public async playSong(song: PlaylistItem) {
@@ -121,7 +121,7 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
     this.isPlaying = true;
     this.isPaused = false;
     this.audio.volume = 1;
-    this.audio.src = this.settings.getAbsolutePath(song.configuration.attributes.src);
+    this.audio.src = this.settings.getAbsolutePath(song.configuration.absolutePath);
     this.currentSong = song;
     this.audio.play();
     this.currentSong.duration = await this.getCurrentSongDuration();
@@ -134,7 +134,7 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
     this.stop();
   }
 
-  public async play(testRun = false) {
+  public async play(testRun = false, skipPause = false) {
     this.reset = false;
     this.audio.volume = 1;
     let step = 50;
@@ -156,12 +156,14 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
         this.currentSong = this.currentPractice.dances[d].items[i];
 
         if (this.currentSong.progress < this.getSongDuration(this.currentSong)) {
-          if (this.currentPractice.dances[d].dance as Dance !== Dance.Intro) {
+          if (this.currentPractice.dances[d].dance as Dance !== Dance.Intro && !skipPause) {
             await this.playPause(pauseDuration);
           }
 
+          skipPause = false;
+
           try {
-            this.audio.src = this.settings.getAbsolutePath(this.currentSong.configuration.attributes.src);
+            this.audio.src = this.currentSong.configuration.absolutePath;
             this.audio.currentTime = this.currentSong.progress;
             this.audio.play();
             this.currentSong.duration = await this.getCurrentSongDuration();
@@ -191,7 +193,7 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
     }
   }
 
-  public async playFromSong(playFromSong: PlaylistItem) {
+  public async playFromSong(playFromSong: PlaylistItem, selectNew = false, skipPause = false) {
     this.reset = false;
     let songFound = false;
 
@@ -200,13 +202,17 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
         let song = this.currentPractice.dances[d].items[i];
         if (song === playFromSong) {
           songFound = true;
+
+          if (selectNew) {
+            song = this.selectNew(this.currentPractice.dances[d], i)
+          }
         } else {
           song.progress = this.getSongDuration(song);
         }
       }
     }
 
-    this.play();
+    this.play(false, skipPause);
   }
 
   public async playPause(pauseDuration) {
@@ -267,6 +273,14 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
     return promise;
   }
 
+  private async loadSongs(dance: Dance) {
+    if (this.settings.defaultPlaylistsPerDance[dance]) {
+      const playlist = this.settings.playlists.find(p => p.filename == this.settings.defaultPlaylistsPerDance[dance]);
+      this.practicePlaylistsSongs[dance] =
+        await this.settings.readPlaylistDetails(playlist, playlist.items);
+    }
+  }
+
   private selectSongs(dance: Dance, numberOfSongs: number) {
     if (this.practicePlaylistsSongs[dance]) {
       let dancePlaylist = new PracticeDancePlaylist(dance);
@@ -276,7 +290,8 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
         let index = Math.floor(Math.random() * this.practicePlaylistsSongs[dance].length);
 
         while (retryCount < 10
-          && dancePlaylist.items.filter(item => item.configuration.attributes.src == this.practicePlaylistsSongs[dance][index].attributes.src).length > 0) {
+          && (!this.practicePlaylistsSongs[dance][index].exists
+            || dancePlaylist.items.filter(item => item.configuration.absolutePath == this.practicePlaylistsSongs[dance][index].absolutePath).length > 0)) {
           index = Math.floor(Math.random() * this.practicePlaylistsSongs[dance].length);
           retryCount++;
         }

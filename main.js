@@ -9,7 +9,7 @@ const mm = require('music-metadata');
 const util = require('util');
 const loki = require('lokijs');
 
-//require('electron-debug')();
+require('electron-debug')();
 
 let win;
 
@@ -84,40 +84,6 @@ ipcMain.on('loadPlaylists', (event, folder) => {
         autosave: true,
         autosaveInterval: 5000
     });
-
-    // readdir(arg, (err, files) => {
-    //     if (err) {
-    //         console.error(err);
-    //     }
-
-    //     event.reply('playlistsLoaded', files.filter(f => f.endsWith('.wpl')));
-    // });
-});
-
-ipcMain.on('readPlaylist', async (event, dance, folder, file) => {
-    if (file && fileIsValid(folder + '\\' + file)) {
-        event.reply('readPlaylistData', folder + '\\' + file);
-
-        fs.readFile(folder + '/' + file, async (err, data) => {
-            var options = { ignoreComment: true, alwaysChildren: true, compact: true, attributesKey: 'attributes' };
-            var json = convert.xml2js(data, options);
-
-            if (json && json.smil && json.smil.body && json.smil.body.seq && json.smil.body.seq.media) {
-                if (Array.isArray(json.smil.body.seq.media)) {
-                    json.smil.body.seq.media.forEach(async (item) => {
-                        let src = getFilePath(folder, item.attributes.src);
-                        item.attributes.exists = fileIsValid(src);
-                    });
-                } else {
-                    json.smil.body.seq.media.attributes.exists = fileIsValid(getFilePath(folder, json.smil.body.seq.media.attributes.src));
-                }
-            }
-
-            event.reply('playlistRead', dance, json);
-        });
-    } else {
-        event.reply('playlistRead', dance, null);
-    }
 });
 
 ipcMain.on('readPlaylistDetails', async (event, root, playlist, items) => {

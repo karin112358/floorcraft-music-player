@@ -1,27 +1,25 @@
 <div gdAreas="add | slots | player" gdRows="auto 1fr auto" class="content-container training-container">
     <!-- add new slot -->
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="start center" class="container new-slot" gdArea="add">
-        <div class="add-text">Add dance</div>
+        <div class="add-text">Add dance:</div>
         <div fxLayout="column" fxLayoutGap="8px">
             <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="space-between">
                 <div *ngFor="let dance of settings.getDancesPerCategory(0); let i = index">
-                    <button mat-flat-button color="primary" (click)="addSlot(dance, null)"
-                        [matTooltip]="settings.getDanceFriendlyName(dance)">
-                        {{settings.getDanceShortName(dance)}}
+                    <button mat-flat-button color="primary" (click)="addSlot(dance, null)">
+                        {{settings.getDanceFriendlyName(dance)}}
                     </button>
                 </div>
             </div>
             <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="space-between">
                 <div *ngFor="let dance of settings.getDancesPerCategory(1); let i = index">
-                    <button mat-flat-button color="primary" (click)="addSlot(dance, null)"
-                        [matTooltip]="settings.getDanceFriendlyName(dance)">
-                        {{settings.getDanceShortName(dance)}}
+                    <button mat-flat-button color="primary" (click)="addSlot(dance, null)">
+                        {{settings.getDanceFriendlyName(dance)}}
                     </button>
                 </div>
             </div>
         </div>
         <div fxFlex="48px"></div>
-        <div class="add-text">Add playlist</div>
+        <div class="add-text">Add playlist:</div>
         <div fxFlex="100%">
             <mat-form-field>
                 <input type="text" placeholder="Select playlist" matInput [matAutocomplete]="playlistSelect"
@@ -42,7 +40,7 @@
 
     <!-- List of slots -->
     <div class="slots main-container" gdArea="slots">
-        <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="start stretch">
+        <div fxLayout="row" fxLayoutGap="24px" fxLayoutAlign="start stretch">
             <div *ngFor="let slot of slots; let slotIndex = index" fxFlex="0 1 min-content">
                 <div class="slot" [ngClass]="{'active': slotIndex == currentSlotIndex}">
                     <div fxLayout="row" class="slot-header" fxLayoutAlign="start center">
@@ -90,8 +88,9 @@
                             (dblclick)="moveToSong(slotIndex, songIndex)">
                             <div gdAreas="overview | details" gdRows="auto auto" class="song"
                                 [ngClass]="{'not-exists': !song.configuration.exists, 'show-details': slot.showDetails}">
-                                <div gdArea="overview" [matTooltip]="getTooltip(song)" [matTooltipShowDelay]="1000"
-                                    [matTooltipHideDelay]="0" [matTooltipPosition]="'after'" class="list-item-content">
+                                <div gdArea="overview" [matTooltip]="settings.getTooltip(song)"
+                                    [matTooltipShowDelay]="1000" [matTooltipHideDelay]="0"
+                                    [matTooltipPosition]="'after'" class="list-item-content">
                                     <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
                                         <div>
                                             <mat-checkbox [disabled]="!song.configuration.exists"
@@ -108,7 +107,7 @@
                                             {{song.configuration.metadata?.genre}}
                                         </div>
                                         <div class="song-duration">
-                                            {{formatDuration(song.configuration.metadata?.duration)}}
+                                            {{settings.formatDuration(song.configuration.metadata?.duration)}}
                                         </div>
                                     </div>
                                 </div>

@@ -6,10 +6,6 @@
     }
 }
 
-.configuration-input {
-    margin-top: -8px;
-}
-
 .songs-container {
     position: relative;
 
@@ -39,7 +35,6 @@
     position: relative;
     font-size: 12px;
     line-height: 25px;
-    color: #fff;
 
     .title {
         position: absolute;
@@ -57,7 +52,7 @@
         height: 25px;
 
         mat-icon {
-            font-size: 18px;
+            font-size: 15px;
             line-height: 25px;
             margin-top: -18px;
         }
@@ -75,9 +70,9 @@
         right: 70px;
     }
 
-    .mat-icon-button[disabled][disabled] {
-        color: rgba(255, 255, 255, 0.3);
-    }
+    // .mat-icon-button[disabled][disabled] {
+    //     color: rgba(255, 255, 255, 0.3);
+    // }
 }
 
 mat-progress-bar {

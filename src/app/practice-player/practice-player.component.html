@@ -68,11 +68,14 @@
         <div *ngFor="let dance of currentPractice.dances">
             <h2>{{settings.getDanceFriendlyName(dance.dance)}}</h2>
 
-            <div *ngFor="let song of dance.items; let i = index" class="song">
+            <div *ngFor="let song of dance.items; let i = index" class="song" [matTooltip]="settings.getTooltip(song)"
+                [matTooltipShowDelay]="1000" [matTooltipHideDelay]="0">
                 <mat-progress-bar mode="determinate" [value]="song.progress / getSongDuration(song) * 100">
                 </mat-progress-bar>
-                <div class="title" title="{{song.configuration.attributes.src}}">
-                    {{settings.getFilename(song.configuration.attributes.src)}}</div>
+                <div class="title">
+                    <span *ngIf="song.configuration.metadata">{{song.configuration.metadata?.title}}</span>
+                    <span *ngIf="!song.configuration.metadata">{{song.configuration.path}}</span>
+                </div>
                 <button mat-icon-button [disabled]="isPlaying" class="playFromSong" (click)="playFromSong(song)">
                     <mat-icon>play_arrow</mat-icon>
                 </button>

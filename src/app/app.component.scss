@@ -1,3 +1,5 @@
+@import '../styles/colors.scss';
+
 .fill-space {
     /* This fills the remaining space, by using flexbox. 
        Every toolbar row uses a flexbox row layout. */
@@ -12,7 +14,7 @@
 }
 
 mat-toolbar {
-    background-color: darken(#615252, 30%);
+    background-color: darken(mat-color($app-primary), 30%);
     color: #fff;
     text-transform: uppercase;
 
