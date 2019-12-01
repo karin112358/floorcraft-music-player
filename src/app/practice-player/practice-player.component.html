@@ -51,7 +51,7 @@
 
             <div>
                 <button mat-flat-button [disabled]="isPlaying" color="primary" (click)="configurePractice()">
-                    <mat-icon>create</mat-icon> Create
+                    <mat-icon>create</mat-icon> Create custom
                 </button>
             </div>
         </div>
@@ -91,7 +91,7 @@
         </div>
     </div>
 
-    <div *ngIf="practiceConfigured" class="container player" gdArea="player">
+    <div *ngIf="practiceConfigured" class="container-accent player" gdArea="player">
         <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
             <div>
                 <button *ngIf="practiceConfigured" mat-flat-button [disabled]="isPlaying && !isPaused" color="primary"

@@ -24,13 +24,6 @@ export class SettingsComponent {
     }
   }
 
-  public folderChanged(event: any) {
-    if (event.target.files.length > 0) {
-      this.settings.playlistFolder = event.target.files[0].path;
-      this.settings.save();
-    }
-  }
-
   public playlistSelectionChanged(event: any) {
     this.settings.save();
   }

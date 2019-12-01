@@ -2,7 +2,7 @@
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
         <div fxFlex="100">
             <mat-form-field>
-                <input matInput [readonly]=true type="text" placeholder="Music Folder"
+                <input matInput [readonly]=true type="text" placeholder="Music folder"
                     [(ngModel)]="settings.musicFolder">
             </mat-form-field>
         </div>
@@ -14,19 +14,7 @@
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
         <div fxFlex="100">
             <mat-form-field>
-                <input matInput [readonly]=true type="text" placeholder="Playlist Folder"
-                    [(ngModel)]="settings.playlistFolder">
-            </mat-form-field>
-        </div>
-        <div fxFlex="auto">
-            <button mat-flat-button color="primary" (click)="folderInput.click()">Select playlist folder</button>
-            <input hidden type="file" webkitdirectory #folderInput (change)="folderChanged($event)" />
-        </div>
-    </div>
-    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
-        <div fxFlex="100">
-            <mat-form-field>
-                <input matInput type="text" placeholder="Extensions to Exclude (separated by comma)"
+                <input matInput type="text" placeholder="Extensions to exclude (separated by comma)"
                     [(ngModel)]="settings.extensionsToExclude" (change)="settings.save()">
             </mat-form-field>
         </div>

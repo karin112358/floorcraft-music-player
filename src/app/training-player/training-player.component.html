@@ -165,7 +165,7 @@
 
     <!-- Audio player controls -->
     <div gdArea="player">
-        <div *ngIf="slots.length > 0" class="container player" fxLayout="row" fxLayoutGap="16px"
+        <div *ngIf="slots.length > 0" class="container-accent player" fxLayout="row" fxLayoutGap="16px"
             fxLayoutAlign="start center">
             <div>
                 <button mat-flat-button [disabled]="isPlaying && !isPaused" color="primary" (click)="play()">

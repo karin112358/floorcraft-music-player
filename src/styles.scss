@@ -35,7 +35,13 @@ h2 {
 }
 
 .container {
-    background-color: #eee;
+    background-color: mat-color($mat-gray, 300);
+    padding: 16px;
+}
+
+.container-accent {
+    color: #fff;
+    background-color: darken(mat-color($app-primary), 40%);
     padding: 16px;
 }
 
@@ -80,10 +86,19 @@ mat-form-field {
 
 .mat-button, .mat-flat-button, .mat-button-toggle-button {
     font-size: 13px!important;
+    border-radius: 0!important;
 
     .mat-button-wrapper>* {
         font-size: 20px;
     }
+}
+
+.mat-flat-button[disabled][disabled] {
+    background-color: mat-color($mat-gray, 200);
+}
+
+.mat-flat-button.mat-primary[disabled], .mat-flat-button.mat-primary[disabled] {
+    background-color: mat-color($app-primary, 200);
 }
 
 .mat-form-field-infix {
@@ -96,7 +111,19 @@ mat-form-field {
     height: 36px!important;
 }
 
+.mat-slider-horizontal .mat-slider-track-wrapper {
+    background-color: mat-color($mat-gray, 200)!important;
+}
+
+.mat-slider-thumb {
+    background-color: #fff!important;
+}
+
 /* toggle button */
+.mat-button-toggle-group-appearance-standard, .mat-button-toggle-standalone.mat-button-toggle-appearance-standard {
+    border-radius: 0;
+}
+
 .training-container {
     .mat-button-toggle-label-content {
         line-height: 24px !important;

@@ -14,7 +14,7 @@
 }
 
 mat-toolbar {
-    background-color: darken(mat-color($app-primary), 30%);
+    background-color: darken(mat-color($app-primary), 40%);
     color: #fff;
     text-transform: uppercase;
 
@@ -24,13 +24,10 @@ mat-toolbar {
         text-decoration: none;
         margin-right: 24px;
         padding: 8px 12px;
-        border-radius: 4px;
         cursor: pointer;
 
         &.active {
-            background-color: #fff;
-            color: darken(#615252, 30%);
-
+            border-bottom: 8px solid mat-color($app-primary);
         }
     }
 

@@ -150,10 +150,8 @@ export class SettingsService {
     const promise = new Promise((resolve, reject) => {
       this.localStorage.setItem('extensionsToExclude', this.extensionsToExclude).subscribe(() => {
         this.localStorage.setItem('musicFolder', this.musicFolder).subscribe(() => {
-          this.localStorage.setItem('playlistFolder', this.playlistFolder).subscribe(() => {
-            this.localStorage.setItem('defaultPlaylistsPerDance', this.defaultPlaylistsPerDance).subscribe(() => {
-              resolve();
-            });
+          this.localStorage.setItem('defaultPlaylistsPerDance', this.defaultPlaylistsPerDance).subscribe(() => {
+            resolve();
           });
         });
       });
@@ -198,18 +196,6 @@ export class SettingsService {
    */
   public getFilename(path: string) {
     return path.split('\\').pop();
-  }
-
-  /**
-   * Gets the absolute path of a playlist item.
-   * @param src
-   */
-  public getAbsolutePath(src: string) {
-    if (src.startsWith('..\\')) {
-      return this.playlistFolder + '\\' + src;
-    } else {
-      return src;
-    }
   }
 
   /**

@@ -121,7 +121,7 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
     this.isPlaying = true;
     this.isPaused = false;
     this.audio.volume = 1;
-    this.audio.src = this.settings.getAbsolutePath(song.configuration.absolutePath);
+    this.audio.src = song.configuration.absolutePath;
     this.currentSong = song;
     this.audio.play();
     this.currentSong.duration = await this.getCurrentSongDuration();
