@@ -86,7 +86,7 @@ ipcMain.on('loadPlaylists', (event, folder) => {
     });
 });
 
-ipcMain.on('readPlaylistDetails', async (event, root, playlist, items) => {
+ipcMain.on('readPlaylistDetails', async (event, root, playlist, items, forceUpdate) => {
     if (items) {
         console.log('read playlist details ...');
 
@@ -98,14 +98,7 @@ ipcMain.on('readPlaylistDetails', async (event, root, playlist, items) => {
 
             // load metadata
             var songs = db.getCollection('songs');
-            results = songs.find({ 'path': { '$eq': src.replace(root, '') } });
-            result = null;
-
-            if (results.length > 0) {
-                result = results[0];
-            } else {
-                result = await insertSong(songs, src, src.replace(root, ''));
-            }
+            result = await insertSong(songs, src, src.replace(root, ''), forceUpdate);
 
             if (result && !result.title) {
                 result.title = result.filename;
@@ -163,11 +156,7 @@ async function readMetadata(root, folder, songs, playlists, level, readAllFiles)
                         playlists.update(playlist);
                     } else if (readAllFiles) {
                         // song
-                        results = songs.find({ 'path': { '$eq': itemPath } });
-
-                        if (results.length < 1) {
-                            await insertSong(songs, item, itemPath);
-                        }
+                        await insertSong(songs, item, itemPath);
                     }
                 } catch (e) {
                     console.log('error', item, e);
@@ -177,27 +166,46 @@ async function readMetadata(root, folder, songs, playlists, level, readAllFiles)
     }
 }
 
-async function insertSong(songs, file, relativePath) {
-    let metadata = null;
-    try {
-        metadata = await mm.parseFile(file, { skipCovers: true, duration: true });
-    } catch (e) {
-        //console.log('file not supported', file, e);
+async function insertSong(songs, file, relativePath, forceUpdate) {
+    var results = songs.find({ 'path': { '$eq': relativePath } });
+
+    if (results.length < 1 || forceUpdate) {
+        let metadata = null;
+        try {
+            metadata = await mm.parseFile(file, { skipCovers: true, duration: true });
+        } catch (e) {
+            //console.log('file not supported', file, e);
+        }
+
+        if (metadata) {
+            let song = null;
+            if (results < 1) {
+                song = {};
+            } else {
+                song = results[0];
+            }
+
+            song.path = relativePath,
+            song.filename = path.basename(relativePath),
+            song.title = metadata.common.title,
+            song.genre = metadata.common.genre,
+            song.artists = metadata.common.artists,
+            song.album = metadata.common.album,
+            song.year = metadata.common.year,
+            song.duration = metadata.format.duration
+
+            //console.log(song, 'update', results.length > 0);
+
+            if (results < 1) {
+                return songs.insert(song);
+            } else {
+                return song;
+            }
+        }
     }
 
-    if (metadata) {
-        let itemData = {
-            path: relativePath,
-            filename: path.basename(relativePath),
-            title: metadata.common.title,
-            genre: metadata.common.genre,
-            artists: metadata.common.artists,
-            album: metadata.common.album,
-            year: metadata.common.year,
-            duration: metadata.format.duration
-        };
-
-        return songs.insert(itemData);
+    if (results.length > 0) {
+        return results[0];
     }
 
     return null;

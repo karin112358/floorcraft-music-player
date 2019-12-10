@@ -148,6 +148,12 @@
                         </div>
                         <div fxFlex="100%"></div>
                         <div>
+                            <button mat-icon-button matTooltip="Reload playlist"
+                                (click)="reloadPlaylist(slot)">
+                                <mat-icon>refresh</mat-icon>
+                            </button>
+                        </div>
+                        <div>
                             <button mat-icon-button matTooltip="Show details" *ngIf="!slot.showDetails"
                                 (click)="slot.showDetails = true">
                                 <mat-icon>visibility</mat-icon>

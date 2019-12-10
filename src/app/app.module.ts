@@ -17,6 +17,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTableModule } from '@angular/material/table';
 import { NgxElectronModule } from 'ngx-electron';
 import { SimpleNotificationsModule } from 'angular2-notifications';
 
@@ -26,13 +27,15 @@ import { PracticePlayerComponent } from './practice-player/practice-player.compo
 import { SettingsComponent } from './settings/settings.component';
 import { StorageModule } from '@ngx-pwa/local-storage';
 import { TrainingPlayerComponent } from './training-player/training-player.component';
+import { ManageLibraryComponent } from './manage-library/manage-library.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     PracticePlayerComponent,
     SettingsComponent,
-    TrainingPlayerComponent
+    TrainingPlayerComponent,
+    ManageLibraryComponent
   ],
   imports: [
     BrowserAnimationsModule,
@@ -44,6 +47,7 @@ import { TrainingPlayerComponent } from './training-player/training-player.compo
     MatAutocompleteModule,
     MatIconModule,
     MatSelectModule,
+    MatTableModule,
     MatProgressSpinnerModule,
     MatListModule,
     MatCheckboxModule,

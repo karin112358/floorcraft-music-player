@@ -291,6 +291,10 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
     return null;
   }
 
+  public reloadPlaylist(slot: Slot) {
+    this.setPlaylistItems(slot, true);
+  }
+
   private hasEnabledItems(): boolean {
     let hasEnabledItems = false;
     for (let i = 0; i < this.slots.length && !hasEnabledItems; i++) {
@@ -316,14 +320,14 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
     return promise;
   }
 
-  private async setPlaylistItems(slot: Slot) {
+  private async setPlaylistItems(slot: Slot, forceUpdate = false) {
     if (!slot.playlist) {
       slot.playlist = this.settings.playlists.find(p => p.filename == this.settings.defaultPlaylistsPerDance[slot.dance]);
     }
 
     if (slot.playlist) {
       let items = slot.playlist.items;
-      items = await this.settings.readPlaylistDetails(slot.playlist, items);
+      items = await this.settings.readPlaylistDetails(slot.playlist, items, forceUpdate);
       items = items.map(p => new PlaylistItem(p, 0));
       this.updatePlaylistSortOrder(slot, items);
     } else {

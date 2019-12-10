@@ -1,0 +1,23 @@
+<div gdAreas="libraries libraryItems" gdRows="1fr" gdColumns="auto 1fr" class="content-container">
+    <div class="libraries-container" gdArea="libraries">
+        <table mat-table [dataSource]="settings.playlists">
+            <ng-container matColumnDef="title">
+                <th mat-header-cell *matHeaderCellDef>Title</th>
+                <td mat-cell *matCellDef="let element">{{element.title}}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="items">
+                <th mat-header-cell *matHeaderCellDef>Items</th>
+                <td mat-cell *matCellDef="let element">{{element.items?.length}}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="lastModified">
+                <th mat-header-cell *matHeaderCellDef>Last modified</th>
+                <td mat-cell *matCellDef="let element">{{element.lastModified | date:'yyyy-MM-dd'}}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="playlistColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: playlistColumns;"></tr>
+        </table>
+    </div>
+</div>

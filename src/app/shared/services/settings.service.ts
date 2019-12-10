@@ -18,12 +18,12 @@ export class SettingsService {
   public defaultPlaylistsPerDance: any = {};
   public busyTextSubject = new Subject<string>();
 
-  get playlistFolder(): string {
-    return this._playlistFolder;
-  }
-  set playlistFolder(value: string) {
-    this._playlistFolder = value;
-  }
+  // get playlistFolder(): string {
+  //   return this._playlistFolder;
+  // }
+  // set playlistFolder(value: string) {
+  //   this._playlistFolder = value;
+  // }
 
   get musicFolder(): string {
     return this._musicFolder;
@@ -40,7 +40,7 @@ export class SettingsService {
     this._extensionsToExclude = value;
   }
 
-  private _playlistFolder: string;
+  //private _playlistFolder: string;
   private _musicFolder: string;
   private _extensionsToExclude: string;
   private resolveLoadPlaylists: (value?: unknown) => void;
@@ -70,22 +70,22 @@ export class SettingsService {
 
     // load playlist folder and playlists and default playlists per dance
     const musicFolder = await this.localStorage.getItem<string>('musicFolder').toPromise() as string;
-    const playlistFolder = await this.localStorage.getItem<string>('playlistFolder').toPromise() as string;
+    //const playlistFolder = await this.localStorage.getItem<string>('playlistFolder').toPromise() as string;
     const extensionsToExclude = await this.localStorage.getItem<string>('extensionsToExclude').toPromise() as string;
 
     if (musicFolder) {
       this._musicFolder = musicFolder;
     }
 
-    if (playlistFolder) {
-      this._playlistFolder = playlistFolder;
-    }
+    // if (playlistFolder) {
+    //   this._playlistFolder = playlistFolder;
+    // }
 
     if (extensionsToExclude) {
       this._extensionsToExclude = extensionsToExclude;
     }
 
-    if (musicFolder && playlistFolder) {
+    if (musicFolder) { // && playlistFolder
       await this.loadPlaylists();
     }
 
@@ -181,10 +181,14 @@ export class SettingsService {
    * Get the details for all items in a playlist.
    * @param playlist 
    */
-  public async readPlaylistDetails(playlist: Playlist, items: PlaylistItem[]): Promise<any[]> {
+  public async readPlaylistDetails(playlist: Playlist, items: PlaylistItem[], forceUpdate = false): Promise<any[]> {
+    if (forceUpdate) {
+      await this.loadPlaylists();
+    }
+
     const promise = new Promise<any[]>((resolve, reject) => {
       this.resolveReadPlaylistDetails = resolve;
-      this.electronService.ipcRenderer.send('readPlaylistDetails', this.musicFolder, playlist, items);
+      this.electronService.ipcRenderer.send('readPlaylistDetails', this.musicFolder, playlist, items, forceUpdate);
     });
 
     return promise;
@@ -372,8 +376,8 @@ export class SettingsService {
     });
 
     this.electronService.ipcRenderer.on('readPlaylistData', (event: any, playlist: string) => {
-      //this.zone.run(() => this.busyTextSubject.next('Loading ' + playlist));
-      this.busyTextSubject.next('Loading ' + playlist)
+      this.zone.run(() => this.busyTextSubject.next('Loading ' + playlist));
+      //this.busyTextSubject.next('Loading ' + playlist)
     });
   }
 }
