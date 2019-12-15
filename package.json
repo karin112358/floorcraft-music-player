@@ -17,6 +17,7 @@
   "private": true,
   "dependencies": {
     "angular2-notifications": "^2.0.0",
+    "electron-store": "^5.1.0",
     "fs": "0.0.1-security",
     "lokijs": "^1.5.7",
     "music-metadata": "^4.8.0",

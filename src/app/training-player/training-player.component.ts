@@ -322,14 +322,41 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
 
   private async setPlaylistItems(slot: Slot, forceUpdate = false) {
     if (!slot.playlist) {
-      slot.playlist = this.settings.playlists.find(p => p.filename == this.settings.defaultPlaylistsPerDance[slot.dance]);
+      slot.playlist = this.settings.playlists.find(p => p.filename == this.settings.configuration.defaultPlaylistsPerDance[slot.dance]);
     }
 
     if (slot.playlist) {
+      var currentSong = this.getCurrentSong();
+
+      if (forceUpdate) {
+        // TODO: only reload selected playlist
+        await this.settings.loadPlaylists();
+        var newPlaylist = this.settings.playlists.find(p => p.filename == slot.playlist.filename);
+        if (newPlaylist) {
+          slot.playlist = newPlaylist;
+        } else {
+          this.notificationsService.error(
+            'Error',
+            `Playlist "${slot.playlist.name}" does not exist anymore.`);
+
+          this.removeSlot(slot);
+          return;
+        }
+      }
+
       let items = slot.playlist.items;
       items = await this.settings.readPlaylistDetails(slot.playlist, items, forceUpdate);
       items = items.map(p => new PlaylistItem(p, 0));
+      
       this.updatePlaylistSortOrder(slot, items);
+
+      if (slot === this.slots[this.currentSlotIndex]) {
+        // select current song
+        var index = slot.items.findIndex(i => i.configuration.absolutePath == currentSong.configuration.absolutePath);
+        if (index >= 0) {
+          slot.currentSongIndex = index;
+        }
+      }
     } else {
       alert('Default playlist for ' + this.settings.getDanceFriendlyName(slot.dance) + ' not found.');
     }

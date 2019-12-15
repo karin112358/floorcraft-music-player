@@ -42,24 +42,21 @@ mat-toolbar {
         }
     }
 
-    .busy-indicator {
+    .toolbar-busy-indicator {
+        font-size: 14px;
+
+        mat-spinner {
+            float: left;
+            margin-right: 12px;
+        }
+    }
+
+    .toolbar-busy-text {
         margin-right: 24px;
+        color: mat-color($app-primary);
         font-size: 14px;
     }
-
-    .busy-animation {
-        animation: busyAnimation 1s infinite;
-        animation-direction: alternate;
-        animation-timing-function: linear;
-        // color: #c62828;
-        text-transform: none;
-    }
 }
-
-@keyframes busyAnimation {
-    from {opacity: 1;}
-    to {opacity: 0.3;}
-  }
 
 .mat-toolbar-single-row {
     padding: 0 16px;

@@ -1,13 +1,10 @@
 import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
-import { take } from 'rxjs/operators';
 
 import { ElectronService } from 'ngx-electron';
-import { LocalStorage } from '@ngx-pwa/local-storage';
 import { PracticeDancePlaylist } from '../shared/models/practice-dance-playlist';
 import { Dance } from '../shared/models/dance';
 import { PlaylistItem } from '../shared/models/playlist-item';
 import { PracticePlaylist } from '../shared/models/practice-playlist';
-import { Playlist } from '../shared/models/playlist';
 import { Category } from '../shared/models/category';
 import { SettingsService } from '../shared/services/settings.service';
 
@@ -36,7 +33,7 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
   private currentSong: PlaylistItem = null;
   //private playlistFolder = '';
 
-  constructor(public settings: SettingsService, private localStorage: LocalStorage, private electronService: ElectronService, private ngZone: NgZone) {
+  constructor(public settings: SettingsService, private electronService: ElectronService, private ngZone: NgZone) {
     this.audio = new Audio();
     this.audio.onerror = (event) => {
       // TODO: handle errors
@@ -274,8 +271,8 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
   }
 
   private async loadSongs(dance: Dance) {
-    if (this.settings.defaultPlaylistsPerDance[dance]) {
-      const playlist = this.settings.playlists.find(p => p.filename == this.settings.defaultPlaylistsPerDance[dance]);
+    if (this.settings.configuration.defaultPlaylistsPerDance[dance]) {
+      const playlist = this.settings.playlists.find(p => p.filename == this.settings.configuration.defaultPlaylistsPerDance[dance]);
       this.practicePlaylistsSongs[dance] =
         await this.settings.readPlaylistDetails(playlist, playlist.items);
     }

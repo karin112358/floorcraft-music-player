@@ -177,11 +177,15 @@ mat-form-field {
 }
 
 .simple-notification {
+    .sn-title {
+        font-size: 18px !important;
+    }
+
     .sn-content {
         font-size: 12px !important;
     }
 
     &.error {
-        background: mat-color($app-warn, 700);
+        background: mat-color($app-warn, 900) !important;
     }
 }

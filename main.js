@@ -1,3 +1,5 @@
+'use strict';
+
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const url = require('url');
@@ -9,7 +11,7 @@ const mm = require('music-metadata');
 const util = require('util');
 const loki = require('lokijs');
 
-//require('electron-debug')();
+require('electron-debug')();
 
 let win;
 
@@ -62,43 +64,87 @@ app.on('activate', () => {
 
 let db = null;
 
-ipcMain.on('loadPlaylists', (event, folder) => {
-    db = new loki(folder + '\\music-player.db', {
+/**
+ * Initialize database and load configuration.
+ */
+ipcMain.on('initialize', (event) => {
+    db = new loki(path.join(app.getPath('userData'), '/music-player.db'), {
         autoload: true,
         autoloadCallback: (async () => {
             // add collections to database
-            var songs = db.getCollection('songs');
-            if (songs === null) {
-                songs = db.addCollection('songs');
+            let configuration = db.getCollection('configuration');
+            if (configuration === null) {
+                configuration = db.addCollection('configuration');
             }
 
-            var playlists = db.getCollection('playlists');
-            if (playlists === null) {
-                playlists = db.addCollection('playlists');
+            let data;
+            if (configuration.data.length) {
+                data = configuration.data[0];
+            } else {
+                data = configuration.insert({});
             }
 
-            await readMetadata(folder, folder, songs, playlists, 0, false);
-            // db.saveDatabase();
-            event.reply('playlistsLoaded', playlists.data);
+            console.log('load configuration', data);
+            event.reply('initializeFinished', data);
         }),
         autosave: true,
         autosaveInterval: 5000
     });
 });
 
+/**
+ * Saves the configuration in the database.
+ */
+ipcMain.on('saveConfiguration', (event, newConfiguration) => {
+    console.log('save config', newConfiguration);
+
+    let data;
+    let configuration = db.getCollection('configuration');
+    if (configuration.data.length) {
+        data = configuration.data[0];
+    } else {
+        data = configuration.insert({});
+    }
+
+    data.musicFolders = newConfiguration.musicFolders;
+    data.excludeExtensions = newConfiguration.excludeExtensions;
+    data.defaultPlaylistsPerDance = newConfiguration.defaultPlaylistsPerDance;
+    db.saveDatabase();
+
+    event.reply('saveConfigurationFinished');
+});
+
+/**
+ * Read playlist metadata.
+ */
+ipcMain.on('loadPlaylists', async (event, folder) => {
+    let songs = db.getCollection('songs');
+    if (songs === null) {
+        songs = db.addCollection('songs');
+    }
+
+    let playlists = db.getCollection('playlists');
+    if (playlists === null) {
+        playlists = db.addCollection('playlists');
+    }
+
+    await readMetadata(folder, folder, songs, playlists, 0, false);
+    event.reply('loadPlaylistsFinished', playlists.data);
+});
+
 ipcMain.on('readPlaylistDetails', async (event, root, playlist, items, forceUpdate) => {
     if (items) {
         console.log('read playlist details ...');
 
-        for (var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
             let src = path.join(root, path.dirname(playlist.path), items[i].path);
             items[i].sortOrder = i;
             items[i].exists = fileIsValid(src);
             items[i].absolutePath = src;
 
             // load metadata
-            var songs = db.getCollection('songs');
-            result = await insertSong(songs, src, src.replace(root, ''), forceUpdate);
+            let songs = db.getCollection('songs');
+            let result = await insertSong(songs, src, src.replace(root, ''), forceUpdate);
 
             if (result && !result.title) {
                 result.title = result.filename;
@@ -109,22 +155,16 @@ ipcMain.on('readPlaylistDetails', async (event, root, playlist, items, forceUpda
     }
 
     //console.log(items);
-    event.reply('playlistDetailsRead', items);
-});
-
-ipcMain.on('readMetadata', async (event, folder) => {
-    await readMetadata(folder, folder, db.getCollection('songs'), db.getCollection('playlists'), 0, true);
-    db.saveDatabase();
-    event.reply('metadataRead', null);
+    event.reply('readPlaylistDetailsFinished', items);
 });
 
 async function readMetadata(root, folder, songs, playlists, level, readAllFiles) {
-    var items = fs.readdirSync(folder);
-    for (var i = 0; i < items.length; i++) {
-        var item = path.join(folder, items[i]);
+    let items = fs.readdirSync(folder);
+    for (let i = 0; i < items.length; i++) {
+        let item = path.join(folder, items[i]);
 
         if (fs.lstatSync(item).isDirectory()) {
-            readMetadata(root, item, songs, playlists, level++);
+            await readMetadata(root, item, songs, playlists, level++);
         } else {
             if (!item.endsWith('.xml') && !item.endsWith('.db')) {
                 try {
@@ -134,7 +174,7 @@ async function readMetadata(root, folder, songs, playlists, level, readAllFiles)
                         const lastModified = fs.statSync(item).mtimeMs;
 
                         // playlist
-                        results = playlists.find({ 'path': { '$eq': itemPath } });
+                        let results = playlists.find({ 'path': { '$eq': itemPath } });
                         let playlist = null;
 
                         if (results.length < 1) {
@@ -166,58 +206,13 @@ async function readMetadata(root, folder, songs, playlists, level, readAllFiles)
     }
 }
 
-async function insertSong(songs, file, relativePath, forceUpdate) {
-    var results = songs.find({ 'path': { '$eq': relativePath } });
-
-    if (results.length < 1 || forceUpdate) {
-        let metadata = null;
-        try {
-            metadata = await mm.parseFile(file, { skipCovers: true, duration: true });
-        } catch (e) {
-            //console.log('file not supported', file, e);
-        }
-
-        if (metadata) {
-            let song = null;
-            if (results < 1) {
-                song = {};
-            } else {
-                song = results[0];
-            }
-
-            song.path = relativePath,
-            song.filename = path.basename(relativePath),
-            song.title = metadata.common.title,
-            song.genre = metadata.common.genre,
-            song.artists = metadata.common.artists,
-            song.album = metadata.common.album,
-            song.year = metadata.common.year,
-            song.duration = metadata.format.duration
-
-            //console.log(song, 'update', results.length > 0);
-
-            if (results < 1) {
-                return songs.insert(song);
-            } else {
-                return song;
-            }
-        }
-    }
-
-    if (results.length > 0) {
-        return results[0];
-    }
-
-    return null;
-}
-
 async function updatePlaylist(playlist, root, lastModified) {
     console.log('update playlist', path.join(root, playlist.path));
-    var playlistItems = [];
+    let playlistItems = [];
 
-    data = await fs.readFileSync(path.join(root, playlist.path));
-    var options = { ignoreComment: true, alwaysChildren: true, compact: true, attributesKey: 'attributes' };
-    var json = convert.xml2js(data, options);
+    let data = await fs.readFileSync(path.join(root, playlist.path));
+    let options = { ignoreComment: true, alwaysChildren: true, compact: true, attributesKey: 'attributes' };
+    let json = convert.xml2js(data, options);
 
     if (json && json.smil && json.smil.body && json.smil.body.seq && json.smil.body.seq.media) {
         playlist.title = json.smil.head.title._text;
@@ -247,6 +242,51 @@ async function updatePlaylist(playlist, root, lastModified) {
     //console.log(playlistItems);
     playlist.items = playlistItems;
     playlist.lastModified = lastModified;
+}
+
+async function insertSong(songs, file, relativePath, forceUpdate) {
+    let results = songs.find({ 'path': { '$eq': relativePath } });
+
+    if (results.length < 1 || forceUpdate) {
+        let metadata = null;
+        try {
+            metadata = await mm.parseFile(file, { skipCovers: true, duration: true });
+        } catch (e) {
+            //console.log('file not supported', file, e);
+        }
+
+        if (metadata) {
+            let song = null;
+            if (results < 1) {
+                song = {};
+            } else {
+                song = results[0];
+            }
+
+            song.path = relativePath,
+                song.filename = path.basename(relativePath),
+                song.title = metadata.common.title,
+                song.genre = metadata.common.genre,
+                song.artists = metadata.common.artists,
+                song.album = metadata.common.album,
+                song.year = metadata.common.year,
+                song.duration = metadata.format.duration
+
+            //console.log(song, 'update', results.length > 0);
+
+            if (results < 1) {
+                return songs.insert(song);
+            } else {
+                return song;
+            }
+        }
+    }
+
+    if (results.length > 0) {
+        return results[0];
+    }
+
+    return null;
 }
 
 function getFilePath(folder, src) {
