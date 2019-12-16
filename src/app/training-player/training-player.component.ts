@@ -345,7 +345,7 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
       }
 
       let items = slot.playlist.items;
-      items = await this.settings.readPlaylistDetails(slot.playlist, items, forceUpdate);
+      items = await this.settings.loadPlaylistSongs(slot.playlist, items, forceUpdate);
       items = items.map(p => new PlaylistItem(p, 0));
       
       this.updatePlaylistSortOrder(slot, items);
@@ -434,9 +434,9 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
     if (!b.configuration.metadata || !b.configuration.metadata.genre) {
       return -1;
     }
-    if (this.settings.getFilename(a.configuration.metadata.genre[0].toLowerCase()) < this.settings.getFilename(b.configuration.metadata.genre[0].toLowerCase())) {
+    if (a.configuration.metadata.genre[0].toLowerCase() < b.configuration.metadata.genre[0].toLowerCase()) {
       return -1;
-    } if (this.settings.getFilename(a.configuration.metadata.genre[0].toLowerCase()) > this.settings.getFilename(b.configuration.metadata.genre[0].toLowerCase())) {
+    } if (a.configuration.metadata.genre[0].toLowerCase() > (b.configuration.metadata.genre[0].toLowerCase())) {
       return 1;
     } else {
       return this.getTitleSortOrder(a, b);

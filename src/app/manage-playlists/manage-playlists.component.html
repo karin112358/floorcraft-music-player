@@ -1,0 +1,69 @@
+<div gdAreas="playlists playlistItems" gdRows="1fr" gdColumns="auto 1fr" class="content-container">
+        <div class="playlists-container" gdArea="playlists">
+            <table mat-table [dataSource]="settings.playlists">
+                <ng-container matColumnDef="title">
+                    <th mat-header-cell *matHeaderCellDef>Title</th>
+                    <td mat-cell *matCellDef="let element">{{element.title}}</td>
+                </ng-container>
+    
+                <ng-container matColumnDef="items">
+                    <th mat-header-cell *matHeaderCellDef>Items</th>
+                    <td mat-cell class="items" *matCellDef="let element">{{element.items?.length}}</td>
+                </ng-container>
+    
+                <ng-container matColumnDef="lastModified">
+                    <th mat-header-cell *matHeaderCellDef>Last modified</th>
+                    <td mat-cell class="last-modified" *matCellDef="let element">{{element.lastModified | date:'yyyy-MM-dd'}}</td>
+                </ng-container>
+    
+                <tr mat-header-row *matHeaderRowDef="playlistColumns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: playlistColumns;" (click)="selection.toggle(row)"
+                    [ngClass]="{ 'selected-row': selection.isSelected(row) }"></tr>
+            </table>
+        </div>
+    
+        <div class="playlist-items-container" gdArea="playlistItems">
+            <table mat-table [dataSource]="playlistItems">
+                <ng-container matColumnDef="title">
+                    <th mat-header-cell *matHeaderCellDef>Title</th>
+                    <td mat-cell *matCellDef="let element">
+                        {{element.metadata?.title}}<br />
+                        <span class="path">{{element.absolutePath}}</span>
+                    </td>
+                </ng-container>
+    
+                <ng-container matColumnDef="dance">
+                    <th mat-header-cell *matHeaderCellDef>Dance</th>
+                    <td mat-cell class="dance" *matCellDef="let element">{{element.metadata?.dance}}</td>
+                </ng-container>
+    
+                <ng-container matColumnDef="genre">
+                    <th mat-header-cell *matHeaderCellDef>Genre</th>
+                    <td mat-cell class="genre" *matCellDef="let element">{{element.metadata?.genre?.join(', ')}}</td>
+                </ng-container>
+    
+                <ng-container matColumnDef="duration">
+                    <th mat-header-cell *matHeaderCellDef>Duration</th>
+                    <td mat-cell class="duration" *matCellDef="let element">{{settings.formatDuration(element.metadata?.duration)}}</td>
+                </ng-container>
+    
+                <ng-container matColumnDef="select">
+                    <th mat-header-cell *matHeaderCellDef>
+                        <mat-checkbox (change)="$event ? masterToggle() : null"
+                            [checked]="songSelection.hasValue() && isAllSelected()"
+                            [indeterminate]="songSelection.hasValue() && !isAllSelected()">
+                        </mat-checkbox>
+                    </th>
+                    <td mat-cell *matCellDef="let row">
+                        <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? songSelection.toggle(row) : null"
+                            [checked]="songSelection.isSelected(row)">
+                        </mat-checkbox>
+                    </td>
+                </ng-container>
+    
+                <tr mat-header-row *matHeaderRowDef="playlistItemsColumns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: playlistItemsColumns;" (click)="songSelection.toggle(row)"
+                    [ngClass]="{ 'selected-row': songSelection.isSelected(row), 'not-exists': !row.exists }"></tr>
+            </table>
+        </div>
+    </div>

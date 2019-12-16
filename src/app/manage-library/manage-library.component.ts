@@ -1,8 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { SettingsService } from '../shared/services/settings.service';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Playlist } from '../shared/models/playlist';
 import { PlaylistItem } from '../shared/models/playlist-item';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-manage-library',
@@ -10,28 +13,30 @@ import { PlaylistItem } from '../shared/models/playlist-item';
   styleUrls: ['./manage-library.component.scss']
 })
 export class ManageLibraryComponent implements OnInit {
-  public playlistColumns: string[] = ['title', 'items', 'lastModified'];
-  public playlistItemsColumns: string[] = ['select', 'title', 'dance', 'genre', 'duration'];
-  public selection: SelectionModel<Playlist>;
+  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
+
+  public onlyDuplicates = false;
+  public songsColumns: string[] = ['select', 'title', 'dance', 'genre', 'duration'];
   public songSelection: SelectionModel<any>;
-  public playlistItems: PlaylistItem[];
+  public dataSource = new MatTableDataSource<any>();
+  public songs: any[];
 
   constructor(public settings: SettingsService) {
-    this.selection = new SelectionModel<Playlist>(false, []);
     this.songSelection = new SelectionModel<any>(true, []);
-
-    this.selection.changed.subscribe(async event => {
-      this.playlistItems = await this.settings.readPlaylistDetails(event.added[0], event.added[0].items, true);
-    });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    this.songs = await this.settings.getSongs() as any[];
+    console.log('songs', this.songs.length, this.songs.slice(0, 10));
+
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.data = this.songs;
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {
     const numSelected = this.songSelection.selected.length;
-    const numRows = this.playlistItems.length;
+    const numRows = this.dataSource.data.length;
     return numSelected == numRows;
   }
 
@@ -39,6 +44,16 @@ export class ManageLibraryComponent implements OnInit {
   masterToggle() {
     this.isAllSelected() ?
       this.songSelection.clear() :
-      this.playlistItems.forEach(row => this.songSelection.select(row));
+      this.dataSource.data.forEach(row => this.songSelection.select(row));
+  }
+
+  onlyDuplicatesChanged(event: MatCheckboxChange) {
+    this.onlyDuplicates = event.checked;
+
+    if (this.onlyDuplicates) {
+      this.dataSource.data = this.songs.filter(s1 => this.songs.find(s2 => s1.filename === s2.filename && s1.duration === s2.duration && s1.path !== s2.path));
+    } else {
+      this.dataSource.data = this.songs;
+    }
   }
 }

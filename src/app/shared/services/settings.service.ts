@@ -39,8 +39,10 @@ export class SettingsService {
   private _musicFolder: string;
   private _extensionsToExclude: string;
   private resolveInitialize: (value?: unknown) => void;
+  private resolveLoadSongs: (value?: unknown) => void;
+  private resolveGetSongs: (value: any[]) => void;
   private resolveLoadPlaylists: (value?: unknown) => void;
-  private resolveReadPlaylistDetails: (value?: unknown) => void;
+  private resolveLoadPlaylistSongs: (value?: unknown) => void;
 
   private constructor(
     private electronService: ElectronService,
@@ -80,6 +82,26 @@ export class SettingsService {
     return promise;
   }
 
+  public async loadSongs(): Promise<any[]> {
+    this.busyTextSubject.next('Load songs');
+    const promise = new Promise<any[]>((resolve, reject) => {
+      this.resolveLoadSongs = resolve;
+      this.electronService.ipcRenderer.send('loadSongs', this._musicFolder);
+    });
+
+    return promise;
+  }
+
+  public async getSongs() {
+    this.busyTextSubject.next('Get songs');
+    const promise = new Promise((resolve, reject) => {
+      this.resolveGetSongs = resolve;
+      this.electronService.ipcRenderer.send('getSongs', this._musicFolder);
+    });
+
+    return promise;
+  }
+
   /**
    * Get all dances per category.
    * @param category 
@@ -106,38 +128,18 @@ export class SettingsService {
    * Get the details for all items in a playlist.
    * @param playlist 
    */
-  public async readPlaylistDetails(playlist: Playlist, items: PlaylistItem[], forceUpdate = false): Promise<any[]> {
+  public async loadPlaylistSongs(playlist: Playlist, items: PlaylistItem[], forceUpdate = false): Promise<any[]> {
     if (forceUpdate) {
       await this.loadPlaylists();
     }
 
     this.busyTextSubject.next('Read playlists items');
     const promise = new Promise<any[]>((resolve, reject) => {
-      this.resolveReadPlaylistDetails = resolve;
-      this.electronService.ipcRenderer.send('readPlaylistDetails', this.musicFolder, playlist, items, forceUpdate);
+      this.resolveLoadPlaylistSongs = resolve;
+      this.electronService.ipcRenderer.send('loadPlaylistsSongs', this.musicFolder, playlist, items, forceUpdate);
     });
 
     return promise;
-  }
-
-  /**
-   * Gets the filename from a path.
-   * @param path 
-   */
-  public getFilename(path: string) {
-    return path.split('\\').pop();
-  }
-
-  /**
-   * Gets the name of the playlist without the extension .wpl
-   * @param name 
-   */
-  public getPlaylistName(name: string) {
-    if (name) {
-      return name.replace(/.wpl/, '');
-    } else {
-      return name;
-    }
   }
 
   public getDanceFriendlyName(dance: Dance): string {
@@ -290,6 +292,25 @@ export class SettingsService {
       this.busyTextSubject.next('');
     });
 
+    this.electronService.ipcRenderer.on('loadProgress', async (event, folder) => {
+      this.busyTextSubject.next(folder);
+    });
+
+    this.electronService.ipcRenderer.on('loadSongsFinished', async (event) => {
+      this.busyTextSubject.next('');
+      this.resolveLoadSongs();
+      this.resolveLoadSongs = null;
+    });
+
+    this.electronService.ipcRenderer.on('getSongsFinished', async (event, songs) => {
+      this.busyTextSubject.next('');
+      const sortedSongs = songs.sort((a, b) => {
+        return a.filename > b.filename ? 1 : -1;
+      });
+      this.resolveGetSongs(sortedSongs);
+      this.resolveGetSongs = null;
+    });
+
     this.electronService.ipcRenderer.on('loadPlaylistsFinished', async (event, playlists) => {
       console.log('loadPlaylistsFinished', playlists);
       this.busyTextSubject.next('');
@@ -310,9 +331,9 @@ export class SettingsService {
       }
     });
 
-    this.electronService.ipcRenderer.on('readPlaylistDetailsFinished', (event, items: any) => {
-      if (this.resolveReadPlaylistDetails) {
-        console.log('readPlaylistDetailsFinished', items);
+    this.electronService.ipcRenderer.on('loadPlaylistsSongsFinished', (event, items: any) => {
+      if (this.resolveLoadPlaylistSongs) {
+        console.log('loadPlaylistsSongsFinished', items);
 
         if (items && this.extensionsToExclude) {
           items.forEach(item => {
@@ -325,10 +346,10 @@ export class SettingsService {
           });
         }
 
-        this.resolveReadPlaylistDetails(items);
+        this.resolveLoadPlaylistSongs(items);
       }
 
-      this.resolveReadPlaylistDetails = null;
+      this.resolveLoadPlaylistSongs = null;
       this.busyTextSubject.next('');
     });
   }

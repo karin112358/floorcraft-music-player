@@ -274,7 +274,7 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
     if (this.settings.configuration.defaultPlaylistsPerDance[dance]) {
       const playlist = this.settings.playlists.find(p => p.filename == this.settings.configuration.defaultPlaylistsPerDance[dance]);
       this.practicePlaylistsSongs[dance] =
-        await this.settings.readPlaylistDetails(playlist, playlist.items);
+        await this.settings.loadPlaylistSongs(playlist, playlist.items);
     }
   }
 

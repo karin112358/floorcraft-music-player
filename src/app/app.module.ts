@@ -18,6 +18,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { NgxElectronModule } from 'ngx-electron';
 import { SimpleNotificationsModule } from 'angular2-notifications';
 
@@ -28,6 +29,7 @@ import { SettingsComponent } from './settings/settings.component';
 import { StorageModule } from '@ngx-pwa/local-storage';
 import { TrainingPlayerComponent } from './training-player/training-player.component';
 import { ManageLibraryComponent } from './manage-library/manage-library.component';
+import { ManagePlaylistsComponent } from './manage-playlists/manage-playlists.component';
 
 @NgModule({
   declarations: [
@@ -35,7 +37,8 @@ import { ManageLibraryComponent } from './manage-library/manage-library.componen
     PracticePlayerComponent,
     SettingsComponent,
     TrainingPlayerComponent,
-    ManageLibraryComponent
+    ManageLibraryComponent,
+    ManagePlaylistsComponent
   ],
   imports: [
     BrowserAnimationsModule,
@@ -48,6 +51,7 @@ import { ManageLibraryComponent } from './manage-library/manage-library.componen
     MatIconModule,
     MatSelectModule,
     MatTableModule,
+    MatPaginatorModule,
     MatProgressSpinnerModule,
     MatListModule,
     MatCheckboxModule,
