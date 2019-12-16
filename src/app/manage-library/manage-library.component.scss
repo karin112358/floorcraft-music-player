@@ -1,8 +1,45 @@
+@import '../../styles/colors.scss';
+
 .libraries-container {
     overflow: scroll;
 }
 
-th.mat-header-cell, td.mat-cell {
-    padding-left: 5px;
-    padding-right: 5px;
+.playlists-container,
+.playlist-items-container {
+    height: 100%;
+    overflow: scroll;
+    box-sizing: border-box;
+}
+
+.playlists-container table {
+    background-color: #eee;
+}
+
+.playlist-items-container table {
+    width: 100%;
+}
+
+th.mat-header-cell,
+td.mat-cell {
+    padding: 5px;
+}
+
+td.items, td.last-modified, td.duration {
+    text-align: right;
+}
+
+td.items, td.last-modified, td.duration, td.dance, td.genre {
+    font-size: 11px;
+}
+
+.selected-row {
+    background-color: mat-color($app-primary, 200);
+}
+
+.not-exists td {
+    color: #bbb;
+}
+
+.path {
+    font-size: 11px;
 }

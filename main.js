@@ -10,8 +10,9 @@ const { readdir, stat } = require('fs');
 const mm = require('music-metadata');
 const util = require('util');
 const loki = require('lokijs');
+const id3 = require('node-id3');
 
-require('electron-debug')();
+//require('electron-debug')();
 
 let win;
 
@@ -84,7 +85,6 @@ ipcMain.on('initialize', (event) => {
                 data = configuration.insert({});
             }
 
-            console.log('load configuration', data);
             event.reply('initializeFinished', data);
         }),
         autosave: true,
@@ -249,8 +249,10 @@ async function insertSong(songs, file, relativePath, forceUpdate) {
 
     if (results.length < 1 || forceUpdate) {
         let metadata = null;
+        let id3Metadata = null;
         try {
             metadata = await mm.parseFile(file, { skipCovers: true, duration: true });
+            id3Metadata = id3.read(file);
         } catch (e) {
             //console.log('file not supported', file, e);
         }
@@ -263,14 +265,60 @@ async function insertSong(songs, file, relativePath, forceUpdate) {
                 song = results[0];
             }
 
-            song.path = relativePath,
-                song.filename = path.basename(relativePath),
-                song.title = metadata.common.title,
-                song.genre = metadata.common.genre,
-                song.artists = metadata.common.artists,
-                song.album = metadata.common.album,
-                song.year = metadata.common.year,
-                song.duration = metadata.format.duration
+            song.path = relativePath;
+            song.filename = path.basename(relativePath);
+            song.title = metadata.common.title;
+            song.genre = metadata.common.genre;
+            song.artists = metadata.common.artists;
+            song.album = metadata.common.album;
+            song.year = metadata.common.year;
+            song.duration = metadata.format.duration;
+
+            let dance = null;
+            if (id3Metadata && id3Metadata.userDefinedText) {
+                dance = id3Metadata.userDefinedText.find(t => t.description == 'BAMLPLAYER_DANCE');
+            }
+
+            if (dance) {
+                song.dance = dance.value;
+            } else if (song.genre && song.genre.length) {
+                switch (song.genre[0].toLowerCase()) {
+                    case 'waltz':
+                    case 'english waltz':
+                    case 'slow waltz':
+                        song.dance = 'Waltz';
+                        break;
+                    case 'tango':
+                        song.dance = 'Tango';
+                        break;
+                    case 'viennese waltz':
+                        song.dance = 'Viennese Waltz';
+                        break;
+                    case 'slow foxtrot':
+                    case 'slowfox':
+                    case 'slow fox':
+                        song.dance = 'Slow Foxtrot';
+                        break;
+                    case 'quickstep':
+                        song.dance = 'Quickstep';
+                        break;
+                    case 'samba':
+                        song.dance = 'Samba';
+                        break;
+                    case 'cha cha cha':
+                        song.dance = 'Cha Cha Cha';
+                        break;
+                    case 'rumba':
+                        song.dance = 'Rumba';
+                        break;
+                    case 'paso doble':
+                        song.dance = 'Paso Doble';
+                        break;
+                    case 'jive':
+                        song.dance = 'Jive';
+                        break;
+                }
+            }
 
             //console.log(song, 'update', results.length > 0);
 

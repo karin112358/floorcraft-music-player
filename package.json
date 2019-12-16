@@ -21,6 +21,7 @@
     "fs": "0.0.1-security",
     "lokijs": "^1.5.7",
     "music-metadata": "^4.8.0",
+    "node-id3": "^0.1.13",
     "xml-js": "^1.6.11"
   },
   "devDependencies": {
