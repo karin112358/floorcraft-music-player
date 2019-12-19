@@ -41,4 +41,12 @@ export class ManagePlaylistsComponent implements OnInit {
       this.songSelection.clear() :
       this.playlistItems.forEach(row => this.songSelection.select(row));
   }
+
+  getNumberOfExistingItems(playlist: any): number {
+    if (!playlist.items) {
+      return 0;
+    } else {
+      return playlist.items.filter(i => i.exists).length;
+    }
+  }
 }

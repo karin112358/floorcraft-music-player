@@ -16,7 +16,8 @@ export class ManageLibraryComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
 
   public onlyDuplicates = false;
-  public songsColumns: string[] = ['select', 'title', 'dance', 'genre', 'duration'];
+  public onlyDanceMissing = false;
+  public songsColumns: string[] = ['select', 'title', 'playlists', 'dance', 'genre', 'duration'];
   public songSelection: SelectionModel<any>;
   public dataSource = new MatTableDataSource<any>();
   public songs: any[];
@@ -30,7 +31,7 @@ export class ManageLibraryComponent implements OnInit {
     console.log('songs', this.songs.length, this.songs.slice(0, 10));
 
     this.dataSource.paginator = this.paginator;
-    this.dataSource.data = this.songs;
+    this.updateData();
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -47,13 +48,27 @@ export class ManageLibraryComponent implements OnInit {
       this.dataSource.data.forEach(row => this.songSelection.select(row));
   }
 
+  getPlaylistsForSong(absolutePath: string): any[] {
+    return this.settings.playlists.filter(p => p.items.find(i => i.absolutePath == absolutePath));
+  }
+
   onlyDuplicatesChanged(event: MatCheckboxChange) {
     this.onlyDuplicates = event.checked;
+    this.updateData();
+  }
 
-    if (this.onlyDuplicates) {
-      this.dataSource.data = this.songs.filter(s1 => this.songs.find(s2 => s1.filename === s2.filename && s1.duration === s2.duration && s1.path !== s2.path));
-    } else {
-      this.dataSource.data = this.songs;
-    }
+  onlyDanceMissingChanged(event: MatCheckboxChange) {
+    this.onlyDanceMissing = event.checked;
+    this.updateData();
+  }
+
+  getPlaylistsTooltip(playlists: any[]) {
+    return playlists.map(p => p.title).join('\n');
+  }
+
+  private updateData() {
+    this.dataSource.data = this.songs.filter(s1 =>
+      (!this.onlyDuplicates || this.songs.find(s2 => s1.filename === s2.filename && s1.duration === s2.duration && s1.absolutePath !== s2.absolutePath))
+      && (!this.onlyDanceMissing || !s1.dance));
   }
 }

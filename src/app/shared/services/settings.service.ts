@@ -41,6 +41,7 @@ export class SettingsService {
   private resolveInitialize: (value?: unknown) => void;
   private resolveLoadSongs: (value?: unknown) => void;
   private resolveGetSongs: (value: any[]) => void;
+  private resolveClearDatabase: (value?: unknown) => void;
   private resolveLoadPlaylists: (value?: unknown) => void;
   private resolveLoadPlaylistSongs: (value?: unknown) => void;
 
@@ -256,6 +257,16 @@ export class SettingsService {
     }
   }
 
+  public clearDatabase() {
+    this.busyTextSubject.next('Clear database');
+    const promise = new Promise((resolve, reject) => {
+      this.resolveClearDatabase = resolve;
+      this.electronService.ipcRenderer.send('clearDatabase');
+    });
+
+    return promise;
+  }
+
   private async updateConfiguration(configuration: Configuration) {
     console.log('configuration', configuration);
     this.configuration = configuration;
@@ -290,6 +301,12 @@ export class SettingsService {
 
     this.electronService.ipcRenderer.on('saveConfigurationFinished', async (event, configuration) => {
       this.busyTextSubject.next('');
+    });
+
+    this.electronService.ipcRenderer.on('clearDatabaseFinished', async (event, configuration) => {
+      this.busyTextSubject.next('');
+      this.resolveClearDatabase();
+      this.resolveClearDatabase = null;
     });
 
     this.electronService.ipcRenderer.on('loadProgress', async (event, folder) => {

@@ -12,7 +12,7 @@ const util = require('util');
 const loki = require('lokijs');
 const id3 = require('node-id3');
 
-require('electron-debug')();
+//require('electron-debug')();
 
 let win;
 
@@ -112,6 +112,15 @@ ipcMain.on('saveConfiguration', (event, newConfiguration) => {
 });
 
 /**
+ * Clear database.
+ */
+ipcMain.on('clearDatabase', async (event) => {
+    getDbCollection('songs').clear();
+    getDbCollection('playlists').clear();
+    event.reply('clearDatabaseFinished');
+});
+
+/**
  * Read songs.
  */
 ipcMain.on('loadSongs', async (event, folder) => {
@@ -125,20 +134,9 @@ ipcMain.on('loadSongs', async (event, folder) => {
  * Get songs.
  */
 ipcMain.on('getSongs', async (event, folder) => {
-    var items = [];
     let songs = getDbCollection('songs');
-
-    // for (var i = 0; i < songs.data.length; i++) {
-    //     let src = path.join(folder, items[i].path);
-    //     items[i].sortOrder = i;
-    //     items[i].exists = fs.existsSync(src);
-    //     items[i].absolutePath = src;
-    //     items[i].metadata = songs.data[i];
-    // }
-
     event.reply('getSongsFinished', songs.data);
 });
-
 
 /**
  * Read playlist metadata.
@@ -254,7 +252,7 @@ async function updatePlaylist(playlist, root, lastModified) {
                 }
 
                 let exists = fs.existsSync(src);
-                playlistItems.push({ path: item.attributes.src, exists: exists })
+                playlistItems.push({ absolutePath: src, path: item.attributes.src, exists: exists })
             });
         } else {
             let item = json.smil.body.seq.media;
@@ -264,7 +262,7 @@ async function updatePlaylist(playlist, root, lastModified) {
             }
 
             let exists = fs.existsSync(src);
-            playlistItems.push({ path: item.attributes.src, exists: exists })
+            playlistItems.push({ absolutePath: src, path: item.attributes.src, exists: exists })
         }
     }
 
@@ -274,7 +272,7 @@ async function updatePlaylist(playlist, root, lastModified) {
 }
 
 async function insertSong(songs, file, relativePath, forceUpdate) {
-    let results = songs.find({ 'path': { '$eq': relativePath } });
+    let results = songs.find({ 'absolutePath': { '$eq': file } });
 
     if (results.length < 1 || forceUpdate) {
         let metadata = null;
@@ -294,8 +292,8 @@ async function insertSong(songs, file, relativePath, forceUpdate) {
                 song = results[0];
             }
 
-            song.path = relativePath;
-            song.filename = path.basename(relativePath);
+            song.absolutePath = file;
+            song.filename = path.basename(file);
             song.title = metadata.common.title;
             song.genre = metadata.common.genre;
             song.artists = metadata.common.artists;

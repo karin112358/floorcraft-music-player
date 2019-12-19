@@ -2,8 +2,6 @@
     <span>
         <a routerLink="/training" routerLinkActive="active">Training</a>
         <a routerLink="/practice" routerLinkActive="active">Practice</a>
-        <a routerLink="/manage-library" routerLinkActive="active">Manage Library</a>
-        <a routerLink="/manage-playlists" routerLinkActive="active">Manage Playlists</a>
     </span>
     <span class="fill-space"></span>
     <span *ngIf="settings.initialized && settings.busyText" class="toolbar-busy-indicator">
@@ -13,15 +11,15 @@
         <span class="toolbar-busy-text">{{settings.busyText}}</span>
     </span>
     <span class="settings">
-        <a routerLink="/settings" routerLinkActive="active">
-            <mat-icon>build</mat-icon>
-        </a>
+        <a routerLink="/settings" routerLinkActive="active">Settings</a>
+        <a routerLink="/manage-library" routerLinkActive="active">Library</a>
+        <a routerLink="/manage-playlists" routerLinkActive="active">Playlists</a>
         <a (click)="settings.loadPlaylists()" matTooltip="Reload playlists">
             <mat-icon>queue_music</mat-icon>
         </a>
         <a (click)="settings.loadSongs()" matTooltip="Reload songs">
-                <mat-icon>library_music</mat-icon>
-            </a>
+            <mat-icon>library_music</mat-icon>
+        </a>
     </span>
 </mat-toolbar>
 

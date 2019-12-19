@@ -8,7 +8,7 @@
     
                 <ng-container matColumnDef="items">
                     <th mat-header-cell *matHeaderCellDef>Items</th>
-                    <td mat-cell class="items" *matCellDef="let element">{{element.items?.length}}</td>
+                    <td mat-cell class="items" *matCellDef="let element">{{getNumberOfExistingItems(element)}} / {{element.items?.length}}</td>
                 </ng-container>
     
                 <ng-container matColumnDef="lastModified">

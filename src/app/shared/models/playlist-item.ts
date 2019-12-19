@@ -1,4 +1,6 @@
 export class PlaylistItem {
+    // TODO: remove configuration
+    public absolutePath: string;
     public configuration: any;
     public progress: number = 0;
     public duration: number = 0;

@@ -29,8 +29,8 @@
                         {{item.title}}
                     </mat-option>
                 </mat-select>
-                <button mat-button *ngIf="settings.configuration?.defaultPlaylistsPerDance.Intro" matSuffix mat-icon-button
-                    aria-label="Clear" (click)="clearSelection('Intro')">
+                <button mat-button *ngIf="settings.configuration?.defaultPlaylistsPerDance.Intro" matSuffix
+                    mat-icon-button aria-label="Clear" (click)="clearSelection('Intro')">
                     <mat-icon>close</mat-icon>
                 </button>
             </mat-form-field>
@@ -44,8 +44,8 @@
                         {{item.title}}
                     </mat-option>
                 </mat-select>
-                <button mat-button *ngIf="settings.configuration?.defaultPlaylistsPerDance.Finish" matSuffix mat-icon-button
-                    aria-label="Clear" (click)="clearSelection('Finish')">
+                <button mat-button *ngIf="settings.configuration?.defaultPlaylistsPerDance.Finish" matSuffix
+                    mat-icon-button aria-label="Clear" (click)="clearSelection('Finish')">
                     <mat-icon>close</mat-icon>
                 </button>
             </mat-form-field>
@@ -65,8 +65,8 @@
                             {{item.title}}
                         </mat-option>
                     </mat-select>
-                    <button mat-button *ngIf="settings.configuration?.defaultPlaylistsPerDance[dance]" matSuffix mat-icon-button
-                        aria-label="Clear" (click)="clearSelection(dance)">
+                    <button mat-button *ngIf="settings.configuration?.defaultPlaylistsPerDance[dance]" matSuffix
+                        mat-icon-button aria-label="Clear" (click)="clearSelection(dance)">
                         <mat-icon>close</mat-icon>
                     </button>
                 </mat-form-field>
@@ -84,12 +84,19 @@
                             {{item.title}}
                         </mat-option>
                     </mat-select>
-                    <button mat-button *ngIf="settings.configuration?.defaultPlaylistsPerDance[dance]" matSuffix mat-icon-button
-                        aria-label="Clear" (click)="clearSelection(dance)">
+                    <button mat-button *ngIf="settings.configuration?.defaultPlaylistsPerDance[dance]" matSuffix
+                        mat-icon-button aria-label="Clear" (click)="clearSelection(dance)">
                         <mat-icon>close</mat-icon>
                     </button>
                 </mat-form-field>
             </div>
+        </div>
+    </div>
+
+    <div fxLayout="row" fxLayoutGap="32px" fxLayoutAlign="space-between">
+        <div fxFlex="auto">
+            <button mat-flat-button color="primary" (click)="settings.clearDatabase()"
+                [disabled]="!settings.musicFolder">Clear Database</button>
         </div>
     </div>
 </div>
