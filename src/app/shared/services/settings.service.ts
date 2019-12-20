@@ -5,8 +5,8 @@ import { Dance } from '../models/dance';
 import { debounceTime } from 'rxjs/operators';
 import { PlaylistItem } from '../models/playlist-item';
 import { Playlist } from '../models/playlist';
-import { Subject } from 'rxjs';
 import { Configuration } from '../models/configuration';
+import { IpcService } from './ipc.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +15,6 @@ export class SettingsService {
   public initialized = false;
   public busyText = '';
   public playlists: Playlist[] = [];
-  public busyTextSubject = new Subject<string>();
   public configuration: Configuration;
 
   get musicFolder(): string {
@@ -24,7 +23,7 @@ export class SettingsService {
   set musicFolder(value: string) {
     this._musicFolder = value;
     this.configuration.musicFolders = [this._musicFolder];
-    this.busyTextSubject.next('Load playlists');
+    this.ipcService.busyTextSubject.next('Load playlists');
     this.loadPlaylists();
   }
 
@@ -38,21 +37,18 @@ export class SettingsService {
 
   private _musicFolder: string;
   private _extensionsToExclude: string;
-  private resolveInitialize: (value?: unknown) => void;
-  private resolveLoadSongs: (value?: unknown) => void;
-  private resolveGetSongs: (value: any[]) => void;
-  private resolveClearDatabase: (value?: unknown) => void;
-  private resolveLoadPlaylists: (value?: unknown) => void;
-  private resolveLoadPlaylistSongs: (value?: unknown) => void;
 
   private constructor(
+    private ipcService: IpcService,
     private electronService: ElectronService,
     private zone: NgZone) {
-    this.busyTextSubject.pipe(debounceTime(100)).subscribe((busyText) => {
+    this.ipcService.busyTextSubject.pipe(debounceTime(100)).subscribe((busyText) => {
       this.zone.run(() => this.busyText = busyText);
     });
 
-    this.handleIPCCallbacks();
+    this.electronService.ipcRenderer.on('loadProgress', async (event, folder) => {
+      this.ipcService.busyTextSubject.next(folder);
+    });
   }
 
   /**
@@ -60,47 +56,45 @@ export class SettingsService {
    */
   public async initialize() {
     this.initialized = false;
+    const configuration = await this.ipcService.run<Configuration>('initialize', 'Initialize');
 
-    const promise = new Promise<any[]>((resolve, reject) => {
-      this.busyTextSubject.next('Initialize');
-      this.resolveInitialize = resolve;
-      this.electronService.ipcRenderer.send('initialize');
-    });
+    if (!configuration.defaultPlaylistsPerDance) {
+      configuration.defaultPlaylistsPerDance = {};
+    }
 
-    return promise;
+    await this.updateConfiguration(configuration);
   }
 
   /**
    * Load all playlists from the playlist folder.
    */
   public async loadPlaylists() {
-    this.busyTextSubject.next('Load playlists');
-    const promise = new Promise((resolve, reject) => {
-      this.resolveLoadPlaylists = resolve;
-      this.electronService.ipcRenderer.send('loadPlaylists', this._musicFolder);
-    });
+    const playlists = await this.ipcService.run<Playlist[]>('loadPlaylists', 'Load playlists', this._musicFolder);
 
-    return promise;
+    console.log('loadPlaylistsFinished', playlists);
+    //const playlists: Playlist[] = args.map(item => new Playlist(item, item));
+
+    this.playlists = playlists.filter(p => p.items && p.items.length > 0).sort((a, b) => {
+      if (a.title.toLowerCase() < b.title.toLowerCase()) {
+        return -1;
+      } else {
+        return 1;
+      }
+    });
   }
 
-  public async loadSongs(): Promise<any[]> {
-    this.busyTextSubject.next('Load songs');
-    const promise = new Promise<any[]>((resolve, reject) => {
-      this.resolveLoadSongs = resolve;
-      this.electronService.ipcRenderer.send('loadSongs', this._musicFolder);
-    });
-
-    return promise;
+  public async loadSongs() {
+    await this.ipcService.run<any[]>('loadSongs', 'Load songs', this._musicFolder);
   }
 
-  public async getSongs() {
-    this.busyTextSubject.next('Get songs');
-    const promise = new Promise((resolve, reject) => {
-      this.resolveGetSongs = resolve;
-      this.electronService.ipcRenderer.send('getSongs', this._musicFolder);
+  public async getSongs(): Promise<any[]> {
+    const songs = await this.ipcService.run<any[]>('getSongs', 'Get songs', this._musicFolder);
+
+    const sortedSongs = songs.sort((a, b) => {
+      return a.filename > b.filename ? 1 : -1;
     });
 
-    return promise;
+    return sortedSongs;
   }
 
   /**
@@ -120,9 +114,8 @@ export class SettingsService {
   /**
  * Saves all settings in local storage.
  */
-  public save() {
-    this.busyTextSubject.next('Save configuration');
-    this.electronService.ipcRenderer.send('saveConfiguration', this.configuration);
+  public async save() {
+    await this.ipcService.run<any[]>('saveConfiguration', 'Save configuration', this.configuration);
   }
 
   /**
@@ -134,13 +127,21 @@ export class SettingsService {
       await this.loadPlaylists();
     }
 
-    this.busyTextSubject.next('Read playlists items');
-    const promise = new Promise<any[]>((resolve, reject) => {
-      this.resolveLoadPlaylistSongs = resolve;
-      this.electronService.ipcRenderer.send('loadPlaylistsSongs', this.musicFolder, playlist, items, forceUpdate);
-    });
+    const playlistItems = await this.ipcService.run<any[]>('loadPlaylistsSongs', 'Load playlist songs', this.musicFolder, playlist, items, forceUpdate);
+    console.log('loadPlaylistsSongsFinished', playlistItems);
 
-    return promise;
+    if (playlistItems && this.extensionsToExclude) {
+      playlistItems.forEach(item => {
+        this.extensionsToExclude.split(',').forEach(extension => {
+          if (item.path.endsWith(extension)) {
+            item.exists = false;
+          }
+        });
+
+      });
+    }
+
+    return playlistItems;
   }
 
   public getDanceFriendlyName(dance: Dance): string {
@@ -257,14 +258,8 @@ export class SettingsService {
     }
   }
 
-  public clearDatabase() {
-    this.busyTextSubject.next('Clear database');
-    const promise = new Promise((resolve, reject) => {
-      this.resolveClearDatabase = resolve;
-      this.electronService.ipcRenderer.send('clearDatabase');
-    });
-
-    return promise;
+  public async clearDatabase() {
+    await this.ipcService.run<any[]>('clearDatabase', 'Clear database');
   }
 
   private async updateConfiguration(configuration: Configuration) {
@@ -284,90 +279,5 @@ export class SettingsService {
     if (this._musicFolder) {
       await this.loadPlaylists();
     }
-  }
-
-  private handleIPCCallbacks() {
-    // handle ipc callbacks
-    this.electronService.ipcRenderer.on('initializeFinished', async (event, configuration) => {
-      this.busyTextSubject.next('');
-      if (!configuration.defaultPlaylistsPerDance) {
-        configuration.defaultPlaylistsPerDance = {};
-      }
-
-      await this.updateConfiguration(configuration);
-      this.resolveInitialize();
-      this.resolveInitialize = null;
-    });
-
-    this.electronService.ipcRenderer.on('saveConfigurationFinished', async (event, configuration) => {
-      this.busyTextSubject.next('');
-    });
-
-    this.electronService.ipcRenderer.on('clearDatabaseFinished', async (event, configuration) => {
-      this.busyTextSubject.next('');
-      this.resolveClearDatabase();
-      this.resolveClearDatabase = null;
-    });
-
-    this.electronService.ipcRenderer.on('loadProgress', async (event, folder) => {
-      this.busyTextSubject.next(folder);
-    });
-
-    this.electronService.ipcRenderer.on('loadSongsFinished', async (event) => {
-      this.busyTextSubject.next('');
-      this.resolveLoadSongs();
-      this.resolveLoadSongs = null;
-    });
-
-    this.electronService.ipcRenderer.on('getSongsFinished', async (event, songs) => {
-      this.busyTextSubject.next('');
-      const sortedSongs = songs.sort((a, b) => {
-        return a.filename > b.filename ? 1 : -1;
-      });
-      this.resolveGetSongs(sortedSongs);
-      this.resolveGetSongs = null;
-    });
-
-    this.electronService.ipcRenderer.on('loadPlaylistsFinished', async (event, playlists) => {
-      console.log('loadPlaylistsFinished', playlists);
-      this.busyTextSubject.next('');
-      //const playlists: Playlist[] = args.map(item => new Playlist(item, item));
-
-      if (this.resolveLoadPlaylists) {
-        this.playlists = playlists.filter(p => p.items && p.items.length > 0).sort((a, b) => {
-          if (a.title.toLowerCase() < b.title.toLowerCase()) {
-            return -1;
-          } else {
-            return 1;
-          }
-        });
-
-        this.resolveLoadPlaylists();
-        this.resolveLoadPlaylists = null;
-        this.busyTextSubject.next('');
-      }
-    });
-
-    this.electronService.ipcRenderer.on('loadPlaylistsSongsFinished', (event, items: any) => {
-      if (this.resolveLoadPlaylistSongs) {
-        console.log('loadPlaylistsSongsFinished', items);
-
-        if (items && this.extensionsToExclude) {
-          items.forEach(item => {
-            this.extensionsToExclude.split(',').forEach(extension => {
-              if (item.path.endsWith(extension)) {
-                item.exists = false;
-              }
-            });
-
-          });
-        }
-
-        this.resolveLoadPlaylistSongs(items);
-      }
-
-      this.resolveLoadPlaylistSongs = null;
-      this.busyTextSubject.next('');
-    });
   }
 }

@@ -12,7 +12,7 @@ const util = require('util');
 const loki = require('lokijs');
 const id3 = require('node-id3');
 
-//require('electron-debug')();
+require('electron-debug')();
 
 let win;
 
@@ -142,6 +142,7 @@ ipcMain.on('getSongs', async (event, folder) => {
  * Read playlist metadata.
  */
 ipcMain.on('loadPlaylists', async (event, folder) => {
+    console.log('loadPlaylists', folder);
     let songs = getDbCollection('songs');
     let playlists = getDbCollection('playlists');
     await readMetadata(folder, folder, songs, playlists, 0, false, event);

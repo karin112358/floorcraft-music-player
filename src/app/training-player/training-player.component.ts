@@ -71,11 +71,9 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
     this.filterSubject.next('');
 
     // read songs
-    this.settings.busyTextSubject.next('Loading playlist');
     var slot = new Slot(dance, playlist);
     await this.setPlaylistItems(slot);
-    this.slots.push(slot);
-    this.settings.busyTextSubject.next('');
+    this.slots.push(slot);;
 
     if (!this.isPlaying) {
       if (this.currentSlotIndex < 0) {

@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
 
-import { ElectronService } from 'ngx-electron';
 import { PracticeDancePlaylist } from '../shared/models/practice-dance-playlist';
 import { Dance } from '../shared/models/dance';
 import { PlaylistItem } from '../shared/models/playlist-item';
@@ -33,7 +32,7 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
   private currentSong: PlaylistItem = null;
   //private playlistFolder = '';
 
-  constructor(public settings: SettingsService, private electronService: ElectronService, private ngZone: NgZone) {
+  constructor(public settings: SettingsService, private ngZone: NgZone) {
     this.audio = new Audio();
     this.audio.onerror = (event) => {
       // TODO: handle errors

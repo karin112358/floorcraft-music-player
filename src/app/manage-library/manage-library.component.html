@@ -6,6 +6,18 @@
         <div>
             <mat-checkbox (change)="onlyDanceMissingChanged($event)">Only dance missing</mat-checkbox>
         </div>
+
+        <div>
+            Select dance
+        </div>
+
+        <div fxFlex="100%"></div>
+
+        <div>
+            <button mat-flat-button color="primary" [disabled]="!songSelection.hasValue()" (click)="assignDance()">
+                Assign dance
+            </button>
+        </div>
     </div>
 
     <div class="playlist-items-container" gdArea="songs">
@@ -56,6 +68,19 @@
                 </td>
             </ng-container>
 
+            <ng-container matColumnDef="play">
+                <th mat-header-cell *matHeaderCellDef>Play</th>
+                <td mat-cell class="play" *matCellDef="let element">
+                    <a *ngIf="currentPlayingSong !== element" (click)="playSong($event, element)"
+                        matTooltip="Play songs">
+                        <mat-icon>play_circle_filled</mat-icon>
+                    </a>
+                    <a *ngIf="currentPlayingSong === element" (click)="stop($event)" matTooltip="Play songs">
+                        <mat-icon>stop</mat-icon>
+                    </a>
+                </td>
+            </ng-container>
+
             <tr mat-header-row *matHeaderRowDef="songsColumns; sticky: true"></tr>
             <tr mat-row *matRowDef="let row; columns: songsColumns;" (click)="songSelection.toggle(row)"
                 [ngClass]="{ 'selected-row': songSelection.isSelected(row) }"></tr>
@@ -66,3 +91,30 @@
         <mat-paginator [pageSizeOptions]="[100, 200, 500]" showFirstLastButtons></mat-paginator>
     </div>
 </div>
+
+<ng-template #assignDanceDialog>
+    <h2 matDialogTitle>Assign Dance</h2>
+    <mat-dialog-content>
+        <div fxLayout="row">
+            <div fxLayout="column" fxLayoutGap="8px">
+                <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="space-between">
+                    <div *ngFor="let dance of settings.getDancesPerCategory(0); let i = index">
+                        <button mat-flat-button color="primary" (click)="addSlot(dance, null)">
+                            {{settings.getDanceFriendlyName(dance)}}
+                        </button>
+                    </div>
+                </div>
+                <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="space-between">
+                    <div *ngFor="let dance of settings.getDancesPerCategory(1); let i = index">
+                        <button mat-flat-button color="primary" (click)="addSlot(dance, null)">
+                            {{settings.getDanceFriendlyName(dance)}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button mat-button matDialogClose color="primary">Cancel</button>
+    </mat-dialog-actions>
+</ng-template>

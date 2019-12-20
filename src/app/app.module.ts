@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -42,6 +43,7 @@ import { ManagePlaylistsComponent } from './manage-playlists/manage-playlists.co
   ],
   imports: [
     BrowserAnimationsModule,
+    MatDialogModule,
     MatInputModule,
     MatButtonModule,
     MatButtonToggleModule,
