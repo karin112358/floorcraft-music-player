@@ -103,11 +103,11 @@ export class SettingsService {
    */
   public getDancesPerCategory(category: Category): Dance[] {
     if (category === Category.Standard) {
-      return [Dance.EnglishWaltz, Dance.Tango, Dance.VienneseWaltz, Dance.Slowfox, Dance.Quickstep];
+      return [Dance.Waltz, Dance.Tango, Dance.VienneseWaltz, Dance.SlowFoxtrot, Dance.Quickstep];
     } else if (category === Category.Latin) {
       return [Dance.Samba, Dance.ChaChaCha, Dance.Rumba, Dance.PasoDoble, Dance.Jive];
     } else if (category === Category.Mixed) {
-      return [Dance.EnglishWaltz, Dance.Samba, Dance.Tango, Dance.ChaChaCha, Dance.VienneseWaltz, Dance.Rumba, Dance.Slowfox, Dance.PasoDoble, Dance.Quickstep, Dance.Jive];
+      return [Dance.Waltz, Dance.Samba, Dance.Tango, Dance.ChaChaCha, Dance.VienneseWaltz, Dance.Rumba, Dance.SlowFoxtrot, Dance.PasoDoble, Dance.Quickstep, Dance.Jive];
     }
   }
 
@@ -149,7 +149,7 @@ export class SettingsService {
       case Dance.Intro:
         return 'Intro';
         break;
-      case Dance.EnglishWaltz:
+      case Dance.Waltz:
         return 'Waltz';
         break;
       case Dance.Tango:
@@ -158,7 +158,7 @@ export class SettingsService {
       case Dance.VienneseWaltz:
         return 'Viennese Waltz';
         break;
-      case Dance.Slowfox:
+      case Dance.SlowFoxtrot:
         return 'Slow Foxtrot';
         break;
       case Dance.Quickstep:
@@ -190,7 +190,7 @@ export class SettingsService {
       case Dance.Intro:
         return 'INT';
         break;
-      case Dance.EnglishWaltz:
+      case Dance.Waltz:
         return 'EW';
         break;
       case Dance.Tango:
@@ -199,7 +199,7 @@ export class SettingsService {
       case Dance.VienneseWaltz:
         return 'VW';
         break;
-      case Dance.Slowfox:
+      case Dance.SlowFoxtrot:
         return 'SF';
         break;
       case Dance.Quickstep:

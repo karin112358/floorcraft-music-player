@@ -304,7 +304,7 @@ async function insertSong(songs, file, relativePath, forceUpdate) {
 
             let dance = null;
             if (id3Metadata && id3Metadata.userDefinedText) {
-                dance = id3Metadata.userDefinedText.find(t => t.description == 'BAMLPLAYER_DANCE');
+                dance = id3Metadata.userDefinedText.find(t => t.description === 'BAMLPLAYER_DANCE');
             }
 
             if (dance) {
@@ -364,3 +364,45 @@ async function insertSong(songs, file, relativePath, forceUpdate) {
 
     return null;
 }
+
+ipcMain.on('assignDance', async (event, absolutePath, dance) => {
+    console.log('assignDance', absolutePath, dance);
+
+    try {
+        let songs = getDbCollection('songs');
+        let results = songs.find({ 'absolutePath': { '$eq': absolutePath } });
+
+        if (results.length == 1) {
+            let metadataExists = true;
+            let id3Metadata = id3.read(absolutePath);
+            if (!id3Metadata) {
+                metadataExists = false;
+                id3Metadata = { };
+            }
+            if (!id3Metadata.userDefinedText) {
+                id3Metadata.userDefinedText = [];
+            }
+
+            let id3UserDefinedText = id3Metadata.userDefinedText.find(t => t.description === 'BAMLPLAYER_DANCE');
+            if (!id3UserDefinedText) {
+                id3UserDefinedText = { description: 'BAMLPLAYER_DANCE', value: dance };
+                id3Metadata.userDefinedText.push(id3UserDefinedText);
+            } else {
+                id3UserDefinedText.value = dance;
+            }
+
+            if (!metadataExists) {
+                id3.write(id3Metadata, absolutePath);
+            } else {
+                id3.update(id3Metadata, absolutePath);
+            }
+
+            results[0].dance = dance;
+            event.reply('assignDanceFinished', results[0]);
+        } else {
+            event.reply('assignDanceFinished', 'Could not assign dance for file ' + absolutePath);
+        }
+    } catch (ex) {
+        event.reply('assignDanceFinished', 'Could not assign dance for file ' + absolutePath + ': ' + ex.toString());
+    }
+});

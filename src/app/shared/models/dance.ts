@@ -1,9 +1,9 @@
 export enum Dance {
     Intro = 'Intro',
-    EnglishWaltz = 'EnglishWaltz',
+    Waltz = 'Waltz',
     Tango = 'Tango',
     VienneseWaltz = 'VienneseWaltz',
-    Slowfox = 'Slowfox',
+    SlowFoxtrot = 'SlowFoxtrot',
     Quickstep = 'Quickstep',
     Samba = 'Samba',
     ChaChaCha = 'ChaChaCha',

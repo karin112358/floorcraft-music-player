@@ -8,13 +8,28 @@
         </div>
 
         <div>
-            Select dance
+            <mat-form-field>
+                <mat-select placeholder="Select dance" (selectionChange)="danceSelectionChanged($event)"
+                    [(value)]="selectedDance">
+                    <mat-option *ngFor="let dance of settings.getDancesPerCategory(0); let i = index" [value]="dance">
+                        {{settings.getDanceFriendlyName(dance)}}
+                    </mat-option>
+                    <mat-option *ngFor="let dance of settings.getDancesPerCategory(1); let i = index" [value]="dance">
+                        {{settings.getDanceFriendlyName(dance)}}
+                    </mat-option>
+                </mat-select>
+                <button mat-button *ngIf="selectedDance" matSuffix mat-icon-button aria-label="Clear"
+                    (click)="danceSelectionChanged(null)">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </mat-form-field>
         </div>
 
         <div fxFlex="100%"></div>
 
         <div>
-            <button mat-flat-button color="primary" [disabled]="!songSelection.hasValue()" (click)="assignDance()">
+            <button mat-flat-button color="primary" [disabled]="!songSelection.hasValue()"
+                (click)="openAssignDanceDialog()">
                 Assign dance
             </button>
         </div>
@@ -76,7 +91,7 @@
                         <mat-icon>play_circle_filled</mat-icon>
                     </a>
                     <a *ngIf="currentPlayingSong === element" (click)="stop($event)" matTooltip="Play songs">
-                        <mat-icon>stop</mat-icon>
+                        <mat-icon>pause_circle_filled</mat-icon>
                     </a>
                 </td>
             </ng-container>
@@ -88,7 +103,12 @@
     </div>
 
     <div gdArea="paginator">
-        <mat-paginator [pageSizeOptions]="[100, 200, 500]" showFirstLastButtons></mat-paginator>
+        <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center" class="container">
+            <div class="selected-items">Selected: {{songSelection.selected.length}}</div>
+            <div>
+                <mat-paginator [pageSizeOptions]="[100, 200, 500]" showFirstLastButtons></mat-paginator>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -99,14 +119,14 @@
             <div fxLayout="column" fxLayoutGap="8px">
                 <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="space-between">
                     <div *ngFor="let dance of settings.getDancesPerCategory(0); let i = index">
-                        <button mat-flat-button color="primary" (click)="addSlot(dance, null)">
+                        <button mat-flat-button color="primary" (click)="assignDance(dance)">
                             {{settings.getDanceFriendlyName(dance)}}
                         </button>
                     </div>
                 </div>
                 <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="space-between">
                     <div *ngFor="let dance of settings.getDancesPerCategory(1); let i = index">
-                        <button mat-flat-button color="primary" (click)="addSlot(dance, null)">
+                        <button mat-flat-button color="primary" (click)="assignDance(dance)">
                             {{settings.getDanceFriendlyName(dance)}}
                         </button>
                     </div>
