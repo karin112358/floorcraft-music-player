@@ -10,6 +10,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
 import { IpcService } from '../shared/services/ipc.service';
 import { isString } from 'util';
+import { NotificationsService } from 'angular2-notifications';
 
 @Component({
   selector: 'app-manage-library',
@@ -22,7 +23,7 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
 
   public onlyDuplicates = false;
   public onlyDanceMissing = false;
-  public songsColumns: string[] = ['select', 'play', 'title', 'playlists', 'dance', 'genre', 'duration'];
+  public songsColumns: string[] = ['select', 'play', 'merge', 'title', 'playlists', 'dance', 'genre', 'duration'];
   public songSelection: SelectionModel<any>;
   public dataSource = new MatTableDataSource<any>();
   public songs: any[];
@@ -31,7 +32,7 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
 
   private audio: HTMLAudioElement;
 
-  constructor(public settings: SettingsService, public dialog: MatDialog, private ipcService: IpcService,) {
+  constructor(public settings: SettingsService, public dialog: MatDialog, private ipcService: IpcService, private notificationsService: NotificationsService) {
     this.songSelection = new SelectionModel<any>(true, []);
 
     this.audio = new Audio();
@@ -108,6 +109,17 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
     this.dialog.open(this.assignDanceDialog);
   }
 
+  async merge(event: MouseEvent, mergeIntoSong: any) {
+    event.stopPropagation();
+
+    console.log('merge selected', this.songSelection.selected, 'into', mergeIntoSong);
+    const result = await this.ipcService.run<any>('mergeSongs', 'Merge songs', this.songSelection.selected, mergeIntoSong);
+
+    if (isString(result)) {
+      this.notificationsService.error('Merge failed', result);
+    }
+  }
+
   async assignDance(dance: any) {
     console.log('assign dance', this.settings.getDanceFriendlyName(dance));
 
@@ -116,7 +128,7 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
       const result = await this.ipcService.run<any>('assignDance', 'Assign dance', song.absolutePath, this.settings.getDanceFriendlyName(dance));
 
       if (isString(result)) {
-        console.error(result);
+        this.notificationsService.error('Assign dance failed', result);
       } else {
         song.dance = result.dance;
       }

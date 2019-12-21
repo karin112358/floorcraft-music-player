@@ -141,11 +141,11 @@ ipcMain.on('getSongs', async (event, folder) => {
 /**
  * Read playlist metadata.
  */
-ipcMain.on('loadPlaylists', async (event, folder) => {
+ipcMain.on('loadPlaylists', async (event, folder, forceUpdate) => {
     console.log('loadPlaylists', folder);
     let songs = getDbCollection('songs');
     let playlists = getDbCollection('playlists');
-    await readMetadata(folder, folder, songs, playlists, 0, false, event);
+    await readMetadata(folder, folder, songs, playlists, 0, false, event, forceUpdate);
     event.reply('loadPlaylistsFinished', playlists.data);
 });
 
@@ -184,7 +184,7 @@ function getDbCollection(name) {
     return collection;
 }
 
-async function readMetadata(root, folder, songs, playlists, level, readAllFiles, event) {
+async function readMetadata(root, folder, songs, playlists, level, readAllFiles, event, forceUpdate = false) {
     event.reply('loadProgress', folder.replace(root, ''));
 
     let items = fs.readdirSync(folder);
@@ -192,7 +192,7 @@ async function readMetadata(root, folder, songs, playlists, level, readAllFiles,
         let item = path.join(folder, items[i]);
 
         if (fs.lstatSync(item).isDirectory()) {
-            await readMetadata(root, item, songs, playlists, level++, readAllFiles, event);
+            await readMetadata(root, item, songs, playlists, level++, readAllFiles, event, forceUpdate);
         } else {
             if (!item.endsWith('.xml') && !item.endsWith('.db')) {
                 try {
@@ -207,6 +207,7 @@ async function readMetadata(root, folder, songs, playlists, level, readAllFiles,
 
                         if (results.length < 1) {
                             playlist = {
+                                absolutePath: item,
                                 path: itemPath,
                                 filename: path.basename(itemPath)
                             };
@@ -216,7 +217,7 @@ async function readMetadata(root, folder, songs, playlists, level, readAllFiles,
                             playlist = results[0];
                         }
 
-                        if (playlist.lastModified != lastModified) {
+                        if (playlist.lastModified != lastModified || forceUpdate) {
                             await updatePlaylist(playlist, root, lastModified);
                         }
 
@@ -377,7 +378,7 @@ ipcMain.on('assignDance', async (event, absolutePath, dance) => {
             let id3Metadata = id3.read(absolutePath);
             if (!id3Metadata) {
                 metadataExists = false;
-                id3Metadata = { };
+                id3Metadata = {};
             }
             if (!id3Metadata.userDefinedText) {
                 id3Metadata.userDefinedText = [];
@@ -405,4 +406,34 @@ ipcMain.on('assignDance', async (event, absolutePath, dance) => {
     } catch (ex) {
         event.reply('assignDanceFinished', 'Could not assign dance for file ' + absolutePath + ': ' + ex.toString());
     }
+});
+
+ipcMain.on('mergeSongs', async (event, selectedSongs, mergeIntoSong) => {
+    console.log('mergeSongs');
+    const playlists = getDbCollection('playlists');
+    let error = '';
+
+    for (let i = 0; i < selectedSongs.length; i++) {
+        const song = selectedSongs[i];
+
+        if (song.absolutePath !== mergeIntoSong.absolutePath) {
+            const affectedPlaylists = playlists.where((playlist) => { return playlist.items.find(i => i.absolutePath == song.absolutePath) != null; });
+            console.log('affectedPlaylists', song.absolutePath, affectedPlaylists.map(p => p.absolutePath));
+
+            // update playlists
+            for (let j = 0; j < affectedPlaylists.length; j++) {
+                const playlist = affectedPlaylists[j];
+                const songInPlaylist = playlist.items.find(s => s.absolutePath === song.absolutePath);
+                if (songInPlaylist) {
+                    const newPath = path.relative(path.dirname(playlist.absolutePath), mergeIntoSong.absolutePath);
+                    console.log('\treplace', songInPlaylist.path, newPath);
+                } else {
+                    console.error('could not replace song', song.absolutePath, 'in playlist', playlist.absolutePath);
+                    error += 'Could not replace song ' + song.absolutePath + ' in playlist ' + playlist.absolutePath + '.\r\n';
+                }
+            }
+        }
+    }
+
+    event.reply('mergeSongsFinished', null);
 });

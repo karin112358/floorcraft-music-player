@@ -68,8 +68,8 @@ export class SettingsService {
   /**
    * Load all playlists from the playlist folder.
    */
-  public async loadPlaylists() {
-    const playlists = await this.ipcService.run<Playlist[]>('loadPlaylists', 'Load playlists', this._musicFolder);
+  public async loadPlaylists(forceUpdate = false) {
+    const playlists = await this.ipcService.run<Playlist[]>('loadPlaylists', 'Load playlists', this._musicFolder, forceUpdate);
 
     console.log('loadPlaylistsFinished', playlists);
     //const playlists: Playlist[] = args.map(item => new Playlist(item, item));
