@@ -23,7 +23,7 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
 
   public onlyDuplicates = false;
   public onlyDanceMissing = false;
-  public songsColumns: string[] = ['select', 'play', 'merge', 'title', 'playlists', 'dance', 'genre', 'duration'];
+  public songsColumns: string[] = ['select', 'play', 'merge', 'delete', 'title', 'playlists', 'dance', 'genre', 'duration'];
   public songSelection: SelectionModel<any>;
   public dataSource = new MatTableDataSource<any>();
   public songs: any[];
@@ -76,6 +76,10 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
     return this.settings.playlists.filter(p => p.items.find(i => i.absolutePath == absolutePath));
   }
 
+  hasDuplicate(song: any): boolean {
+    return this.songs.find(s => s.filename === song.filename && s.duration === song.duration && s.absolutePath !== song.absolutePath);
+  }
+
   onlyDuplicatesChanged(event: MatCheckboxChange) {
     this.onlyDuplicates = event.checked;
     this.updateData();
@@ -112,12 +116,43 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
   async merge(event: MouseEvent, mergeIntoSong: any) {
     event.stopPropagation();
 
+    // check selected songs
+    for (let i = 1; i < this.songSelection.selected.length; i++) {
+      if (this.songSelection.selected[i].filename !== this.songSelection.selected[0].filename
+        || this.songSelection.selected[i].duration !== this.songSelection.selected[0].duration) {
+        this.notificationsService.error('Merge failed', 'Names of files or durations do not match.');
+        return;
+      }
+    }
+
     console.log('merge selected', this.songSelection.selected, 'into', mergeIntoSong);
     const result = await this.ipcService.run<any>('mergeSongs', 'Merge songs', this.songSelection.selected, mergeIntoSong);
 
     if (isString(result)) {
       this.notificationsService.error('Merge failed', result);
     }
+
+    this.songSelection.clear();
+    this.settings.loadPlaylists();
+  }
+
+  async delete(event: MouseEvent, song: any) {
+    event.stopPropagation();
+    console.log('delete', song);
+
+    const result = await this.ipcService.run<any>('deleteSong', 'Delete song', song);
+
+    if (isString(result)) {
+      this.notificationsService.error('Delete failed', result);
+    } else {
+      const songIndex = this.songs.findIndex(s => s.absolutePath == song.absolutePath);
+      if (songIndex >= 0) {
+        this.songs.splice(songIndex, 1);
+        this.updateData();
+      }
+    }
+
+    this.songSelection.clear();
   }
 
   async assignDance(dance: any) {

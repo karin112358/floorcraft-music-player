@@ -11,6 +11,8 @@ const mm = require('music-metadata');
 const util = require('util');
 const loki = require('lokijs');
 const id3 = require('node-id3');
+const replace = require('replace-in-file');
+const xmlescape = require('xml-escape');
 
 require('electron-debug')();
 
@@ -424,16 +426,45 @@ ipcMain.on('mergeSongs', async (event, selectedSongs, mergeIntoSong) => {
             for (let j = 0; j < affectedPlaylists.length; j++) {
                 const playlist = affectedPlaylists[j];
                 const songInPlaylist = playlist.items.find(s => s.absolutePath === song.absolutePath);
-                if (songInPlaylist) {
-                    const newPath = path.relative(path.dirname(playlist.absolutePath), mergeIntoSong.absolutePath);
-                    console.log('\treplace', songInPlaylist.path, newPath);
-                } else {
-                    console.error('could not replace song', song.absolutePath, 'in playlist', playlist.absolutePath);
-                    error += 'Could not replace song ' + song.absolutePath + ' in playlist ' + playlist.absolutePath + '.\r\n';
+
+                try {
+                    if (songInPlaylist) {
+                        const newPath = path.relative(path.dirname(playlist.absolutePath), mergeIntoSong.absolutePath);
+                        console.log('\treplace', songInPlaylist.path, newPath);
+
+                        const results = await replace({
+                            files: playlist.absolutePath,
+                            from: new RegExp(xmlescape(songInPlaylist.path).replace(/[^A-Za-z0-9_]/g, '\\$&'), 'g'),
+                            to: xmlescape(newPath),
+                        });
+
+                        console.log('\t' + results);
+                    } else {
+                        console.error('could not replace song', song.absolutePath, 'in playlist', playlist.absolutePath);
+                        error += 'Could not replace song ' + song.absolutePath + ' in playlist ' + playlist.absolutePath + '.\r\n';
+                    }
+                } catch (err) {
+                    console.error(err);
+                    error += 'Could not replace song ' + song.absolutePath + ' in playlist ' + playlist.absolutePath + ': ' + err.toString() + '\r\n';
                 }
             }
         }
     }
 
-    event.reply('mergeSongsFinished', null);
+    event.reply('mergeSongsFinished', error ? error : null);
+});
+
+ipcMain.on('deleteSong', async (event, song) => {
+    let error = null;
+
+    try {
+        fs.unlinkSync(song.absolutePath);
+        let songs = getDbCollection('songs');
+        songs.findAndRemove({ 'absolutePath': { '$eq': song.absolutePath } });
+    } catch (err) {
+        console.error(err);
+        error = err.toString();
+    }
+
+    event.reply('deleteSongFinished', error);
 });

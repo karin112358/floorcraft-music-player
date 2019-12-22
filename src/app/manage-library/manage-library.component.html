@@ -93,6 +93,16 @@
                 </td>
             </ng-container>
 
+            <ng-container matColumnDef="delete">
+                <th mat-header-cell *matHeaderCellDef>Delete</th>
+                <td mat-cell class="delete" *matCellDef="let element">
+                    <a *ngIf="!getPlaylistsForSong(element.absolutePath).length && hasDuplicate(element)"
+                        (click)="delete($event, element)" matTooltip="Delete song">
+                        <mat-icon>delete_forever</mat-icon>
+                    </a>
+                </td>
+            </ng-container>
+
             <ng-container matColumnDef="play">
                 <th mat-header-cell *matHeaderCellDef>Play</th>
                 <td mat-cell class="play" *matCellDef="let element">
