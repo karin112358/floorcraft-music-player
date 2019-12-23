@@ -20,6 +20,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTreeModule } from '@angular/material/tree';
 import { NgxElectronModule } from 'ngx-electron';
 import { SimpleNotificationsModule } from 'angular2-notifications';
 
@@ -54,6 +56,8 @@ import { ManagePlaylistsComponent } from './manage-playlists/manage-playlists.co
     MatSelectModule,
     MatTableModule,
     MatPaginatorModule,
+    MatChipsModule,
+    MatTreeModule,
     MatProgressSpinnerModule,
     MatListModule,
     MatCheckboxModule,

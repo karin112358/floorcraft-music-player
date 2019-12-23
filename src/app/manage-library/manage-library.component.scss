@@ -1,58 +1,69 @@
-@import '../../styles/colors.scss';
+@import "../../styles/colors.scss";
 
 .libraries-container {
-    overflow: scroll;
+  overflow: scroll;
 }
 
 .playlists-container,
 .playlist-items-container {
-    height: 100%;
-    overflow: scroll;
-    box-sizing: border-box;
+  height: 100%;
+  overflow: scroll;
+  box-sizing: border-box;
 }
 
 .playlists-container table {
-    background-color: #eee;
+  background-color: #eee;
 }
 
 .playlist-items-container table {
-    width: 100%;
+  width: 100%;
+}
+
+table.mat-table {
+  user-select: none;
 }
 
 th.mat-header-cell,
 td.mat-cell {
-    padding: 5px;
+  padding: 5px;
 }
 
-td.items, td.last-modified, td.duration, td.playlists {
-    text-align: right;
+td.items,
+td.last-modified,
+td.duration,
+td.playlists {
+  text-align: right;
 }
 
-td.items, td.last-modified, td.duration, td.dance, td.genre {
-    font-size: 11px;
+td.items,
+td.last-modified,
+td.duration,
+td.dance,
+td.genre {
+  font-size: 11px;
 }
 
 .selected-row {
-    background-color: mat-color($app-primary, 200);
+  background-color: mat-color($app-primary, 200);
 }
 
 .not-exists td {
-    color: #bbb;
+  color: #bbb;
 }
 
 .path {
-    font-size: 11px;
+  font-size: 11px;
 }
 
 mat-icon {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .mat-paginator {
-    background-color: transparent;
+  background-color: transparent;
 }
 
 .selected-items {
-    color: rgba(0, 0, 0, 0.54);
-    font-size: 12px;
+  white-space: nowrap;
+  font-size: 12px;
 }

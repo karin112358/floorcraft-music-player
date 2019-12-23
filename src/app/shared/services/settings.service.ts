@@ -7,6 +7,8 @@ import { PlaylistItem } from '../models/playlist-item';
 import { Playlist } from '../models/playlist';
 import { Configuration } from '../models/configuration';
 import { IpcService } from './ipc.service';
+import { Profile } from '../models/profile';
+import { FlatTreeControl } from '@angular/cdk/tree';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +18,7 @@ export class SettingsService {
   public busyText = '';
   public playlists: Playlist[] = [];
   public configuration: Configuration;
+  //public profiles: Profile[];treeControl = new FlatTreeControl<any>(node => node.level, node => node.expandable);
 
   get musicFolder(): string {
     return this._musicFolder;
@@ -99,7 +102,7 @@ export class SettingsService {
 
   /**
    * Get all dances per category.
-   * @param category 
+   * @param category
    */
   public getDancesPerCategory(category: Category): Dance[] {
     if (category === Category.Standard) {
@@ -120,7 +123,7 @@ export class SettingsService {
 
   /**
    * Get the details for all items in a playlist.
-   * @param playlist 
+   * @param playlist
    */
   public async loadPlaylistSongs(playlist: Playlist, items: PlaylistItem[], forceUpdate = false): Promise<any[]> {
     if (forceUpdate) {

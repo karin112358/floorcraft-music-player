@@ -94,6 +94,16 @@
     </div>
 
     <div fxLayout="row" fxLayoutGap="32px" fxLayoutAlign="space-between">
+        <h2>Profiles</h2>
+        <!-- <mat-tree [treeControl]="treeControl">
+            <mat-tree-node> parent node </mat-tree-node>
+            <mat-tree-node> -- child node1 </mat-tree-node>
+            <mat-tree-node> -- child node2 </mat-tree-node>
+        </mat-tree> -->
+    </div>
+
+    <div fxLayout="row" fxLayoutGap="32px" fxLayoutAlign="space-between">
+        <h2>Clear Database</h2>
         <div fxFlex="auto">
             <button mat-flat-button color="primary" (click)="settings.clearDatabase()"
                 [disabled]="!settings.musicFolder">Clear Database</button>

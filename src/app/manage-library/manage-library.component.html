@@ -1,13 +1,17 @@
 <div gdAreas="filter | songs | paginator" gdRows="auto 1fr auto" gdColumns="1fr" class="content-container">
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="start center" class="container settings" gdArea="filter">
         <div>
-            <mat-checkbox (change)="onlyDuplicatesChanged($event)">Only duplicates</mat-checkbox>
-        </div>
-        <div>
-            <mat-checkbox (change)="onlyDanceMissingChanged($event)">Only dance missing</mat-checkbox>
+            <mat-form-field>
+                <mat-select placeholder="Select mode" [(value)]="selectedMode"
+                    (selectionChange)="modeSelectionChanged($event)">
+                    <mat-option [value]="0">Manage profile</mat-option>
+                    <mat-option [value]="1">Find duplicates</mat-option>
+                    <mat-option [value]="2">Find missing dances</mat-option>
+                </mat-select>
+            </mat-form-field>
         </div>
 
-        <div>
+        <div *ngIf="selectedMode !== 2">
             <mat-form-field>
                 <mat-select placeholder="Select dance" (selectionChange)="danceSelectionChanged($event)"
                     [(value)]="selectedDance">
@@ -25,12 +29,29 @@
             </mat-form-field>
         </div>
 
+        <div>
+            <mat-form-field>
+                <input matInput type="text" placeholder="Search" [(ngModel)]="searchExpression" #searchInput>
+            </mat-form-field>
+        </div>
+
         <div fxFlex="100%"></div>
 
-        <div>
+        <div class="selected-items" *ngIf="selectedMode === 1 || selectedMode === 2">
+            Selected: {{songSelection.selected.length}}
+        </div>
+
+        <div *ngIf="selectedMode === 1 || selectedMode === 2">
             <button mat-flat-button color="primary" [disabled]="!songSelection.hasValue()"
                 (click)="openAssignDanceDialog()">
                 Assign dance
+            </button>
+        </div>
+
+        <div *ngIf="selectedMode === 1 || selectedMode === 2">
+            <button mat-flat-button color="primary" [disabled]="!songSelection.hasValue() || !canDeleteSelected()"
+                (click)="deleteSelected()">
+                Delete
             </button>
         </div>
     </div>
@@ -48,8 +69,11 @@
             <ng-container matColumnDef="playlists">
                 <th mat-header-cell *matHeaderCellDef>Playlists</th>
                 <td mat-cell class="playlists" *matCellDef="let element">
-                    <span
-                        [matTooltip]="getPlaylistsTooltip(getPlaylistsForSong(element.absolutePath))">{{getPlaylistsForSong(element.absolutePath).length}}</span>
+                    <mat-chip-list>
+                        <mat-chip *ngIf="getPlaylistsForSong(element.absolutePath).length"
+                            [matTooltip]="getPlaylistsTooltip(getPlaylistsForSong(element.absolutePath))">
+                            {{getPlaylistsForSong(element.absolutePath).length}}</mat-chip>
+                    </mat-chip-list>
                 </td>
             </ng-container>
 
@@ -77,8 +101,7 @@
                     </mat-checkbox>
                 </th>
                 <td mat-cell *matCellDef="let element">
-                    <mat-checkbox (click)="$event.stopPropagation()"
-                        (change)="$event ? songSelection.toggle(element) : null" [checked]="songSelection.isSelected(element)">
+                    <mat-checkbox (click)="selectRow($event, element)" [checked]="songSelection.isSelected(element)">
                     </mat-checkbox>
                 </td>
             </ng-container>
@@ -96,8 +119,7 @@
             <ng-container matColumnDef="delete">
                 <th mat-header-cell *matHeaderCellDef>Delete</th>
                 <td mat-cell class="delete" *matCellDef="let element">
-                    <a *ngIf="!getPlaylistsForSong(element.absolutePath).length && hasDuplicate(element)"
-                        (click)="delete($event, element)" matTooltip="Delete song">
+                    <a *ngIf="canDelete(element)" (click)="delete($event, element)" matTooltip="Delete song">
                         <mat-icon>delete_forever</mat-icon>
                     </a>
                 </td>
@@ -106,25 +128,24 @@
             <ng-container matColumnDef="play">
                 <th mat-header-cell *matHeaderCellDef>Play</th>
                 <td mat-cell class="play" *matCellDef="let element">
-                    <a *ngIf="currentPlayingSong !== element" (click)="playSong($event, element)"
+                    <a *ngIf="currentPlayingSong !== element && !extensionIsExcluded(element)" (click)="playSong($event, element)"
                         matTooltip="Play songs">
                         <mat-icon>play_circle_filled</mat-icon>
                     </a>
-                    <a *ngIf="currentPlayingSong === element" (click)="stop($event)" matTooltip="Play songs">
+                    <a *ngIf="currentPlayingSong === element" (click)="stop($event)" matTooltip="Stop songs">
                         <mat-icon>pause_circle_filled</mat-icon>
                     </a>
                 </td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="songsColumns; sticky: true"></tr>
-            <tr mat-row *matRowDef="let row; columns: songsColumns;" (click)="songSelection.toggle(row)"
+            <tr mat-row *matRowDef="let row; columns: songsColumns;" (click)="selectRow($event, row)"
                 [ngClass]="{ 'selected-row': songSelection.isSelected(row) }"></tr>
         </table>
     </div>
 
     <div gdArea="paginator">
         <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center" class="container">
-            <div class="selected-items">Selected: {{songSelection.selected.length}}</div>
             <div>
                 <mat-paginator [pageSizeOptions]="[100, 200, 500]" showFirstLastButtons></mat-paginator>
             </div>
@@ -156,5 +177,24 @@
     </mat-dialog-content>
     <mat-dialog-actions align="end">
         <button mat-button matDialogClose color="primary">Cancel</button>
+    </mat-dialog-actions>
+</ng-template>
+
+<ng-template #confirmMergeDialog>
+    <h2 matDialogTitle>Confirm Merge</h2>
+    <mat-dialog-content>
+        <div fxLayout="row">
+            <div fxLayout="column" fxLayoutGap="8px">
+                <div>The filenames of the selected songs do not match. Do you really want the merge the selected songs?
+                </div>
+                <div *ngFor="let song of songSelection.selected; let i = index">
+                    {{song.filename}}
+                </div>
+            </div>
+        </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button mat-button color="primary" [mat-dialog-close]="true">Merge</button>
+        <button mat-button matDialogClose>Cancel</button>
     </mat-dialog-actions>
 </ng-template>

@@ -80,9 +80,9 @@ mat-form-field {
     padding: 8px;
     line-height: 1.4em;
     max-width: 500px !important;
-    background-color: mat-color($app-primary, 200);
+    background-color: mat-color($app-primary, 100)!important;
     color: #000!important;
-    border-radius: 0;
+    border-radius: 0!important;
 }
 
 .mat-button, .mat-flat-button, .mat-button-toggle-button {
