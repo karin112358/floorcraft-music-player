@@ -8,7 +8,6 @@ import { Playlist } from '../models/playlist';
 import { Configuration } from '../models/configuration';
 import { IpcService } from './ipc.service';
 import { Profile } from '../models/profile';
-import { FlatTreeControl } from '@angular/cdk/tree';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +17,6 @@ export class SettingsService {
   public busyText = '';
   public playlists: Playlist[] = [];
   public configuration: Configuration;
-  //public profiles: Profile[];treeControl = new FlatTreeControl<any>(node => node.level, node => node.expandable);
 
   get musicFolder(): string {
     return this._musicFolder;
@@ -263,6 +261,11 @@ export class SettingsService {
 
   public async clearDatabase() {
     await this.ipcService.run<any[]>('clearDatabase', 'Clear database');
+  }
+
+  public async getProfiles() {
+    return (await this.ipcService.run<any>('getProfiles', 'Get profiles')).sort((a, b) =>
+      (a.isDefault === true) == (b.isDefault === true) ? (a.name > b.name ? 1 : -1) : (a.isDefault ? -1 : 1));
   }
 
   private async updateConfiguration(configuration: Configuration) {

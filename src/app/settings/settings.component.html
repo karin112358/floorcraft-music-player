@@ -93,20 +93,56 @@
         </div>
     </div>
 
-    <div fxLayout="row" fxLayoutGap="32px" fxLayoutAlign="space-between">
-        <h2>Profiles</h2>
-        <!-- <mat-tree [treeControl]="treeControl">
-            <mat-tree-node> parent node </mat-tree-node>
-            <mat-tree-node> -- child node1 </mat-tree-node>
-            <mat-tree-node> -- child node2 </mat-tree-node>
-        </mat-tree> -->
+    <div fxLayout="row" fxLayoutGap="32px" fxLayoutAlign="space-between" class="tree">
+        <div fxFlex="auto">
+            <h2>Profiles</h2>
+            <mat-tree [dataSource]="profilesDataSource" [treeControl]="profileTreeControl">
+                <!-- This is the tree node template for leaf nodes -->
+                <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+                    <!-- use a disabled button to provide padding for tree leaf -->
+                    <button mat-icon-button disabled></button>
+                    {{node.title}}
+                    <button *ngIf="node.level == 0 && !node.isDefault" mat-button color="primary" class="set-as-default"
+                        (click)="setProfileAsDefault(node)">Set as
+                        default</button>
+                </mat-tree-node>
+
+                <!-- This is the tree node template for expandable nodes -->
+                <mat-tree-node *matTreeNodeDef="let node; when: profileHasChild" matTreeNodePadding>
+                    <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'toggle ' + node.title">
+                        <mat-icon class="mat-icon-rtl-mirror">
+                            {{profileTreeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                        </mat-icon>
+                    </button>
+                    {{node.title}}
+                    <button *ngIf="node.level == 0 && !node.isDefault" mat-button color="primary" class="set-as-default"
+                        (click)="setProfileAsDefault(node)">Set as
+                        default</button>
+                </mat-tree-node>
+            </mat-tree>
+        </div>
+        <div fxFlex="auto">
+            <h2>&nbsp;</h2>
+            <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
+                <div fxFlex="100">
+                    <mat-form-field>
+                        <input matInput type="text" placeholder="Add profile" [(ngModel)]="newProfile">
+                    </mat-form-field>
+                </div>
+                <div fxFlex="auto">
+                    <button mat-flat-button color="primary" (click)="addProfile()" [disabled]="!newProfile">Add
+                        Profile</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div fxLayout="row" fxLayoutGap="32px" fxLayoutAlign="space-between">
-        <h2>Clear Database</h2>
+    <!-- <div fxLayout="row" fxLayoutGap="32px" fxLayoutAlign="space-between">
         <div fxFlex="auto">
+            <h2>Clear Database</h2>
+
             <button mat-flat-button color="primary" (click)="settings.clearDatabase()"
                 [disabled]="!settings.musicFolder">Clear Database</button>
         </div>
-    </div>
+    </div> -->
 </div>

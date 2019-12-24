@@ -497,7 +497,7 @@ ipcMain.on('deleteSong', async (event, song) => {
 });
 
 ipcMain.on('getProfiles', async (event) => {
-  let profiles = getDbCollection('profiles');
+  let profiles = getDbCollection('profiles').data;
   event.reply('getProfilesFinished', profiles);
 });
 
@@ -508,6 +508,60 @@ ipcMain.on('addProfile', async (event, profile) => {
 });
 
 ipcMain.on('updateProfile', async (event, profile) => {
-  let profiles = getDbCollection('profiles');
+  let existingProfile = getDbCollection('profiles').find({ 'name': { '$eq': profile.name } });
+
+  if (existingProfile.length === 1) {
+    if (profile.isDefault) {
+      let currentDefaultProfile = getDbCollection('profiles').find({ 'isDefault': { '$eq': true } });
+      currentDefaultProfile.forEach(item => item.isDefault = false);
+    }
+
+    existingProfile[0].isDefault = profile.isDefault;
+    db.saveDatabase();
+  }
+
   event.reply('updateProfileFinished', null);
+});
+
+ipcMain.on('setRating', async (event, song, profile, like) => {
+  let error = null;
+  let existingProfile = getDbCollection('profiles').find({ 'name': { '$eq': profile.name } });
+
+  if (existingProfile.length === 1) {
+    let metadataExists = true;
+    let id3Metadata = id3.read(song.absolutePath);
+    if (!id3Metadata) {
+      metadataExists = false;
+      id3Metadata = {};
+    }
+    if (!id3Metadata.userDefinedText) {
+      id3Metadata.userDefinedText = [];
+    }
+
+    let tag = 'BAMLPLAYER_RATING_LIKE';
+    if (!like) {
+      tag = 'BAMLPLAYER_RATING_DISLIKE';
+    }
+    let id3UserDefinedText = id3Metadata.userDefinedText.find(t => t.description === tag);
+    if (!id3UserDefinedText) {
+      id3UserDefinedText = { description: tag, value: profile.name };
+      id3Metadata.userDefinedText.push(id3UserDefinedText);
+    } else {
+      let ratings = id3UserDefinedText.value.split(';');
+      if (!ratings.contains(profile.name)) {
+        ratings.push(profile.name);
+        id3UserDefinedText.value = ratings.join(';');
+      }
+    }
+
+    if (!metadataExists) {
+      id3.write(id3Metadata, song.absolutePath);
+    } else {
+      id3.update(id3Metadata, song.absolutePath);
+    }
+  } else {
+    error = 'Profile not found';
+  }
+
+  event.reply('setRatingFinished', error);
 });

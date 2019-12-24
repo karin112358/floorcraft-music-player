@@ -25,7 +25,7 @@ table.mat-table {
 
 th.mat-header-cell,
 td.mat-cell {
-  padding: 5px;
+  padding: 10px;
 }
 
 td.items,
@@ -33,6 +33,10 @@ td.last-modified,
 td.duration,
 td.playlists {
   text-align: right;
+
+  mat-chip: {
+    font-size: 12px;
+  }
 }
 
 td.items,
@@ -41,6 +45,24 @@ td.duration,
 td.dance,
 td.genre {
   font-size: 11px;
+}
+
+th.rating {
+  text-align: center;
+}
+
+td.rating {
+  white-space: nowrap;
+
+  mat-icon {
+    color: #666;
+    margin-right: 5px;
+    margin-left: 5px;
+
+    &.selected {
+      color: mat-color($app-highlight);
+    }
+  }
 }
 
 .selected-row {

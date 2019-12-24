@@ -14,6 +14,7 @@ import { NotificationsService } from 'angular2-notifications';
 import { LibraryMode } from './library-mode';
 import { retry, debounceTime } from 'rxjs/operators';
 import { fromEvent, Observable } from 'rxjs';
+import { Profile } from '../shared/models/profile';
 
 @Component({
   selector: 'app-manage-library',
@@ -36,6 +37,8 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
   public sortOrder: string[];
   public searchExpression = '';
   public searchSource: Observable<string>;
+  public profiles: Profile[];
+  public selectedProfile: Profile = null;
 
   private audio: HTMLAudioElement;
 
@@ -64,17 +67,6 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
   }
 
   modeSelectionChanged() {
-    if (this.selectedMode == LibraryMode.ManageProfile) {
-      this.songsColumns = ['select', 'play', 'title', 'playlists', 'dance', 'genre', 'duration'];
-      this.sortOrder = ['absolutePath'];
-    } else if (this.selectedMode == LibraryMode.FindDuplicates) {
-      this.songsColumns = ['select', 'play', 'merge', 'delete', 'title', 'playlists', 'dance', 'genre', 'duration'];
-      this.sortOrder = ['filename', 'duration', 'absolutePath'];
-    } else if (this.selectedMode == LibraryMode.FindDanceMissing) {
-      this.songsColumns = ['select', 'play', 'title', 'playlists', 'dance', 'genre', 'duration'];
-      this.sortOrder = ['genre', 'filename'];
-    }
-
     this.updateData();
   }
 
@@ -84,8 +76,9 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
       this.updateData();
     });
 
+    this.profiles = await this.settings.getProfiles();
     this.songs = await this.settings.getSongs() as any[];
-    console.log('songs', this.songs.length, this.songs.slice(0, 10));
+    //console.log('songs', this.songs.length, this.songs.slice(0, 10));
 
     this.dataSource.paginator = this.paginator;
     this.updateData();
@@ -295,7 +288,35 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
     this.updateData();
   }
 
+  profileSelectionChanged(event: MatSelectChange) {
+    this.updateData();
+  }
+
+  setRating(like: boolean) {
+    
+  }
+
   private updateData() {
+    if (this.selectedMode == LibraryMode.ManageProfile) {
+      if (this.selectedProfile) {
+        this.songsColumns = ['select', 'play', 'title', 'rating', 'playlists', 'dance', 'genre', 'duration'];
+      } else {
+        this.songsColumns = ['select', 'play', 'title', 'playlists', 'dance', 'genre', 'duration'];
+      }
+      this.sortOrder = ['absolutePath'];
+    } else if (this.selectedMode == LibraryMode.FindDuplicates) {
+      this.selectedProfile = null;
+
+      this.songsColumns = ['select', 'play', 'merge', 'delete', 'title', 'playlists', 'dance', 'genre', 'duration'];
+      this.sortOrder = ['filename', 'duration', 'absolutePath'];
+    } else if (this.selectedMode == LibraryMode.FindDanceMissing) {
+      this.selectedProfile = null;
+      this.selectedDance = null;
+
+      this.songsColumns = ['select', 'play', 'title', 'playlists', 'dance', 'genre', 'duration'];
+      this.sortOrder = ['genre', 'filename'];
+    }
+
     if (this.songs) {
       let filteredSongs = this.songs.filter(s1 => (!this.selectedDance || s1.dance == this.settings.getDanceFriendlyName(this.selectedDance)));
 

@@ -20,7 +20,7 @@ $app-primary: mat-palette($mat-cyan, 400, 100, 800);
 $app-accent: mat-palette($mat-grey, 500, 300, 700);
 $app-warn: mat-palette($mat-red);
 
-$app-highlight: mat-palette($mat-lime, 400, 200, 700);
+$app-highlight: mat-palette($mat-amber, 600, 200, 800);
 
 // Create the theme object (a Sass map containing all of the palettes).
 $app-theme: mat-light-theme($app-primary, $app-accent, $app-warn);

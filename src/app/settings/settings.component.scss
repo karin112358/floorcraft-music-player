@@ -5,3 +5,27 @@
 .settings-container {
     padding: 16px;
 }
+
+.tree {
+    .mat-icon-button {
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+    }
+
+    button.set-as-default {
+        position: absolute;
+        right: 0;
+    }
+
+    .mat-tree {
+        max-height: 200px;
+        border: 1px solid #888;
+        overflow: auto;
+    }
+
+    .mat-tree-node {
+        min-height: 30px;
+        position: relative;
+    }
+}
