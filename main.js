@@ -14,7 +14,7 @@ const id3 = require('node-id3');
 const replace = require('replace-in-file');
 const xmlescape = require('xml-escape');
 
-require('electron-debug')();
+//require('electron-debug')();
 
 let win;
 
@@ -125,17 +125,32 @@ ipcMain.on('clearDatabase', async (event) => {
 /**
  * Read songs.
  */
-ipcMain.on('loadSongs', async (event, folder) => {
+ipcMain.on('loadSongs', async (event, forceUpdate = false) => {
   let songs = getDbCollection('songs');
   let playlists = getDbCollection('playlists');
-  await readMetadata(folder, folder, songs, playlists, 0, true, event);
+  let folders = getFolders();
+
+  for (let f = 0; f < folders.length; f++) {
+    let folder = folders[f];
+    await readMetadata(folder, folder, songs, playlists, 0, true, event, forceUpdate);
+
+    // check if songs has been deleted
+    let paths = songs.data.map(s => s.absolutePath);
+    for (let i = 0; i < paths.length; i++) {
+      if (!fs.existsSync(paths[i])) {
+        console.warn('Song ' + paths[i] + ' does not exist and will be deleted.');
+        songs.findAndRemove({ 'absolutePath': { '$eq': paths[i] } });
+      }
+    }
+  }
+
   event.reply('loadSongsFinished');
 });
 
 /**
  * Get songs.
  */
-ipcMain.on('getSongs', async (event, folder) => {
+ipcMain.on('getSongs', async (event) => {
   let songs = getDbCollection('songs');
   event.reply('getSongsFinished', songs.data);
 });
@@ -143,27 +158,39 @@ ipcMain.on('getSongs', async (event, folder) => {
 /**
  * Read playlist metadata.
  */
-ipcMain.on('loadPlaylists', async (event, folder, forceUpdate) => {
-  console.log('loadPlaylists', folder);
+ipcMain.on('loadPlaylists', async (event, forceUpdate) => {
+  let folders = getFolders();
+
   let songs = getDbCollection('songs');
   let playlists = getDbCollection('playlists');
-  await readMetadata(folder, folder, songs, playlists, 0, false, event, forceUpdate);
+
+  for (let f = 0; f < folders.length; f++) {
+    let folder = folders[f];
+    console.log('loadPlaylists', folder);
+    await readMetadata(folder, folder, songs, playlists, 0, false, event, forceUpdate);
+  }
+
   event.reply('loadPlaylistsFinished', playlists.data);
 });
 
-ipcMain.on('loadPlaylistsSongs', async (event, root, playlist, items, forceUpdate) => {
+ipcMain.on('loadPlaylistsSongs', async (event, playlist, items, forceUpdate) => {
   if (items) {
     console.log('load playlist songs ...');
 
     for (let i = 0; i < items.length; i++) {
-      let src = path.join(root, path.dirname(playlist.path), items[i].path);
+      let src = items[i].path;
+
+      if (!path.isAbsolute(src)) {
+        src = path.join(path.dirname(playlist.absolutePath), items[i].path);
+      }
+
       items[i].sortOrder = i;
       items[i].exists = fs.existsSync(src);
       items[i].absolutePath = src;
 
       // load metadata
       let songs = getDbCollection('songs');
-      let result = await insertSong(songs, src, src.replace(root, ''), forceUpdate);
+      let result = await insertSong(songs, src, forceUpdate);
 
       if (result && !result.title) {
         result.title = result.filename;
@@ -184,6 +211,11 @@ function getDbCollection(name) {
   }
 
   return collection;
+}
+
+function getFolders() {
+  let configuration = getDbCollection('configuration');
+  return configuration.data[0].musicFolders;
 }
 
 async function readMetadata(root, folder, songs, playlists, level, readAllFiles, event, forceUpdate = false) {
@@ -227,7 +259,7 @@ async function readMetadata(root, folder, songs, playlists, level, readAllFiles,
             playlists.update(playlist);
           } else if (readAllFiles) {
             // song
-            await insertSong(songs, item, itemPath);
+            await insertSong(songs, item, forceUpdate);
           }
         } catch (e) {
           console.log('error', item, e);
@@ -275,7 +307,7 @@ async function updatePlaylist(playlist, root, lastModified) {
   playlist.lastModified = lastModified;
 }
 
-async function insertSong(songs, file, relativePath, forceUpdate) {
+async function insertSong(songs, file, forceUpdate) {
   let results = songs.find({ 'absolutePath': { '$eq': file } });
 
   if (results.length < 1 || forceUpdate) {
@@ -317,20 +349,25 @@ async function insertSong(songs, file, relativePath, forceUpdate) {
           case 'waltz':
           case 'english waltz':
           case 'slow waltz':
+          case 'ew':
             song.dance = 'Waltz';
             break;
           case 'tango':
+          case 'tg':
             song.dance = 'Tango';
             break;
           case 'viennese waltz':
+          case 'ww':
             song.dance = 'Viennese Waltz';
             break;
           case 'slow foxtrot':
           case 'slowfox':
           case 'slow fox':
+          case 'sf':
             song.dance = 'Slow Foxtrot';
             break;
           case 'quickstep':
+          case 'qs':
             song.dance = 'Quickstep';
             break;
           case 'samba':

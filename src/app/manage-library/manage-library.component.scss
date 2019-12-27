@@ -53,6 +53,7 @@ th.rating {
 
 td.rating {
   white-space: nowrap;
+  text-align: center;
 
   mat-icon {
     color: #666;
@@ -66,7 +67,11 @@ td.rating {
 }
 
 .selected-row {
-  background-color: mat-color($app-primary, 200);
+  background-color: mat-color($app-primary, 200)!important;
+}
+
+.alternate-row {
+  background-color: mat-color($mat-gray, 200);
 }
 
 .not-exists td {

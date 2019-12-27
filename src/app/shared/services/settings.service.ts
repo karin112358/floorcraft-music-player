@@ -18,15 +18,15 @@ export class SettingsService {
   public playlists: Playlist[] = [];
   public configuration: Configuration;
 
-  get musicFolder(): string {
-    return this._musicFolder;
+  get musicFolders(): string[] {
+    return this._musicFolders;
   }
-  set musicFolder(value: string) {
-    this._musicFolder = value;
-    this.configuration.musicFolders = [this._musicFolder];
-    this.ipcService.busyTextSubject.next('Load playlists');
-    this.loadPlaylists();
-  }
+  // set musicFolder(value: string) {
+  //   this._musicFolders = value;
+  //   this.configuration.musicFolders = [this._musicFolder];
+  //   this.ipcService.busyTextSubject.next('Load playlists');
+  //   this.loadPlaylists();
+  // }
 
   get extensionsToExclude(): string {
     return this._extensionsToExclude;
@@ -36,7 +36,7 @@ export class SettingsService {
     this.configuration.excludeExtensions = [this._extensionsToExclude];
   }
 
-  private _musicFolder: string;
+  private _musicFolders: string[];
   private _extensionsToExclude: string;
 
   private constructor(
@@ -66,11 +66,25 @@ export class SettingsService {
     await this.updateConfiguration(configuration);
   }
 
+  public addMusicFolder(newFolder: string) {
+    if (this._musicFolders.indexOf(newFolder) < 0) {
+      this._musicFolders.push(newFolder);
+    }
+  }
+
+  public deleteMusicFolder(folder: string) {
+    const index = this._musicFolders.indexOf(folder);
+    if (index >= 0) {
+      this._musicFolders.splice(index, 1);
+      // TODO: delete playlists and songs
+    }
+  }
+
   /**
    * Load all playlists from the playlist folder.
    */
   public async loadPlaylists(forceUpdate = false) {
-    const playlists = await this.ipcService.run<Playlist[]>('loadPlaylists', 'Load playlists', this._musicFolder, forceUpdate);
+    const playlists = await this.ipcService.run<Playlist[]>('loadPlaylists', 'Load playlists', forceUpdate);
 
     console.log('loadPlaylistsFinished', playlists);
     //const playlists: Playlist[] = args.map(item => new Playlist(item, item));
@@ -84,12 +98,12 @@ export class SettingsService {
     });
   }
 
-  public async loadSongs() {
-    await this.ipcService.run<any[]>('loadSongs', 'Load songs', this._musicFolder);
+  public async loadSongs(forceUpdate = false) {
+    await this.ipcService.run<any[]>('loadSongs', 'Load songs', forceUpdate);
   }
 
   public async getSongs(): Promise<any[]> {
-    const songs = await this.ipcService.run<any[]>('getSongs', 'Get songs', this._musicFolder);
+    const songs = await this.ipcService.run<any[]>('getSongs', 'Get songs');
 
     const sortedSongs = songs.sort((a, b) => {
       return a.filename > b.filename ? 1 : -1;
@@ -128,7 +142,7 @@ export class SettingsService {
       await this.loadPlaylists();
     }
 
-    const playlistItems = await this.ipcService.run<any[]>('loadPlaylistsSongs', 'Load playlist songs', this.musicFolder, playlist, items, forceUpdate);
+    const playlistItems = await this.ipcService.run<any[]>('loadPlaylistsSongs', 'Load playlist songs', playlist, items, forceUpdate);
     console.log('loadPlaylistsSongsFinished', playlistItems);
 
     if (playlistItems && this.extensionsToExclude) {
@@ -273,7 +287,7 @@ export class SettingsService {
     this.configuration = configuration;
 
     if (this.configuration.musicFolders && this.configuration.musicFolders.length) {
-      this._musicFolder = this.configuration.musicFolders[0];
+      this._musicFolders = this.configuration.musicFolders;
     }
 
     if (this.configuration.excludeExtensions && this.configuration.excludeExtensions.length) {
@@ -282,7 +296,7 @@ export class SettingsService {
 
     this.initialized = true;
 
-    if (this._musicFolder) {
+    if (this._musicFolders.length) {
       await this.loadPlaylists();
     }
   }

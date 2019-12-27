@@ -1,9 +1,19 @@
 <div *ngIf="settings" class="settings-container">
+    <div>
+        <h2>Settings</h2>
+    </div>
+
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
         <div fxFlex="100">
             <mat-form-field>
-                <input matInput [readonly]=true type="text" placeholder="Music folder"
-                    [(ngModel)]="settings.musicFolder">
+                <!-- <input matInput [readonly]=true type="text" placeholder="Music folder"
+                    [(ngModel)]="settings.musicFolder"> -->
+                <mat-chip-list>
+                    <mat-chip *ngFor="let folder of settings.musicFolders" [removable]="true"
+                        (removed)="deleteMusicFolder(folder)">{{folder}}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                </mat-chip-list>
             </mat-form-field>
         </div>
         <div fxFlex="auto">
@@ -18,6 +28,10 @@
                     [(ngModel)]="settings.extensionsToExclude" (change)="settings.save()">
             </mat-form-field>
         </div>
+    </div>
+
+    <div>
+        <h2>Default Playlists</h2>
     </div>
 
     <div fxLayout="row" fxLayoutGap="32px" fxLayoutAlign="space-between">
@@ -93,9 +107,12 @@
         </div>
     </div>
 
+    <div>
+        <h2>Profiles</h2>
+    </div>
+
     <div fxLayout="row" fxLayoutGap="32px" fxLayoutAlign="space-between" class="tree">
         <div fxFlex="auto">
-            <h2>Profiles</h2>
             <mat-tree [dataSource]="profilesDataSource" [treeControl]="profileTreeControl">
                 <!-- This is the tree node template for leaf nodes -->
                 <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
@@ -122,7 +139,6 @@
             </mat-tree>
         </div>
         <div fxFlex="auto">
-            <h2>&nbsp;</h2>
             <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="space-between">
                 <div fxFlex="100">
                     <mat-form-field>
@@ -137,12 +153,39 @@
         </div>
     </div>
 
+    <div>
+        <h2>Reload Songs</h2>
+    </div>
+
+    <div fxLayout="row" fxLayoutGap="32px" fxLayoutAlign="space-between">
+        <div fxFlex="auto">
+            <button mat-flat-button color="primary" (click)="settings.loadSongs(true)"
+                [disabled]="!settings.musicFolders.length">Reload All Songs</button>
+        </div>
+    </div>
+
     <!-- <div fxLayout="row" fxLayoutGap="32px" fxLayoutAlign="space-between">
         <div fxFlex="auto">
             <h2>Clear Database</h2>
 
             <button mat-flat-button color="primary" (click)="settings.clearDatabase()"
-                [disabled]="!settings.musicFolder">Clear Database</button>
+                [disabled]="!settings.musicFolders.length">Clear Database</button>
         </div>
     </div> -->
 </div>
+
+<ng-template #confirmDeleteDialog>
+        <h2 matDialogTitle>Confirm Delete</h2>
+        <mat-dialog-content>
+            <div fxLayout="row">
+                <div fxLayout="column" fxLayoutGap="8px">
+                    <div>Do you really want to delete the selected item?
+                    </div>
+                </div>
+            </div>
+        </mat-dialog-content>
+        <mat-dialog-actions align="end">
+            <button mat-button color="primary" [mat-dialog-close]="true">Delete</button>
+            <button mat-button matDialogClose>Cancel</button>
+        </mat-dialog-actions>
+    </ng-template>

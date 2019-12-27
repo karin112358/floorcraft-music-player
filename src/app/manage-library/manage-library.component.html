@@ -48,7 +48,7 @@
             <mat-form-field>
                 <input matInput type="text" placeholder="Search" [(ngModel)]="searchExpression" #searchInput>
                 <button mat-button *ngIf="searchExpression" matSuffix mat-icon-button aria-label="Clear"
-                    (click)="searchExpression = null">
+                    (click)="clearSearch()">
                     <mat-icon>close</mat-icon>
                 </button>
             </mat-form-field>
@@ -88,9 +88,9 @@
             <ng-container matColumnDef="rating">
                 <th mat-header-cell class="rating" *matHeaderCellDef>Rating</th>
                 <td mat-cell class="rating" *matCellDef="let element">
-                    <mat-icon [ngClass]="{ 'selected': true }" matTooltip="Like" (click)="setRating(true)">mood</mat-icon>
+                    <mat-icon [ngClass]="{ 'selected': false }" matTooltip="Like" (click)="setRating(true)">mood</mat-icon>
                     <mat-icon [ngClass]="{ 'selected': false }" matTooltip="Don't like" (click)="setRating(false)">mood_bad</mat-icon>
-                    <mat-icon matTooltip="Clear rating" (click)="setRating(null)">clear</mat-icon>
+                    <mat-icon matTooltip="Remove rating" (click)="setRating(null)">clear</mat-icon>
                 </td>
             </ng-container>
 
@@ -168,7 +168,7 @@
 
             <tr mat-header-row *matHeaderRowDef="songsColumns; sticky: true"></tr>
             <tr mat-row *matRowDef="let row; columns: songsColumns;" (click)="selectRow($event, row)"
-                [ngClass]="{ 'selected-row': songSelection.isSelected(row) }"></tr>
+                [ngClass]="{ 'alternate-row': row.alternate, 'selected-row': songSelection.isSelected(row) }"></tr>
         </table>
     </div>
 

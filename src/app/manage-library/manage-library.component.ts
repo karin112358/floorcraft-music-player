@@ -40,7 +40,9 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
   public profiles: Profile[];
   public selectedProfile: Profile = null;
 
+  private alternateProperties: string[];
   private audio: HTMLAudioElement;
+  private compareFilenameRegExp = new RegExp('[\\-\\d\\(\\)\\s]', 'g');
 
   constructor(public settings: SettingsService, public dialog: MatDialog, private ipcService: IpcService, private notificationsService: NotificationsService) {
     this.songSelection = new SelectionModel<any>(true, []);
@@ -78,6 +80,10 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
 
     this.profiles = await this.settings.getProfiles();
     this.songs = await this.settings.getSongs() as any[];
+    this.songs.forEach(s => {
+      s.compareFilename = this.getCompareFilename(s.filename);
+      s.directory = s.absolutePath.substring(0, s.absolutePath.lastIndexOf('\\'));
+    });
     //console.log('songs', this.songs.length, this.songs.slice(0, 10));
 
     this.dataSource.paginator = this.paginator;
@@ -170,6 +176,11 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
     this.updateData();
   }
 
+  clearSearch() {
+    this.searchExpression = null;
+    this.updateData();
+  }
+
   openAssignDanceDialog() {
     this.dialog.open(this.assignDanceDialog);
   }
@@ -211,12 +222,11 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
       this.notificationsService.error('Merge failed', result);
     } else {
       // remove from list
-      for (let i = 1; i < this.songSelection.selected.length; i++) {
-        if (this.songSelection.selected[i].absolutePath !== mergeIntoSong.absolutePath) {
-          const songIndex = this.songs.findIndex(s => s.absolutePath == this.songSelection.selected[i].absolutePath);
-          if (songIndex >= 0) {
-            this.songs.splice(songIndex, 1);
-          }
+      let paths = this.songSelection.selected.map(s => s.absolutePath).filter(p => p !== mergeIntoSong.absolutePath);
+      for (let i = 0; i < paths.length; i++) {
+        const songIndex = this.songs.findIndex(s => s.absolutePath == paths[i]);
+        if (songIndex >= 0) {
+          this.songs.splice(songIndex, 1);
         }
       }
 
@@ -276,6 +286,7 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
 
     this.dialog.closeAll();
     this.songSelection.clear();
+    this.updateData();
   }
 
   danceSelectionChanged(event: MatSelectChange) {
@@ -289,11 +300,17 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
   }
 
   profileSelectionChanged(event: MatSelectChange) {
+    if (event) {
+      this.selectedProfile = event.value;
+    } else {
+      this.selectedProfile = null;
+    }
+
     this.updateData();
   }
 
   setRating(like: boolean) {
-    
+
   }
 
   private updateData() {
@@ -304,24 +321,28 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
         this.songsColumns = ['select', 'play', 'title', 'playlists', 'dance', 'genre', 'duration'];
       }
       this.sortOrder = ['absolutePath'];
+      this.alternateProperties = ['directory'];
     } else if (this.selectedMode == LibraryMode.FindDuplicates) {
       this.selectedProfile = null;
 
       this.songsColumns = ['select', 'play', 'merge', 'delete', 'title', 'playlists', 'dance', 'genre', 'duration'];
-      this.sortOrder = ['filename', 'duration', 'absolutePath'];
+      this.sortOrder = ['compareFilename', 'duration', 'absolutePath'];
+      this.alternateProperties = ['compareFilename', 'duration'];
     } else if (this.selectedMode == LibraryMode.FindDanceMissing) {
       this.selectedProfile = null;
       this.selectedDance = null;
 
       this.songsColumns = ['select', 'play', 'title', 'playlists', 'dance', 'genre', 'duration'];
-      this.sortOrder = ['genre', 'filename'];
+      this.sortOrder = ['absolutePath'];
+      this.alternateProperties = ['directory'];
     }
 
     if (this.songs) {
       let filteredSongs = this.songs.filter(s1 => (!this.selectedDance || s1.dance == this.settings.getDanceFriendlyName(this.selectedDance)));
 
       if (this.selectedMode == LibraryMode.FindDuplicates) {
-        filteredSongs = filteredSongs.filter(s1 => this.songs.find(s2 => s1.filename === s2.filename && s1.duration === s2.duration && s1.absolutePath !== s2.absolutePath));
+        filteredSongs = filteredSongs.filter(s1 => this.songs
+          .find(s2 => s1.compareFilename === s2.compareFilename && s1.duration === s2.duration && s1.absolutePath !== s2.absolutePath));
       } else if (this.selectedMode == LibraryMode.FindDanceMissing) {
         filteredSongs = filteredSongs.filter(s1 => !s1.dance);
       }
@@ -345,7 +366,30 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
         });
       }
 
+      if (this.alternateProperties.length) {
+        filteredSongs.forEach((song, i) => {
+          if (i > 0) {
+            let change = false;
+            for (let j = 0; j < this.alternateProperties.length && !change; j++) {
+              change = song[this.alternateProperties[j]] !== filteredSongs[i - 1][this.alternateProperties[j]]
+            }
+
+            if (change) {
+              song.alternate = !filteredSongs[i - 1].alternate;
+            } else {
+              song.alternate = filteredSongs[i - 1].alternate;
+            }
+          } else {
+            song.alternate = false;
+          }
+        });
+      }
+
       this.dataSource.data = filteredSongs;
     }
+  }
+
+  private getCompareFilename(filename: string): string {
+    return filename.toLowerCase().replace(this.compareFilenameRegExp, '');
   }
 }

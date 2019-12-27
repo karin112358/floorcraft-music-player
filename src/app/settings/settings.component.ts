@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import { SettingsService } from '../shared/services/settings.service';
 import { Category } from '../shared/models/category';
 import { Profile } from '../shared/models/profile';
 import { IpcService } from '../shared/services/ipc.service';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-settings',
@@ -12,8 +13,9 @@ import { IpcService } from '../shared/services/ipc.service';
   styleUrls: ['./settings.component.scss']
 })
 export class SettingsComponent {
-  public categories = [Category.Standard, Category.Latin];
+  @ViewChild('confirmDeleteDialog', null) confirmDeleteDialog: TemplateRef<any>;
 
+  public categories = [Category.Standard, Category.Latin];
   public newProfile: string;
   public profiles: Profile[];
 
@@ -39,7 +41,7 @@ export class SettingsComponent {
 
   public profilesDataSource = new MatTreeFlatDataSource(this.profileTreeControl, this.profileTreeFlattener);
 
-  constructor(public settings: SettingsService, public ipcService: IpcService) {
+  constructor(public settings: SettingsService, public ipcService: IpcService, public dialog: MatDialog) {
     console.log(settings);
   }
 
@@ -49,7 +51,7 @@ export class SettingsComponent {
 
   public musicFolderChanged(event: any) {
     if (event.target.files.length > 0) {
-      this.settings.musicFolder = event.target.files[0].path;
+      this.settings.addMusicFolder(event.target.files[0].path);
       this.settings.save();
     }
   }
@@ -79,6 +81,14 @@ export class SettingsComponent {
     profile.isDefault = true;
     await this.ipcService.run<any[]>('updateProfile', 'Set default profile', profile);
     this.loadProfiles();
+  }
+
+  public async deleteMusicFolder(folder: string) {
+    const dialogRef = this.dialog.open(this.confirmDeleteDialog);
+      const result = await dialogRef.afterClosed().toPromise();
+      if (result) {
+        this.settings.deleteMusicFolder(folder);
+      }
   }
 
   private async loadProfiles() {
