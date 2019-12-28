@@ -348,6 +348,8 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
 
           filteredSongs = filteredSongs.filter(s1 => filteredSongsBySearch
             .find(s2 => (s1.compareFilename === s2.compareFilename && s1.duration === s2.duration && s1.absolutePath !== s2.absolutePath)));
+
+          filteredSongs.push(...filteredSongsBySearch.filter(f => !filteredSongs.find(f1 => f1.absolutePath == f.absolutePath)));
         } else {
           filteredSongs = filteredSongs.filter(s1 => this.songs
             .find(s2 => s1.compareFilename === s2.compareFilename && s1.duration === s2.duration && s1.absolutePath !== s2.absolutePath));
