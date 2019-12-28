@@ -338,18 +338,27 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
     }
 
     if (this.songs) {
+      const search = this.searchExpression ? this.searchExpression.toLowerCase() : null;
       let filteredSongs = this.songs.filter(s1 => (!this.selectedDance || s1.dance == this.settings.getDanceFriendlyName(this.selectedDance)));
 
       if (this.selectedMode == LibraryMode.FindDuplicates) {
-        filteredSongs = filteredSongs.filter(s1 => this.songs
-          .find(s2 => s1.compareFilename === s2.compareFilename && s1.duration === s2.duration && s1.absolutePath !== s2.absolutePath));
+        if (search) {
+          const filteredSongsBySearch = filteredSongs.filter(s => (s.absolutePath && s.absolutePath.toLowerCase().indexOf(search) >= 0)
+            || (s.title && s.title.toLowerCase().indexOf(search) >= 0));
+
+          filteredSongs = filteredSongs.filter(s1 => filteredSongsBySearch
+            .find(s2 => (s1.compareFilename === s2.compareFilename && s1.duration === s2.duration && s1.absolutePath !== s2.absolutePath)));
+        } else {
+          filteredSongs = filteredSongs.filter(s1 => this.songs
+            .find(s2 => s1.compareFilename === s2.compareFilename && s1.duration === s2.duration && s1.absolutePath !== s2.absolutePath));
+        }
       } else if (this.selectedMode == LibraryMode.FindDanceMissing) {
         filteredSongs = filteredSongs.filter(s1 => !s1.dance);
       }
 
-      if (this.searchExpression) {
-        filteredSongs = filteredSongs.filter(s => (s.absolutePath && s.absolutePath.toLowerCase().indexOf(this.searchExpression.toLowerCase()) >= 0)
-          || (s.title && s.title.toLowerCase().indexOf(this.searchExpression.toLowerCase()) >= 0));
+      if (search && this.selectedMode != LibraryMode.FindDuplicates) {
+        filteredSongs = filteredSongs.filter(s => (s.absolutePath && s.absolutePath.toLowerCase().indexOf(search) >= 0)
+          || (s.title && s.title.toLowerCase().indexOf(search) >= 0));
       }
 
       if (this.sortOrder) {
