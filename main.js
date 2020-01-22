@@ -14,7 +14,7 @@ const id3 = require('node-id3');
 const replace = require('replace-in-file');
 const xmlescape = require('xml-escape');
 
-//require('electron-debug')();
+require('electron-debug')();
 
 let win;
 
@@ -161,16 +161,20 @@ ipcMain.on('getSongs', async (event) => {
 ipcMain.on('loadPlaylists', async (event, forceUpdate) => {
   let folders = getFolders();
 
-  let songs = getDbCollection('songs');
-  let playlists = getDbCollection('playlists');
+  if (folders) {
+    let songs = getDbCollection('songs');
+    let playlists = getDbCollection('playlists');
 
-  for (let f = 0; f < folders.length; f++) {
-    let folder = folders[f];
-    console.log('loadPlaylists', folder);
-    await readMetadata(folder, folder, songs, playlists, 0, false, event, forceUpdate);
+    for (let f = 0; f < folders.length; f++) {
+      let folder = folders[f];
+      console.log('loadPlaylists', folder);
+      await readMetadata(folder, folder, songs, playlists, 0, false, event, forceUpdate);
+    }
+
+    event.reply('loadPlaylistsFinished', playlists.data);
+  } else {
+    event.reply('loadPlaylistsFinished', []);
   }
-
-  event.reply('loadPlaylistsFinished', playlists.data);
 });
 
 ipcMain.on('loadPlaylistsSongs', async (event, playlist, items, forceUpdate) => {
@@ -336,6 +340,8 @@ async function insertSong(songs, file, forceUpdate) {
       song.album = metadata.common.album;
       song.year = metadata.common.year;
       song.duration = metadata.format.duration;
+      song.bitrate = metadata.format.bitrate;
+      song.size = fs.statSync(file).size;
 
       let dance = null;
       if (id3Metadata && id3Metadata.userDefinedText) {

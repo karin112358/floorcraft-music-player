@@ -31,7 +31,9 @@ td.mat-cell {
 td.items,
 td.last-modified,
 td.duration,
-td.playlists {
+td.playlists,
+td.size,
+td.bitrate {
   text-align: right;
 
   mat-chip: {
@@ -43,8 +45,11 @@ td.items,
 td.last-modified,
 td.duration,
 td.dance,
-td.genre {
+td.genre,
+td.size,
+td.bitrate {
   font-size: 11px;
+  white-space: nowrap;
 }
 
 th.rating {

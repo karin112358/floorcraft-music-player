@@ -3,26 +3,30 @@
 
 .slot {
     //border: 1px solid #999;
-    background-color: mat-color($mat-gray, 100);
+    // background-color: mat-color($mat-gray, 100);
     padding: 5px 10px 0 10px;
     height: 100%;
     box-sizing: border-box;
-    max-width: 450px;
+    max-width: 550px;
 
     .slot-header {
-        background-color: mat-color($mat-gray, 300);
+        // background-color: mat-color($mat-gray, 300);
         margin: -5px -10px 0 -10px;
-        padding: 0 16px;
+        // padding: 0 16px;
+        border-bottom: 3px solid mat-color($mat-gray, 500);
 
         .title {
             max-width: 210px;
-            font-size: 13px;
+            font-size: 14px;
             white-space: nowrap;
             overflow: hidden;
+            text-transform: uppercase;
+            // font-weight: bold;
+            color: mat-color($mat-gray, 700);
         }
 
         mat-icon {
-            font-size: 16px;
+            font-size: 20px;
         }
 
         mat-button-toggle-group {
@@ -43,15 +47,25 @@
     }
 
     mat-list-item {
-        font-size: 13px!important;
+        font-size: 14px!important;
         text-overflow: ellipsis;
+        padding: 12px 16px;
+        box-sizing: border-box;
+
+        &:nth-of-type(2n) {
+            background-color: #f0f0f0;
+        }
 
         mat-checkbox {
             padding-right: 8px;
         }
 
+        .play-icon {
+            color: #666;
+        }
+
         .not-exists {
-            color: #bbb;
+            color: mat-color($mat-gray, 300);
         }
 
         .song {
@@ -73,7 +87,7 @@
 
         .song-genre,
         .song-duration {
-            font-size: 10px;
+            font-size: 12px;
         }
 
         .song-details {
@@ -81,7 +95,7 @@
             max-width: 100%;
             overflow: hidden;
             line-height: 1.5em;
-            font-size: 11px;
+            font-size: 14px;
             white-space: normal;
             margin-bottom: 5px;
         }
@@ -93,10 +107,13 @@
 
     .slot-footer {
         height: 40px;
-        background-color: mat-color($mat-gray, 300);
-        padding: 0 16px;
+        // background-color: mat-color($mat-gray, 300);
+        border-top: 3px solid mat-color($mat-gray, 500);
+        // padding: 0 16px;
         margin: 0 -10px 0 -10px;
-        font-size: 12px;
+        font-size: 14px;
+        color: mat-color($mat-gray, 700);
+        text-transform: uppercase;
 
         mat-slider {
             width: 100%;
@@ -105,7 +122,7 @@
 
         mat-icon {
             color: #000;
-            font-size: 16px;
+            font-size: 20px;
         }
 
         .mat-icon-button {
@@ -121,7 +138,7 @@
     }
 
     mat-list-item.active {
-        background-color: mat-color($mat-gray, 300);
+        background-color: mat-color($mat-gray, 400);
     }
 
     &.active {
@@ -130,7 +147,16 @@
         }
 
         .slot-header {
-            background-color: mat-color($app-primary, 300);
+            // background-color: mat-color($app-primary, 300);
+            border-bottom: 3px solid mat-color($app-primary, 400);
+
+            .title {
+                color: mat-color($app-primary, 600);
+            }
+        }
+
+        .slot-footer {
+            border-top: 3px solid mat-color($app-primary, 400);
         }
     }
 }
@@ -139,14 +165,14 @@
     .add-text {
         white-space: nowrap;
         line-height: 36px;
-        font-size: 13px;
+        font-size: 14px;
         width: 120px;
     }
 }
 
 .player {
     .progress {
-        font-size: 13px;
+        font-size: 14px;
         white-space: nowrap;
     }
 

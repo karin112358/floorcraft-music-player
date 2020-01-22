@@ -88,8 +88,10 @@
             <ng-container matColumnDef="rating">
                 <th mat-header-cell class="rating" *matHeaderCellDef>Rating</th>
                 <td mat-cell class="rating" *matCellDef="let element">
-                    <mat-icon [ngClass]="{ 'selected': false }" matTooltip="Like" (click)="setRating(true)">mood</mat-icon>
-                    <mat-icon [ngClass]="{ 'selected': false }" matTooltip="Don't like" (click)="setRating(false)">mood_bad</mat-icon>
+                    <mat-icon [ngClass]="{ 'selected': false }" matTooltip="Like" (click)="setRating(true)">mood
+                    </mat-icon>
+                    <mat-icon [ngClass]="{ 'selected': false }" matTooltip="Don't like" (click)="setRating(false)">
+                        mood_bad</mat-icon>
                     <mat-icon matTooltip="Remove rating" (click)="setRating(null)">clear</mat-icon>
                 </td>
             </ng-container>
@@ -118,6 +120,20 @@
             <ng-container matColumnDef="duration">
                 <th mat-header-cell *matHeaderCellDef>Duration</th>
                 <td mat-cell class="duration" *matCellDef="let element">{{settings.formatDuration(element.duration)}}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="size">
+                <th mat-header-cell *matHeaderCellDef>Size</th>
+                <td mat-cell class="size" *matCellDef="let element" [matTooltip]="element.size">
+                    {{element.size / 1024 / 1024 | number:'1.0-0'}} MB
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="bitrate">
+                <th mat-header-cell *matHeaderCellDef>Bitrate</th>
+                <td mat-cell class="bitrate" *matCellDef="let element" [matTooltip]="element.bitrate">
+                    {{element.bitrate / 1000 | number:'1.0-0'}} Kbit
                 </td>
             </ng-container>
 
@@ -213,10 +229,11 @@
     <mat-dialog-content>
         <div fxLayout="row">
             <div fxLayout="column" fxLayoutGap="8px">
-                <div>The filenames of the selected songs do not match. Do you really want the merge the selected songs?
+                <div>The filenames or durations of the selected songs do not match. Do you really want the merge the
+                    selected songs?
                 </div>
                 <div *ngFor="let song of songSelection.selected; let i = index">
-                    {{song.filename}}
+                    {{song.duration | number:'1.6-6'}} - {{song.filename}}
                 </div>
             </div>
         </div>

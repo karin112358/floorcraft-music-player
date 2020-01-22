@@ -199,13 +199,13 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
         durationEqual = false;
       }
 
-      if (!durationEqual) {
-        this.notificationsService.error('Merge failed', 'Durations of files do not match.');
-        return;
-      }
+      // if (!durationEqual) {
+      //   this.notificationsService.error('Merge failed', 'Durations of files do not match.');
+      //   return;
+      // }
     }
 
-    if (!filenameEqual && !forceMerge) {
+    if ((!filenameEqual || !durationEqual) && !forceMerge) {
       const dialogRef = this.dialog.open(this.confirmMergeDialog);
       const result = await dialogRef.afterClosed().toPromise();
       if (result) {
@@ -316,23 +316,23 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
   private updateData() {
     if (this.selectedMode == LibraryMode.ManageProfile) {
       if (this.selectedProfile) {
-        this.songsColumns = ['select', 'play', 'title', 'rating', 'playlists', 'dance', 'genre', 'duration'];
+        this.songsColumns = ['select', 'play', 'title', 'rating', 'playlists', 'dance', 'genre', 'duration', 'size', 'bitrate'];
       } else {
-        this.songsColumns = ['select', 'play', 'title', 'playlists', 'dance', 'genre', 'duration'];
+        this.songsColumns = ['select', 'play', 'title', 'playlists', 'dance', 'genre', 'duration', 'size', 'bitrate'];
       }
       this.sortOrder = ['absolutePath'];
       this.alternateProperties = ['directory'];
     } else if (this.selectedMode == LibraryMode.FindDuplicates) {
       this.selectedProfile = null;
 
-      this.songsColumns = ['select', 'play', 'merge', 'delete', 'title', 'playlists', 'dance', 'genre', 'duration'];
+      this.songsColumns = ['select', 'play', 'merge', 'delete', 'title', 'playlists', 'dance', 'genre', 'duration', 'size', 'bitrate'];
       this.sortOrder = ['compareFilename', 'duration', 'absolutePath'];
       this.alternateProperties = ['compareFilename', 'duration'];
     } else if (this.selectedMode == LibraryMode.FindDanceMissing) {
       this.selectedProfile = null;
       this.selectedDance = null;
 
-      this.songsColumns = ['select', 'play', 'title', 'playlists', 'dance', 'genre', 'duration'];
+      this.songsColumns = ['select', 'play', 'title', 'playlists', 'dance', 'genre', 'duration', 'size', 'bitrate'];
       this.sortOrder = ['absolutePath'];
       this.alternateProperties = ['directory'];
     }

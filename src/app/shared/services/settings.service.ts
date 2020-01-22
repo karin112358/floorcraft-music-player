@@ -36,8 +36,8 @@ export class SettingsService {
     this.configuration.excludeExtensions = [this._extensionsToExclude];
   }
 
-  private _musicFolders: string[];
-  private _extensionsToExclude: string;
+  private _musicFolders: string[] = [];
+  private _extensionsToExclude: string = "";
 
   private constructor(
     private ipcService: IpcService,
@@ -69,6 +69,7 @@ export class SettingsService {
   public addMusicFolder(newFolder: string) {
     if (this._musicFolders.indexOf(newFolder) < 0) {
       this._musicFolders.push(newFolder);
+      this.configuration.musicFolders = this._musicFolders;
     }
   }
 

@@ -14,7 +14,9 @@ export class AppComponent implements AfterViewInit {
   }
 
   async ngAfterViewInit() {
+    console.log('start initialize');
     await this.settings.initialize();
+    console.log('finished initialize');
 
     if (this.settings.musicFolders.length) {
       this.router.navigate(['training']);

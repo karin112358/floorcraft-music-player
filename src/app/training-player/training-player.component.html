@@ -1,7 +1,7 @@
 <div gdAreas="add | slots | player" gdRows="auto 1fr auto" class="content-container training-container">
     <!-- add new slot -->
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="start center" class="container new-slot" gdArea="add">
-        <div class="add-text">Add dance:</div>
+        <!-- <div class="add-text">Add dance:</div> -->
         <div fxLayout="column" fxLayoutGap="8px">
             <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="space-between">
                 <div *ngFor="let dance of settings.getDancesPerCategory(0); let i = index">
@@ -40,7 +40,7 @@
 
     <!-- List of slots -->
     <div class="slots main-container" gdArea="slots">
-        <div fxLayout="row" fxLayoutGap="24px" fxLayoutAlign="start stretch">
+        <div fxLayout="row" fxLayoutGap="32px" fxLayoutAlign="start stretch">
             <div *ngFor="let slot of slots; let slotIndex = index" fxFlex="0 1 min-content">
                 <div class="slot" [ngClass]="{'active': slotIndex == currentSlotIndex}">
                     <div fxLayout="row" class="slot-header" fxLayoutAlign="start center">
@@ -97,16 +97,19 @@
                                                 [checked]="!song.isDisabled" (change)="toggleSelection(song, $event)">
                                             </mat-checkbox>
                                         </div>
+                                        <!-- <div>
+                                            <mat-icon class="play-icon" aria-hidden="false" aria-label="Play song" (click)="moveToSong(slotIndex, songIndex)">play_circle_outline</mat-icon>
+                                        </div> -->
                                         <div fxFlex="100%" class="song-title">
                                             <span
                                                 *ngIf="song.configuration.metadata">{{song.configuration.metadata?.title}}</span>
                                             <span
                                                 *ngIf="!song.configuration.metadata">{{song.configuration.path}}</span>
                                         </div>
-                                        <div class="song-genre">
+                                        <div fxFlex="auto" class="song-genre">
                                             {{song.configuration.metadata?.genre}}
                                         </div>
-                                        <div class="song-duration">
+                                        <div fxFlex="auto" class="song-duration">
                                             {{settings.formatDuration(song.configuration.metadata?.duration)}}
                                         </div>
                                     </div>

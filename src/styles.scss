@@ -12,7 +12,7 @@ html {
 }
 
 body {
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-family: 'Segoe UI', Verdana, Geneva, Tahoma, sans-serif;
     padding: 0;
     margin: 0;
     height: 100%;
@@ -41,7 +41,8 @@ h2 {
 
 .container-accent {
     color: #fff;
-    background-color: darken(mat-color($app-primary), 40%);
+    // background-color: darken(mat-color($app-primary), 20%);
+    background-color: mat-color($app-primary, 600);
     padding: 16px;
 }
 
@@ -61,16 +62,25 @@ mat-form-field {
     //background-color: #888;
 }
 
+.mat-list-base {
+    padding-top: 0 !important;
+}
+
 .mat-list-base .mat-list-item {
     height: auto !important;
     line-height: 24px;
-    font-size: 12px;
+    font-size: 14px;
     text-overflow: ellipsis;
     white-space: nowrap;
+    padding: 0;
     cursor: pointer;
 
     &:hover {
-        background-color: #eee;
+        background-color: mat-color($mat-gray, 300);
+    }
+
+    .mat-list-item-content {
+        padding: 0 !important;
     }
 }
 
@@ -86,8 +96,8 @@ mat-form-field {
 }
 
 .mat-button, .mat-flat-button, .mat-button-toggle-button {
-    font-size: 13px!important;
-    border-radius: 0!important;
+    // font-size: 13px!important;
+    // border-radius: 0!important;
 
     .mat-button-wrapper>* {
         font-size: 20px;
@@ -102,12 +112,17 @@ mat-form-field {
     background-color: mat-color($app-primary, 200);
 }
 
+.mat-checkbox-inner-container {
+    width: 20px !important;
+    height: 20px !important;
+}
+
 .mat-form-field-infix {
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .mat-option {
-    font-size: 13px!important;
+    font-size: 14px!important;
     line-height: 36px!important;
     height: 36px!important;
 }
@@ -122,16 +137,16 @@ mat-form-field {
 
 /* toggle button */
 .mat-button-toggle-group-appearance-standard, .mat-button-toggle-standalone.mat-button-toggle-appearance-standard {
-    border-radius: 0;
+    // border-radius: 0;
 }
 
 .training-container {
     .mat-button-toggle-label-content {
-        line-height: 24px !important;
-        padding: 0 3px !important;
+        line-height: 28px !important;
+        padding: 0 4px !important;
 
         mat-icon {
-            height: 16px;
+            height: 20px;
         }
     }
 
