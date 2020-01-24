@@ -102,10 +102,10 @@ export class TrainingPlayerComponent implements OnInit, OnDestroy {
     }
   }
 
-  public async changeSortOrder(slot: Slot, event: MatButtonToggleChange) {
+  public async changeSortOrder(slot: Slot, sortOrder: number) {
     // get currently selected item
     const currentSongSrc = slot.items[slot.currentSongIndex].configuration.absolutePath;
-    slot.sortOrder = event.value;
+    slot.sortOrder = sortOrder;
 
     // change sort order
     this.updatePlaylistSortOrder(slot, slot.items);

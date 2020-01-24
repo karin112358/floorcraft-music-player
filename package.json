@@ -1,6 +1,8 @@
 {
   "name": "utsc-music-app",
-  "version": "0.0.0",
+  "version": "0.0.1",
+  "author": { "name": "Karin Huber" },
+  "description": "Music player for ballroom practice",
   "main": "main.js",
   "scripts": {
     "ng": "ng",
@@ -12,9 +14,26 @@
     "electron": "ng build --base-href ./ && electron .",
     "electron-packager": "ng build && electron-packager . --no-prune --ignore=/node_modules --ignore=/e2e --ignore=/src --overwrite --icon=./assets/images/ballroom.ico && cd utsc-music-app-win32-x64/resources/app && npm install --prod",
     "electron-installer": "cross-env DEBUG=electron-windows-installer:main node ./createWindowsInstaller.js",
-    "package": "npm run electron-packager && npm run electron-installer"
+    "package": "npm run electron-packager && npm run electron-installer",
+
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --windows"
   },
   "private": true,
+  "build": {
+		"appId": "com.software-architects.ballroompracticeplayer",
+		"productName": "Ballroom Practice Player",
+		"mac": {
+			"category": "public.app-category.lifestyle"
+		},
+		"dmg": {
+			"icon": false
+		},
+		"linux": {
+			"target": ["AppImage"],
+			"category": "Office"
+		}
+	},
   "dependencies": {
     "electron-store": "^5.1.0",
     "fs": "0.0.1-security",
@@ -48,6 +67,7 @@
     "angular2-notifications": "^2.0.0",
     "codelyzer": "^5.0.0",
     "electron": "^6.0.1",
+    "electron-builder": "^22.2.0",
     "electron-debug": "^3.0.1",
     "electron-packager": "^14.0.4",
     "jasmine-core": "~3.4.0",

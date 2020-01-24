@@ -14,7 +14,7 @@ const id3 = require('node-id3');
 const replace = require('replace-in-file');
 const xmlescape = require('xml-escape');
 
-require('electron-debug')();
+//require('electron-debug')();
 
 let win;
 
@@ -30,6 +30,7 @@ function createWindow() {
     }
   });
 
+  win.setMenuBarVisibility(false);
   win.maximize();
 
   // load the dist folder from Angular
@@ -281,11 +282,23 @@ async function updatePlaylist(playlist, root, lastModified) {
   let options = { ignoreComment: true, alwaysChildren: true, compact: true, attributesKey: 'attributes' };
   let json = convert.xml2js(data, options);
 
-  if (json && json.smil && json.smil.body && json.smil.body.seq && json.smil.body.seq.media) {
-    playlist.title = json.smil.head.title._text;
+  try {
+    if (json && json.smil && json.smil.body && json.smil.body.seq && json.smil.body.seq.media) {
+      playlist.title = json.smil.head.title._text;
 
-    if (Array.isArray(json.smil.body.seq.media)) {
-      json.smil.body.seq.media.forEach(async (item) => {
+      if (Array.isArray(json.smil.body.seq.media)) {
+        json.smil.body.seq.media.forEach(async (item) => {
+          let src = item.attributes.src;
+          console.log('update playlist', src);
+          if (!path.isAbsolute(src)) {
+            src = path.join(root, path.dirname(playlist.path), item.attributes.src);
+          }
+
+          let exists = fs.existsSync(src);
+          playlistItems.push({ absolutePath: src, path: item.attributes.src, exists: exists })
+        });
+      } else {
+        let item = json.smil.body.seq.media;
         let src = item.attributes.src;
         if (!path.isAbsolute(src)) {
           src = path.join(root, path.dirname(playlist.path), item.attributes.src);
@@ -293,17 +306,10 @@ async function updatePlaylist(playlist, root, lastModified) {
 
         let exists = fs.existsSync(src);
         playlistItems.push({ absolutePath: src, path: item.attributes.src, exists: exists })
-      });
-    } else {
-      let item = json.smil.body.seq.media;
-      let src = item.attributes.src;
-      if (!path.isAbsolute(src)) {
-        src = path.join(root, path.dirname(playlist.path), item.attributes.src);
       }
-
-      let exists = fs.existsSync(src);
-      playlistItems.push({ absolutePath: src, path: item.attributes.src, exists: exists })
     }
+  } catch (e) {
+    console.log('Could not update playlist', playlist, root, lastModified);
   }
 
   //console.log(playlistItems);

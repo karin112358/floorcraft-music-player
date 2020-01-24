@@ -1,9 +1,38 @@
-@import 'styles/colors.scss';
+@import 'styles/variables.scss';
+@import '~@angular/material/theming';
+
+@font-face {
+    font-family: 'WeblySleek UI Light';
+    src: url(../assets/fonts/weblysleekuil.ttf);
+}
+
+@font-face {
+    font-family: 'WeblySleek UI Semilight';
+    src: url(../assets/fonts/weblysleekuisl.ttf);
+}
+
+@font-face {
+    font-family: 'WeblySleek UI Semibold';
+    src: url(../assets/fonts/weblysleekuisb.ttf);
+}
+
+$custom-typography: mat-typography-config(
+  $font-family: $default-font,
+  $headline: mat-typography-level(32px, 48px, 700),
+  $body-1: mat-typography-level(14px, 22px, 400)
+);
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat-core($custom-typography);
 
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 @include angular-material-theme($app-theme);
+
+$foreground: map-get($app-theme, foreground);
 
 html {
     height: 100%;
@@ -12,7 +41,9 @@ html {
 }
 
 body {
-    font-family: 'Segoe UI', Verdana, Geneva, Tahoma, sans-serif;
+    font-family: $default-font;
+    font-size: $default-font-size;
+    color: mat-color($foreground, text);
     padding: 0;
     margin: 0;
     height: 100%;
@@ -24,9 +55,10 @@ h1 {
 }
 
 h2 {
-    font-size: 14px;
+    font-size: $default-font-size;
     text-transform: uppercase;
     margin-block-end: 0.4em;
+    font-family: $bold-font;
 }
 
 .content-container {
@@ -41,8 +73,8 @@ h2 {
 
 .container-accent {
     color: #fff;
-    // background-color: darken(mat-color($app-primary), 20%);
-    background-color: mat-color($app-primary, 600);
+    background-color: darken(mat-color($app-primary), 40%);
+    //background-color: mat-color($app-primary, 600);
     padding: 16px;
 }
 
@@ -69,15 +101,15 @@ mat-form-field {
 .mat-list-base .mat-list-item {
     height: auto !important;
     line-height: 24px;
-    font-size: 14px;
     text-overflow: ellipsis;
     white-space: nowrap;
     padding: 0;
     cursor: pointer;
+    font-size: 14px;
 
-    &:hover {
-        background-color: mat-color($mat-gray, 300);
-    }
+    // &:hover {
+    //     background-color: mat-color($mat-gray, 400) !important;
+    // }
 
     .mat-list-item-content {
         padding: 0 !important;
@@ -90,17 +122,16 @@ mat-form-field {
     padding: 8px;
     line-height: 1.4em;
     max-width: 500px !important;
-    background-color: mat-color($app-primary, 100)!important;
-    color: #000!important;
-    border-radius: 0!important;
+    background-color: mat-color($app-primary, 100) !important;
+    color: #000 !important;
+    border-radius: 0 !important;
 }
 
-.mat-button, .mat-flat-button, .mat-button-toggle-button {
-    // font-size: 13px!important;
-    // border-radius: 0!important;
-
+.mat-button,
+.mat-flat-button,
+.mat-button-toggle-button {
     .mat-button-wrapper>* {
-        font-size: 20px;
+        font-size: 20px !important;
     }
 }
 
@@ -108,7 +139,8 @@ mat-form-field {
     background-color: mat-color($mat-gray, 200);
 }
 
-.mat-flat-button.mat-primary[disabled], .mat-flat-button.mat-primary[disabled] {
+.mat-flat-button.mat-primary[disabled],
+.mat-flat-button.mat-primary[disabled] {
     background-color: mat-color($app-primary, 200);
 }
 
@@ -117,36 +149,36 @@ mat-form-field {
     height: 20px !important;
 }
 
-.mat-form-field-infix {
-    font-size: 14px;
-}
+// .mat-form-field-infix {
+//     font-size: 14px;
+// }
 
-.mat-option {
-    font-size: 14px!important;
-    line-height: 36px!important;
-    height: 36px!important;
-}
+// .mat-option {
+//     line-height: 36px !important;
+//     height: 36px !important;
+// }
 
 .mat-slider-horizontal .mat-slider-track-wrapper {
-    background-color: mat-color($mat-gray, 200)!important;
+    background-color: mat-color($mat-gray, 200) !important;
 }
 
 .mat-slider-thumb {
-    background-color: #fff!important;
+    background-color: #fff !important;
 }
 
 /* toggle button */
-.mat-button-toggle-group-appearance-standard, .mat-button-toggle-standalone.mat-button-toggle-appearance-standard {
+.mat-button-toggle-group-appearance-standard,
+.mat-button-toggle-standalone.mat-button-toggle-appearance-standard {
     // border-radius: 0;
 }
 
 .training-container {
     .mat-button-toggle-label-content {
         line-height: 28px !important;
-        padding: 0 4px !important;
+        padding: 0 6px !important;
 
         mat-icon {
-            height: 20px;
+            height: 24px;
         }
     }
 

@@ -1,4 +1,4 @@
-@import '../styles/colors.scss';
+@import '../styles/variables.scss';
 
 .fill-space {
     /* This fills the remaining space, by using flexbox. 
@@ -20,11 +20,11 @@ mat-toolbar {
 
     a {
         color: #fff;
-        font-size: 14px;
         text-decoration: none;
         margin-right: 24px;
         padding: 8px 12px;
         cursor: pointer;
+        font-size: $default-font-size;
 
         &.active {
             border-bottom: 8px solid mat-color($app-primary);
@@ -43,8 +43,6 @@ mat-toolbar {
     }
 
     .toolbar-busy-indicator {
-        font-size: 14px;
-
         mat-spinner {
             float: left;
             margin-right: 12px;
@@ -54,7 +52,7 @@ mat-toolbar {
     .toolbar-busy-text {
         margin-right: 24px;
         color: mat-color($app-primary);
-        font-size: 14px;
+        font-size: $default-font-size;
     }
 }
 

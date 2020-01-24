@@ -22,6 +22,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTreeModule } from '@angular/material/tree';
+import { MatMenuModule } from '@angular/material/menu';
 import { NgxElectronModule } from 'ngx-electron';
 import { SimpleNotificationsModule } from 'angular2-notifications';
 
@@ -63,6 +64,7 @@ import { ManagePlaylistsComponent } from './manage-playlists/manage-playlists.co
     MatCheckboxModule,
     MatSliderModule,
     MatTooltipModule,
+    MatMenuModule,
     FormsModule,
     BrowserModule,
     NgxElectronModule,
