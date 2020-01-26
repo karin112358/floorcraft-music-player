@@ -7,6 +7,8 @@ import { Profile } from '../shared/models/profile';
 import { IpcService } from '../shared/services/ipc.service';
 import { MatDialog } from '@angular/material/dialog';
 
+import * as path from 'path';
+
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.component.html',
@@ -51,8 +53,16 @@ export class SettingsComponent {
 
   public musicFolderChanged(event: any) {
     if (event.target.files.length > 0) {
-      this.settings.addMusicFolder(event.target.files[0].path);
+      var absolutePath = path.normalize(event.target.files[0].path);
+      var relativePath = path.normalize(event.target.files[0].webkitRelativePath);
+
+      var directory = absolutePath.replace(relativePath, '');
+      directory += relativePath.split(path.sep)[0];
+
+      this.settings.addMusicFolder(directory);
       this.settings.save();
+
+      this.settings.loadPlaylists();
     }
   }
 

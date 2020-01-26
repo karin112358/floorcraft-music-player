@@ -1,7 +1,9 @@
 {
   "name": "utsc-music-app",
-  "version": "0.0.1",
-  "author": { "name": "Karin Huber" },
+  "version": "0.1.0",
+  "author": {
+    "name": "Karin Huber"
+  },
   "description": "Music player for ballroom practice",
   "main": "main.js",
   "scripts": {
@@ -12,28 +14,38 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "electron": "ng build --base-href ./ && electron .",
-    "electron-packager": "ng build && electron-packager . --no-prune --ignore=/node_modules --ignore=/e2e --ignore=/src --overwrite --icon=./assets/images/ballroom.ico && cd utsc-music-app-win32-x64/resources/app && npm install --prod",
-    "electron-installer": "cross-env DEBUG=electron-windows-installer:main node ./createWindowsInstaller.js",
-    "package": "npm run electron-packager && npm run electron-installer",
-
     "pack": "electron-builder --dir",
-    "dist": "electron-builder --windows"
+    "release": "ng build --prod && electron-builder --windows --publish=never"
   },
   "private": true,
   "build": {
-		"appId": "com.software-architects.ballroompracticeplayer",
-		"productName": "Ballroom Practice Player",
-		"mac": {
-			"category": "public.app-category.lifestyle"
-		},
-		"dmg": {
-			"icon": false
-		},
-		"linux": {
-			"target": ["AppImage"],
-			"category": "Office"
-		}
-	},
+    "appId": "com.software-architects.ballroompracticeplayer",
+    "productName": "Ballroom Practice Player",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "node_modules/**/*",
+      "package.json",
+      "main.js"
+    ],
+    "mac": {
+      "category": "public.app-category.lifestyle"
+    },
+    "dmg": {
+      "icon": false
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Office"
+    },
+    "win": {
+      "icon": "build/icon.ico"
+    }
+  },
   "dependencies": {
     "electron-store": "^5.1.0",
     "fs": "0.0.1-security",
@@ -63,13 +75,12 @@
     "@ngx-pwa/local-storage": "^8.2.1",
     "@types/jasmine": "~3.3.8",
     "@types/jasminewd2": "~2.0.3",
-    "@types/node": "~8.9.4",
+    "@types/node": "^8.9.5",
     "angular2-notifications": "^2.0.0",
     "codelyzer": "^5.0.0",
-    "electron": "^6.0.1",
+    "electron": "^7.1.10",
     "electron-builder": "^22.2.0",
     "electron-debug": "^3.0.1",
-    "electron-packager": "^14.0.4",
     "jasmine-core": "~3.4.0",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~4.1.0",
@@ -78,7 +89,8 @@
     "karma-jasmine": "~2.0.1",
     "karma-jasmine-html-reporter": "^1.4.0",
     "material-design-icons": "^3.0.1",
-    "ngx-electron": "^2.1.1",
+    "ngx-electron": "^2.2.0",
+    "path": "^0.12.7",
     "protractor": "~5.4.0",
     "rxjs": "~6.4.0",
     "ts-node": "~7.0.0",

@@ -5,10 +5,8 @@ const path = require('path');
 const url = require('url');
 const convert = require('xml-js');
 const fs = require('fs');
-const { readdir, stat } = require('fs');
 
 const mm = require('music-metadata');
-const util = require('util');
 const loki = require('lokijs');
 const id3 = require('node-id3');
 const replace = require('replace-in-file');
@@ -20,18 +18,21 @@ let win;
 
 function createWindow() {
   win = new BrowserWindow({
-    title: 'UTSC Music Player',
-    width: 1200,
-    height: 800,
+    title: 'Ballroom Practice Player',
+    show: false,
     icon: __dirname + '/assets/images/ballroom.ico',
     webPreferences: {
       nodeIntegration: true,
-      backgroundThrottling: false
+      backgroundThrottling: false,
+      webSecurity: false
     }
   });
 
-  win.setMenuBarVisibility(false);
-  win.maximize();
+  win.once('ready-to-show', () => {
+    win.setMenuBarVisibility(false);
+    win.maximize();
+    win.show();
+  });
 
   // load the dist folder from Angular
   win.loadURL(
@@ -41,9 +42,6 @@ function createWindow() {
       slashes: true
     })
   );
-
-  // The following is optional and will open the DevTools:
-  // win.webContents.openDevTools()
 
   win.on('closed', () => {
     win = null;
@@ -168,7 +166,7 @@ ipcMain.on('loadPlaylists', async (event, forceUpdate) => {
 
     for (let f = 0; f < folders.length; f++) {
       let folder = folders[f];
-      console.log('loadPlaylists', folder);
+      console.log('loadPlaylists ...', folder);
       await readMetadata(folder, folder, songs, playlists, 0, false, event, forceUpdate);
     }
 
@@ -275,7 +273,7 @@ async function readMetadata(root, folder, songs, playlists, level, readAllFiles,
 }
 
 async function updatePlaylist(playlist, root, lastModified) {
-  console.log('update playlist', path.join(root, playlist.path));
+  //console.log('update playlist', path.join(root, playlist.path));
   let playlistItems = [];
 
   let data = await fs.readFileSync(path.join(root, playlist.path));
@@ -289,30 +287,36 @@ async function updatePlaylist(playlist, root, lastModified) {
       if (Array.isArray(json.smil.body.seq.media)) {
         json.smil.body.seq.media.forEach(async (item) => {
           let src = item.attributes.src;
-          console.log('update playlist', src);
+
+          // ignore playlist items without src
+          if (src && typeof src === 'string') {
+            if (!path.isAbsolute(src)) {
+              src = path.join(root, path.dirname(playlist.path), item.attributes.src);
+            }
+
+            let exists = fs.existsSync(src);
+            playlistItems.push({ absolutePath: src, path: item.attributes.src, exists: exists });
+          }
+        });
+      } else {
+        let item = json.smil.body.seq.media;
+        let src = item.attributes.src;
+
+        // ignore playlist items without src
+        if (src && typeof src === 'string') {
           if (!path.isAbsolute(src)) {
             src = path.join(root, path.dirname(playlist.path), item.attributes.src);
           }
 
           let exists = fs.existsSync(src);
           playlistItems.push({ absolutePath: src, path: item.attributes.src, exists: exists })
-        });
-      } else {
-        let item = json.smil.body.seq.media;
-        let src = item.attributes.src;
-        if (!path.isAbsolute(src)) {
-          src = path.join(root, path.dirname(playlist.path), item.attributes.src);
         }
-
-        let exists = fs.existsSync(src);
-        playlistItems.push({ absolutePath: src, path: item.attributes.src, exists: exists })
       }
     }
   } catch (e) {
     console.log('Could not update playlist', playlist, root, lastModified);
   }
 
-  //console.log(playlistItems);
   playlist.items = playlistItems;
   playlist.lastModified = lastModified;
 }

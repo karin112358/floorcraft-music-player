@@ -42,39 +42,40 @@
     <div class="slots main-container" gdArea="slots">
         <div fxLayout="row" fxLayoutGap="42px" fxLayoutAlign="start stretch">
             <div *ngFor="let slot of slots; let slotIndex = index" fxFlex="0 1 min-content">
-                <mat-menu #slotMenu="matMenu" xPosition="before">
-                    <button mat-menu-item (click)="selectAll(slot)">
-                        <mat-icon>check_box</mat-icon>Select all songs
-                    </button>
-                    <button mat-menu-item (click)="unselectAll(slot)">
-                        <mat-icon>check_box_outline_blank</mat-icon> Unselect all songs
-                    </button>
-                    <hr>
-                    <button mat-menu-item (click)="changeSortOrder(slot, 0)">
-                        <mat-icon>shuffle</mat-icon>Shuffle
-                    </button>
-                    <button mat-menu-item (click)="changeSortOrder(slot, 1)">
-                        <mat-icon>arrow_downward</mat-icon>Sort by playlist sort order
-                    </button>
-                    <button mat-menu-item (click)="changeSortOrder(slot, 2)">
-                        <mat-icon>sort_by_alpha</mat-icon>Sort alphabetically
-                    </button>
-                    <button mat-menu-item (click)="changeSortOrder(slot, 3)">
-                        <mat-icon>queue_music</mat-icon>Sort by genry
-                    </button>
-                    <hr>
-                    <button mat-menu-item *ngIf="!slot.showDetails" (click)="slot.showDetails = true">
-                        <mat-icon>visibility</mat-icon>Show song details
-                    </button>
-                    <button mat-menu-item *ngIf="slot.showDetails" (click)="slot.showDetails = false">
-                        <mat-icon>visibility_off</mat-icon>Hide song details
-                    </button>
-                    <button mat-menu-item matTooltip="Reload playlist" (click)="reloadPlaylist(slot)">
-                        <mat-icon>refresh</mat-icon>Reload playlist
-                    </button>
-                </mat-menu>
+                <div class="slot" [ngClass]="{'active': slotIndex == currentSlotIndex}"
+                    [ngStyle]="{'width': 'calc(' + (100 / slots.length).toString() + 'vw - ' + (42 * slots.length).toString() + 'px)'}">
+                    <mat-menu #slotMenu="matMenu" xPosition="before">
+                        <button mat-menu-item (click)="selectAll(slot)">
+                            <mat-icon>check_box</mat-icon>Select all songs
+                        </button>
+                        <button mat-menu-item (click)="unselectAll(slot)">
+                            <mat-icon>check_box_outline_blank</mat-icon> Unselect all songs
+                        </button>
+                        <hr>
+                        <button mat-menu-item (click)="changeSortOrder(slot, 0)">
+                            <mat-icon>shuffle</mat-icon>Shuffle
+                        </button>
+                        <button mat-menu-item (click)="changeSortOrder(slot, 1)">
+                            <mat-icon>arrow_downward</mat-icon>Sort by playlist sort order
+                        </button>
+                        <button mat-menu-item (click)="changeSortOrder(slot, 2)">
+                            <mat-icon>sort_by_alpha</mat-icon>Sort alphabetically
+                        </button>
+                        <button mat-menu-item (click)="changeSortOrder(slot, 3)">
+                            <mat-icon>queue_music</mat-icon>Sort by genry
+                        </button>
+                        <hr>
+                        <button mat-menu-item *ngIf="!slot.showDetails" (click)="slot.showDetails = true">
+                            <mat-icon>visibility</mat-icon>Show song details
+                        </button>
+                        <button mat-menu-item *ngIf="slot.showDetails" (click)="slot.showDetails = false">
+                            <mat-icon>visibility_off</mat-icon>Hide song details
+                        </button>
+                        <button mat-menu-item matTooltip="Reload playlist" (click)="reloadPlaylist(slot)">
+                            <mat-icon>refresh</mat-icon>Reload playlist
+                        </button>
+                    </mat-menu>
 
-                <div class="slot" [ngClass]="{'active': slotIndex == currentSlotIndex}">
                     <div fxLayout="row" class="slot-header" fxLayoutAlign="start center">
                         <div fxFlex="100%" class="title">
                             <span>{{settings.getDanceFriendlyName(slot.dance)}}</span><span
@@ -92,11 +93,11 @@
                         </div>
                     </div>
 
-                    <mat-list (selectionChange)="toggleSelection($event)">
+                    <mat-list>
                         <mat-list-item *ngFor="let song of slot.items; let songIndex = index"
                             [ngClass]="{'active': songIndex == slot.currentSongIndex}"
                             (dblclick)="moveToSong(slotIndex, songIndex)">
-                            <div gdAreas="overview | details" gdRows="auto auto" class="song"
+                            <div gdAreas="overview | details" gdRows="auto auto" gdColumns="100%" class="song"
                                 [ngClass]="{'not-exists': !song.configuration.exists, 'show-details': slot.showDetails}">
                                 <div gdArea="overview" [matTooltip]="settings.getTooltip(song)"
                                     [matTooltipShowDelay]="1000" [matTooltipHideDelay]="0"
@@ -143,17 +144,21 @@
                     <div fxLayout="row" class="slot-footer" fxLayoutAlign="start center" fxLayoutGap="16px">
                         <div class="speed">Speed {{slot.playbackRate | percent:'1.0-0'}}</div>
                         <div fxLayout="row">
-                            <button mat-icon-button (click)="changePlaybackRate(slot, slot.playbackRate - 0.05)" matTooltip="-5%">
+                            <button mat-icon-button (click)="changePlaybackRate(slot, slot.playbackRate - 0.05)"
+                                matTooltip="-5%">
                                 <mat-icon>keyboard_arrow_left</mat-icon>
                                 <mat-icon>keyboard_arrow_left</mat-icon>
                             </button>
-                            <button mat-icon-button (click)="changePlaybackRate(slot, slot.playbackRate - 0.01)" matTooltip="-1%">
+                            <button mat-icon-button (click)="changePlaybackRate(slot, slot.playbackRate - 0.01)"
+                                matTooltip="-1%">
                                 <mat-icon>keyboard_arrow_left</mat-icon>
                             </button>
-                            <button mat-icon-button (click)="changePlaybackRate(slot, slot.playbackRate + 0.01)" matTooltip="+1%">
+                            <button mat-icon-button (click)="changePlaybackRate(slot, slot.playbackRate + 0.01)"
+                                matTooltip="+1%">
                                 <mat-icon>keyboard_arrow_right</mat-icon>
                             </button>
-                            <button mat-icon-button (click)="changePlaybackRate(slot, slot.playbackRate + 0.05)" matTooltip="+5%">
+                            <button mat-icon-button (click)="changePlaybackRate(slot, slot.playbackRate + 0.05)"
+                                matTooltip="+5%">
                                 <mat-icon>keyboard_arrow_right</mat-icon>
                                 <mat-icon>keyboard_arrow_right</mat-icon>
                             </button>

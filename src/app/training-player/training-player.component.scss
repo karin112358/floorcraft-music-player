@@ -1,16 +1,18 @@
 @import '../../styles/variables.scss';
 
+.slots.main-container > div > div:last-of-type {
+    padding-right: 16px;
+}
+
 .slot {
-    //border: 1px solid #999;
-    // background-color: mat-color($mat-gray, 100);
     padding: 5px 10px 0 10px;
     height: 100%;
     box-sizing: border-box;
-    max-width: 450px;
+    min-width: 360px;
+    max-width: 550px;
 
     .slot-header {
         margin: -5px -10px 0 -10px;
-        // padding: 0 16px;
         border-bottom: 3px solid mat-color($mat-gray, 500);
 
         .title {
@@ -110,9 +112,7 @@
 
     .slot-footer {
         height: 40px;
-        // background-color: mat-color($mat-gray, 300);
         border-top: 3px solid mat-color($mat-gray, 500);
-        // padding: 0 16px;
         margin: 0 -10px 0 -10px;
         color: mat-color($mat-gray, 700);
         text-transform: uppercase;
@@ -133,7 +133,7 @@
             height: 36px;
             line-height: 36px;
             margin-left: 16px;
-            background-color: mat-color($mat-gray, 300);
+            background-color: mat-color($mat-gray, 200);
 
             mat-icon:nth-of-type(2n) {
                 margin-left: -20px;
@@ -164,7 +164,6 @@
         }
 
         .slot-header {
-            // background-color: mat-color($app-primary, 300);
             border-bottom: 3px solid mat-color($app-primary, 400);
 
             .title,
@@ -175,14 +174,6 @@
 
         .slot-footer {
             border-top: 3px solid mat-color($app-primary, 400);
-
-            // .mat-icon-button {
-            //     background-color: mat-color($app-primary, 100);
-
-            //     &:hover {
-            //         background-color: mat-color($app-primary, 200);
-            //     }
-            // }
         }
     }
 }

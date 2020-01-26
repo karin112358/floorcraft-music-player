@@ -143,7 +143,7 @@ export class ManageLibraryComponent implements OnInit, OnDestroy {
     return !this.getPlaylistsForSong(song.absolutePath).length && this.hasDuplicate(song);
   }
 
-  canDeleteSelected(song: any): boolean {
+  canDeleteSelected(): boolean {
     let canDelete = true;
 
     this.songSelection.selected.forEach(s => {

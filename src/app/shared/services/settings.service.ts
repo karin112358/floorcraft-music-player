@@ -274,6 +274,9 @@ export class SettingsService {
     }
   }
 
+  /**
+   * Removes all songs and playlists. The configuration will not be deleted.
+   */
   public async clearDatabase() {
     await this.ipcService.run<any[]>('clearDatabase', 'Clear database');
   }

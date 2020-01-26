@@ -24,10 +24,10 @@ mat-toolbar {
         margin-right: 24px;
         padding: 8px 12px;
         cursor: pointer;
-        font-size: $default-font-size;
+        font-size: 15px;
 
         &.active {
-            border-bottom: 8px solid mat-color($app-primary);
+            border-bottom: 5px solid mat-color($app-primary);
         }
     }
 

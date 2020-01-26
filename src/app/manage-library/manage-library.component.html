@@ -3,7 +3,7 @@
         <div>
             <mat-form-field>
                 <mat-select placeholder="Select mode" [(value)]="selectedMode"
-                    (selectionChange)="modeSelectionChanged($event)">
+                    (selectionChange)="modeSelectionChanged()">
                     <mat-option [value]="0">Manage profile</mat-option>
                     <mat-option [value]="1">Find duplicates</mat-option>
                     <mat-option [value]="2">Find missing dances</mat-option>
