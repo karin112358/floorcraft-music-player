@@ -18,7 +18,7 @@ let win;
 
 function createWindow() {
   win = new BrowserWindow({
-    title: 'Ballroom Practice Player',
+    title: 'Floorcraft Music Player',
     show: false,
     icon: __dirname + '/assets/images/icon.ico',
     webPreferences: {

@@ -1,10 +1,10 @@
 {
-  "name": "utsc-music-app",
+  "name": "floorcraft-music-player",
   "version": "0.1.0",
   "author": {
     "name": "Karin Huber"
   },
-  "description": "Music player for ballroom practice",
+  "description": "Music player for ballroom practice for multiple couples, which can rotate multiple playlists.",
   "main": "main.js",
   "scripts": {
     "ng": "ng",
