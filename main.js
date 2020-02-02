@@ -20,7 +20,7 @@ function createWindow() {
   win = new BrowserWindow({
     title: 'Ballroom Practice Player',
     show: false,
-    icon: __dirname + '/assets/images/ballroom.ico',
+    icon: __dirname + '/assets/images/icon.ico',
     webPreferences: {
       nodeIntegration: true,
       backgroundThrottling: false,
