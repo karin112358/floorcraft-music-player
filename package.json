@@ -40,14 +40,16 @@
       "target": [
         "AppImage"
       ],
-      "category": "Office"
+      "category": "Music"
     },
     "win": {
       "icon": "build/icon.ico",
-      "extraFiles": [ {
-        "from": "build/Floorcraft Music Player.visualelementsmanifest.xml",
-        "to": "Floorcraft Music Player.visualelementsmanifest.xml"
-       } ]
+      "extraFiles": [
+        {
+          "from": "build/Floorcraft Music Player.visualelementsmanifest.xml",
+          "to": "Floorcraft Music Player.visualelementsmanifest.xml"
+        }
+      ]
     }
   },
   "dependencies": {

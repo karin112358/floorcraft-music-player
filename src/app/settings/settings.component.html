@@ -159,9 +159,14 @@
 
     <div fxLayout="row" fxLayoutGap="32px" fxLayoutAlign="space-between">
         <div fxFlex="auto">
-            <button mat-flat-button color="primary" (click)="settings.loadSongs(true)"
-                [disabled]="!settings.musicFolders.length">Reload All Songs</button>
+            <button mat-flat-button color="primary" (click)="settings.loadPlaylists(true)"
+                [disabled]="!settings.musicFolders.length">Reload all playlists</button>
         </div>
+
+        <div fxFlex="auto">
+                <button mat-flat-button color="primary" (click)="settings.loadSongs(true)"
+                    [disabled]="!settings.musicFolders.length">Reload all songs</button>
+            </div>
     </div>
 
     <!-- <div fxLayout="row" fxLayoutGap="32px" fxLayoutAlign="space-between">

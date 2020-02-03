@@ -14,7 +14,8 @@
 }
 
 mat-toolbar {
-    background-color: darken(mat-color($app-primary), 40%);
+    -webkit-app-region: drag;
+    background-color: mat-color($app-accent, 900);
     color: #fff;
     text-transform: uppercase;
 
@@ -54,6 +55,74 @@ mat-toolbar {
         color: mat-color($app-primary);
         font-size: $default-font-size;
     }
+
+    .logo {
+        padding: 8px 12px 0 0;
+
+        img {
+            height: 30px;
+        }
+    }
+
+    .window-controls {
+        height: 48px;
+    }
+
+    #window-controls {
+        -webkit-app-region: no-drag;
+        display: grid;
+        grid-template-columns: repeat(3, 46px);
+        height: 48px;
+        height: 100%;
+        font-family: "Segoe MDL2 Assets";
+        font-size: 10px;
+        margin-left: 36px;
+    }
+
+    #window-controls .button {
+        grid-row: 1 / span 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        user-select: none;
+        cursor: default;
+    }
+
+    #window-controls #min-button {
+        grid-column: 1;
+    }
+
+    #window-controls #max-button,
+    #window-controls #restore-button {
+        grid-column: 2;
+    }
+
+    #window-controls #close-button {
+        grid-column: 3;
+    }
+
+    #window-controls .button:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    #window-controls .button:active {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    #close-button:hover {
+        background: mat-color($app-primary) !important;
+    }
+
+    #close-button:active {
+        background: mat-color($app-primary) !important;
+        color: #000;
+    }
+
+    // #restore-button {
+    //     display: none !important;
+    // }
 }
 
 .mat-toolbar-single-row {

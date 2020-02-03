@@ -20,6 +20,7 @@ function createWindow() {
   win = new BrowserWindow({
     title: 'Floorcraft Music Player',
     show: false,
+    frame: false,
     icon: __dirname + '/assets/images/icon.ico',
     webPreferences: {
       nodeIntegration: true,
@@ -70,7 +71,7 @@ let db = null;
  * Initialize database and load configuration.
  */
 ipcMain.on('initialize', (event) => {
-  db = new loki(path.join(app.getPath('userData'), '/music-player.db'), {
+  db = new loki(path.join(app.getPath('userData'), '/floorcraft-music-player.db'), {
     autoload: true,
     autoloadCallback: (async () => {
       // add collections to database

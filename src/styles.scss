@@ -73,7 +73,7 @@ h2 {
 
 .container-accent {
     color: #fff;
-    background-color: darken(mat-color($app-primary), 40%);
+    background-color: mat-color($app-accent, 900);
     //background-color: mat-color($app-primary, 600);
     padding: 16px;
 }
