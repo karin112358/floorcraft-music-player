@@ -26,6 +26,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { NgxElectronModule } from 'ngx-electron';
 import { SimpleNotificationsModule } from 'angular2-notifications';
 
+import { IsLoadingService } from '@service-work/is-loading';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { PracticePlayerComponent } from './practice-player/practice-player.component';
@@ -73,7 +75,7 @@ import { ManagePlaylistsComponent } from './manage-playlists/manage-playlists.co
     StorageModule.forRoot({ IDBNoWrap: true }),
     SimpleNotificationsModule.forRoot()
   ],
-  providers: [],
+  providers: [IsLoadingService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

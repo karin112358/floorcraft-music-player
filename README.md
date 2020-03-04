@@ -1,27 +1,39 @@
 # Floorcraft Music Player
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.2.1.
+Music player for dance sport studios that supports the standard dances Waltz, Tango, Viennese Waltz, Slow Foxtrot, and Quickstep and the latin dances Samba, Cha Cha Cha, Rumba, Paso Doble, and Jive.
 
-## Development server
+## Prerequisites
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+- Windows 7 and later
+- You need to have at least one [Windows Media Player](https://support.microsoft.com/en-us/help/14209/get-windows-media-player) playlist for each dance. The Floorcraft Music Player is not able to create or modify playlists. It depends on the playlists configured in Windows Media Player.
 
-## Code scaffolding
+## Installation
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+1. Get the latest version from [GitHub](https://github.com/karin112358/floorcraft-music-player/releases).
+2. Download Floorcraft.Music.Player.Setup.x.y.z.exe.
+3. Run Floorcraft.Music.Player.Setup.x.y.z.exe.
+4. When the setup has finished the player is started automatically.
 
-## Build
+## Configuration
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+When the player is started the first time, the settings page is shown.
 
-## Running unit tests
+![Empty settings](docs/images/settings-empty.png)
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+First you have to select the music folder. Then you can select the default playlist for each dance.
 
-## Running end-to-end tests
+![Settings](docs/images/settings.png)
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+## Features
 
-## Further help
+### Training Mode
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+In training mode you can select multiple dances that will be played alternately.
+
+![Training mode](docs/images/training-mode.png)
+
+### Practice Mode
+
+In practice mode you can create rounds with the desired length, number of heats and pause length.
+
+![Practice mode](docs/images/practice-mode.png)

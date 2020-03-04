@@ -20,6 +20,7 @@ mat-toolbar {
     text-transform: uppercase;
 
     a {
+        -webkit-app-region: no-drag;
         color: #fff;
         text-decoration: none;
         margin-right: 24px;
@@ -126,7 +127,7 @@ mat-toolbar {
 }
 
 .mat-toolbar-single-row {
-    padding: 0 16px;
+    padding: 0 0 0 16px;
     height: 48px;
 }
 

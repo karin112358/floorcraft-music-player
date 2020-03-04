@@ -1,5 +1,5 @@
 <mat-toolbar>
-    <span class="logo"><img src="../assets/images/icon.png" title="Floorcraft Music Player" /></span>
+    <span class="logo"><img src="./assets/images/icon.png" title="Floorcraft Music Player" /></span>
 
     <span>
         <a routerLink="/training" routerLinkActive="active">Training</a>
@@ -14,8 +14,8 @@
     </span>
     <span class="settings">
         <a routerLink="/settings" routerLinkActive="active">Settings</a>
-        <a routerLink="/manage-library" routerLinkActive="active">Library</a>
-        <a routerLink="/manage-playlists" routerLinkActive="active">Playlists</a>
+        <!-- <a routerLink="/manage-library" routerLinkActive="active">Library</a>
+        <a routerLink="/manage-playlists" routerLinkActive="active">Playlists</a> -->
         <!-- <a (click)="settings.loadPlaylists()" matTooltip="Reload playlists">
             <mat-icon>queue_music</mat-icon>
         </a>
@@ -29,12 +29,12 @@
             <div class="button" id="min-button" (click)="minimizeWindow()">
                 <span>&#xE921;</span>
             </div>
-            <div class="button" id="max-button" (click)="maximizeWindow()" [hidden]="window?.isFullScreen()">
+            <div class="button" id="max-button" (click)="maximizeWindow()">
                 <span>&#xE922;</span>
             </div>
-            <div class="button" id="restore-button" (click)="restoreWindow()" [hidden]="!window?.isFullScreen()">
+            <!-- <div class="button" id="restore-button" (click)="restoreWindow()" [hidden]="!window?.isMaximized()">
                 <span>&#xE923;</span>
-            </div>
+            </div> -->
             <div class="button" id="close-button" (click)="closeWindow()">
                 <span>&#xE8BB;</span>
             </div>
@@ -43,6 +43,9 @@
 </mat-toolbar>
 
 <div class="content">
+    <mat-progress-bar *ngIf="isLoading | async" mode="indeterminate" color="warn">
+    </mat-progress-bar>
+
     <router-outlet></router-outlet>
     <div class="busy" *ngIf="!settings.initialized" fxLayout="column" fxFlexFill fxLayoutAlign="center center">
         <mat-spinner [diameter]="48"></mat-spinner>

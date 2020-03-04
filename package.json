@@ -7,12 +7,6 @@
   "description": "Music player for ballroom practice for multiple couples, which can rotate multiple playlists.",
   "main": "main.js",
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e",
     "electron": "ng build --base-href ./ && electron .",
     "pack": "electron-builder --dir",
     "release": "ng build --prod && electron-builder --windows --publish=never"
@@ -53,6 +47,7 @@
     }
   },
   "dependencies": {
+    "@service-work/is-loading": "^3.0.3",
     "electron-store": "^5.1.0",
     "fs": "0.0.1-security",
     "lokijs": "^1.5.7",
