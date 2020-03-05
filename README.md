@@ -1,10 +1,10 @@
 # Floorcraft Music Player
 
-Music player for dance sport studios that supports the standard dances Waltz, Tango, Viennese Waltz, Slow Foxtrot, and Quickstep and the latin dances Samba, Cha Cha Cha, Rumba, Paso Doble, and Jive.
+Music player for dance sport studios.
 
 ## Prerequisites
 
-- Windows 7 and later
+- Windows 7 or later
 - You need to have at least one [Windows Media Player](https://support.microsoft.com/en-us/help/14209/get-windows-media-player) playlist for each dance. The Floorcraft Music Player is not able to create or modify playlists. It depends on the playlists configured in Windows Media Player.
 
 ## Installation
