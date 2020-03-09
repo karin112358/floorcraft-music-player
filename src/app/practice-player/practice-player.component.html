@@ -49,6 +49,31 @@
                 </mat-form-field>
             </div>
 
+            <div class="configuration-input">
+                <mat-form-field class="playbackRate">
+                    <input [disabled]="isPlaying" matInput type="text" placeholder="Speed [%]"
+                        [value]="playbackRate | percent:'1.0-0'" [disabled]="true">
+
+                    <button mat-icon-button [disabled]="isPlaying" (click)="playbackRate = playbackRate - 0.05" matTooltip="-5%">
+                        <mat-icon>keyboard_arrow_left</mat-icon>
+                        <mat-icon>keyboard_arrow_left</mat-icon>
+                    </button>
+                    <button mat-icon-button [disabled]="isPlaying" (click)="playbackRate = playbackRate - 0.01" matTooltip="-1%">
+                        <mat-icon>keyboard_arrow_left</mat-icon>
+                    </button>
+                    <button mat-icon-button [disabled]="isPlaying" (click)="playbackRate = playbackRate + 0.01" matTooltip="+1%">
+                        <mat-icon>keyboard_arrow_right</mat-icon>
+                    </button>
+                    <button mat-icon-button [disabled]="isPlaying" (click)="playbackRate = playbackRate + 0.05" matTooltip="+5%">
+                        <mat-icon>keyboard_arrow_right</mat-icon>
+                        <mat-icon>keyboard_arrow_right</mat-icon>
+                    </button>
+                    <button mat-icon-button [disabled]="isPlaying" (click)="playbackRate = 1" matTooltip="Reset speed">
+                        <mat-icon>undo</mat-icon>
+                    </button>
+                </mat-form-field>
+            </div>
+
             <div>
                 <button mat-flat-button [disabled]="isPlaying" color="primary" (click)="configurePractice()">
                     <mat-icon>create</mat-icon> Create custom

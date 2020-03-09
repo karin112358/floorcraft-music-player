@@ -1,8 +1,45 @@
+@import '../../styles/variables.scss';
+
 .settings {
     padding-bottom: 0;
 
     mat-form-field {
         width: 100px;
+    }
+
+    .playbackRate {
+        width: 180px;
+
+        input {
+            width: 40px;
+        }
+
+        .mat-icon-button {
+            width: 14px;
+            height: 14px;
+            line-height: 14px;
+            margin-left: 10px;
+            background-color: mat-color($mat-gray, 200);
+            background-color: transparent;
+
+            &:last-of-type {
+                margin-left: 20px;
+            }
+
+            mat-icon {
+                width: 14px;
+                height: 14px;
+                font-size: 14px;
+            }
+
+            mat-icon:nth-of-type(2n) {
+                margin-left: -18px;
+            }
+
+            &:hover {
+                background-color: mat-color($mat-gray, 400);
+            }
+        }
     }
 }
 

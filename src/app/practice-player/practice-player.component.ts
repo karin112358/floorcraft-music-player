@@ -16,6 +16,7 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
   public songDuration = 120;
   public pauseDuration = 10;
   public heats = 2;
+  public playbackRate = 1;
 
   public practiceConfigured = false;
   public currentPractice = new PracticePlaylist();
@@ -69,6 +70,7 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
     this.heats = 2;
     this.songDuration = 120;
     this.pauseDuration = 10;
+    this.playbackRate = 1;
     this.configurePractice();
   }
 
@@ -76,6 +78,7 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
     this.heats = 1;
     this.songDuration = 100;
     this.pauseDuration = 20;
+    this.playbackRate = 1;
     this.configurePractice();
   }
 
@@ -103,7 +106,7 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
       retryCount++;
     }
 
-    const newPlaylistItem = new PlaylistItem(this.practicePlaylistsSongs[dance][index], this.songDuration);
+    const newPlaylistItem = new PlaylistItem(this.practicePlaylistsSongs[dance][index], this.songDuration, false, this.playbackRate);
     dancePlaylist.items.splice(heat, 1, newPlaylistItem);
     return newPlaylistItem;
   }
@@ -161,6 +164,7 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
           try {
             this.audio.src = this.currentSong.configuration.absolutePath;
             this.audio.currentTime = this.currentSong.progress;
+            this.audio.playbackRate = this.currentSong.playbackRate;
             this.audio.play();
             this.currentSong.duration = await this.getCurrentSongDuration();
 
@@ -292,7 +296,7 @@ export class PracticePlayerComponent implements OnInit, OnDestroy {
           retryCount++;
         }
 
-        dancePlaylist.items.push(new PlaylistItem(this.practicePlaylistsSongs[dance][index], this.songDuration));
+        dancePlaylist.items.push(new PlaylistItem(this.practicePlaylistsSongs[dance][index], this.songDuration, false, this.playbackRate));
       }
 
       this.currentPractice.dances.push(dancePlaylist);
